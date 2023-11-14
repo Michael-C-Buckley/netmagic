@@ -36,10 +36,12 @@ def get_device_type(host: HostType, port: int = 22) -> BannerResponse:
     """
     banner_kwargs = {k:v for k, v in locals().items()}
     try:
+
         inet_map = {
             IPv4: AF_INET,
             IPv6: AF_INET6
         }
+        
         s = socket(inet_map.get(type(host)), SOCK_STREAM)
         banner_kwargs['sent_time'] = time()
         s.connect((str(host), int(port)))

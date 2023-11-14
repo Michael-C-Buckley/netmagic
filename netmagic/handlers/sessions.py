@@ -1,13 +1,15 @@
 
 # Python Modules
 from typing import Iterable
+from datetime import datetime
 
 # Third-Party Modules
-from netmiko import BaseConnection
+from netmiko import BaseConnection, ReadTimeout
 
 # Local Modules
-from netmagic.definitions import HostType
+from netmagic.definitions import HostType, CommandContainer
 from netmagic.handlers.connect import netmiko_connect
+from netmagic.handlers.response import CommandResponse
 
 # SEE BOTTOM FOR TYPE CONSTANTS
 # INCLUDES: AnySession, SessionContainer
@@ -86,6 +88,44 @@ class SSHSession(Session):
         """
         return self.prompt
     
+    # COMMANDS
+
+    def command_try_loop(self, command_string: str, expect_string: str = None,
+                         read_timeout: float = 10.0, *args, **kwargs) -> str|Exception:
+        """
+        """
+        command_kwargs = {k:v for k,v in locals().items() if k not in ['args', 'kwargs', 'self']}
+        command_kwargs = {**kwargs, **command_kwargs}
+        try:
+            return self.connection.send_command(*args, **command_kwargs)
+        except ReadTimeout as e:
+            return e
+        
+
+
+    def command(self, command: CommandContainer, expect_string: str = None,
+                blind: bool = False, *args, **kwargs) -> CommandResponse:
+        """
+        """
+        if not self.connection:
+            # Error handling and potential reconnecting
+            raise AttributeError('No active session to send commands to')
+
+        output_list = []
+
+        # Enter enable mode if needed
+
+        # Handle blind
+        if blind:
+            pass
+
+        # Handle a single command first
+        sent_time = datetime.now()
+        output = self.command_try_loop(command, expect_string, *args, **kwargs)
+        received_time = datetime.now()
+        response = CommandResponse(command, output, sent_time, received_time, self, expect_string)
+        self.command_log.append(response)
+        return response
 
 class NETCONFSession(Session):
     """

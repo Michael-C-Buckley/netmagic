@@ -6,7 +6,6 @@ from ipaddress import (
     IPv4Address as IPv4,
     IPv6Address as IPv6
 )
-from typing import Iterable
 
 # Third-Party Modules
 from mactools import MacAddress
@@ -69,4 +68,11 @@ class Device:
                     session.connect()
 
     
-    
+    # COMMANDS
+
+    def command(self, *args, **kwargs):
+        """
+        Pass-through for terminal commands to the SSH session
+        """
+        if isinstance(self.ssh_session, SSHSession):
+            return self.ssh_session.command(*args, **kwargs)

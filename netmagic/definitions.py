@@ -14,3 +14,4 @@ if TYPE_CHECKING:
     )
 
 HostType = str|IPv4|IPv6
+CommandContainer = str|list[str]
