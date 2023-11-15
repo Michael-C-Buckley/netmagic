@@ -1,9 +1,12 @@
 # Project NetMagic Networking Device Library
 
+# Third-Party Modules
 from mactools import MacAddress
 
-from netmagic.handlers.sessions import CommandResponse, Session
+# Local Modules
 from netmagic.devices import Device
+from netmagic.handlers.response import CommandResponse
+from netmagic.sessions.session import Session
 
 class NetworkDevice(Device):
     """
@@ -44,7 +47,7 @@ class NetworkDevice(Device):
         """
 
     def write_memory(self):
-        return self.ssh_session.connection.send_command('write memory')
+        return self.cli_session.connection.send_command('write memory')
     
     # IDENTITY AND STATUS
 

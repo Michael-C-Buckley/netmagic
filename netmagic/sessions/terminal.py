@@ -1,4 +1,4 @@
-# Project NetMagic Sessions
+# Project NetMagic Terminal Session Module
 
 # Python Modules
 from datetime import datetime
@@ -17,32 +17,13 @@ from netmiko import (
 )
 
 # Local Modules
+from netmagic.sessions.session import Session
 from netmagic.handlers.response import CommandResponse
 from netmagic.handlers.connect import netmiko_connect
 
-class Session:
+class TerminalSession(Session):
     """
-    Base class for configuration or interaction session
-    """
-    def __init__(self, host: str|IPv4|IPv6, username: str, password: str,
-                 port: int = 22, connection: BaseConnection = None,
-                 *args, **kwargs) -> None:
-        self.connection = connection
-        self.username = username
-        self.password = password
-        self.host = host
-        self.port = port
-
-    def connect(self) -> None:
-        pass
-
-    def disconnect(self) -> None:
-        self.connection = None
-
-
-class SSHSession(Session):
-    """
-    Container for SSH session
+    Container for Terminal-based CLI session on SSH, Telnet, serial, etc.
     """
     def __init__(self, host: str|IPv4|IPv6, username: str, password: str,
                  device_type: str, connection: BaseConnection = None,
@@ -187,34 +168,3 @@ class SSHSession(Session):
                     raise AttributeError(no_session_string)
         
         return response
-
-class NETCONFSession(Session):
-    """
-    Container for NETCONF Session via `ncclient`
-    """
-    def __init__(self) -> None:
-        super().__init__()
-
-    def connect(self) -> None:
-        """"""
-        super().connect()
-
-    def disconnect(self) -> None:
-        """"""
-        super().disconnect()
-
-
-class RESTCONFSession(Session):
-    """
-    Container for RESTCONF Session
-    """
-    def __init__(self) -> None:
-        super().__init__()
-
-    def connect(self) -> None:
-        """"""
-        super().connect()
-
-    def disconnect(self) -> None:
-        """"""
-        super().disconnect()

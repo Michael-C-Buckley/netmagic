@@ -9,7 +9,7 @@ from mactools import MacAddress
 
 # Local Modules
 from netmagic.devices import NetworkDevice
-from netmagic.handlers.sessions import CommandResponse, Session
+from netmagic.sessions.session import Session
 
 class Switch(NetworkDevice):
     """

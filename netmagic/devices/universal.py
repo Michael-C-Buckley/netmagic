@@ -1,15 +1,17 @@
 # Project NetMagic Universal Device Library
 
+# Python Modules
+
 # Third-Party Modules
 from mactools import MacAddress
 
 # Local Modules
-from netmagic.handlers.sessions import (
-    Session,
-    SSHSession,
+from netmagic.sessions.session import (
     RESTCONFSession,
     NETCONFSession
 )
+from netmagic.sessions.session import Session
+from netmagic.sessions.terminal import TerminalSession
 
 class Device:
     """
@@ -19,14 +21,14 @@ class Device:
         self.mac: MacAddress = None
         self.hostname = None
 
-        self.ssh_session: SSHSession = None
+        self.cli_session: TerminalSession = None
         self.netconf_session: NETCONFSession = None
         self.restconf_session: RESTCONFSession = None
 
         def assign_session(session: Session) -> None:
             if isinstance(session, Session):
                 session_map = {
-                    SSHSession: 'ssh_session',
+                    TerminalSession: 'cli_session',
                     NETCONFSession: 'netconf_session',
                     RESTCONFSession: 'restconf_session',
                 }
@@ -45,7 +47,7 @@ class Device:
         """
         Closes all open sessions
         """
-        for session in [self.ssh_session, self.restconf_session, self.netconf_session]:
+        for session in [self.cli_session, self.restconf_session, self.netconf_session]:
             if isinstance(session, Session):
                 session.disconnect()
 
@@ -53,7 +55,7 @@ class Device:
         """
         Attempts to reconnect non-active sessions
         """
-        for session in [self.ssh_session, self.restconf_session, self.netconf_session]:
+        for session in [self.cli_session, self.restconf_session, self.netconf_session]:
             if isinstance(session, Session):
                 if not session.connection:
                     session.connect()
@@ -62,6 +64,6 @@ class Device:
 
     def command(self, *args, **kwargs):
         """
-        Pass-through for terminal commands to the SSH session
+        Pass-through for terminal commands to the terminal session
         """
-        return self.ssh_session.command(*args, **kwargs)
+        return self.cli_session.command(*args, **kwargs)

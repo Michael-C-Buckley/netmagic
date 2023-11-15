@@ -11,7 +11,7 @@ from ipaddress import (
 
 if TYPE_CHECKING:
     from netmagic.devices import Device
-    from netmagic.handlers.sessions import SSHSession
+    from netmagic.sessions.terminal import TerminalSession
 
 class Response:
     """
@@ -51,7 +51,7 @@ class CommandResponse(Response):
     Simple object for capturing info for various details of a Netmiko `command`
     """
     def __init__(self, response: str, command_string: str, sent_time: datetime,
-                session: 'SSHSession', expect_string: str, success: bool = True,
+                session: 'TerminalSession', expect_string: str, success: bool = True,
                 received_time: datetime = None) -> None:
         self.command_string = command_string
         self.expect_string = expect_string
