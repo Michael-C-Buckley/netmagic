@@ -40,13 +40,19 @@ class CommandResponse(Response):
     """
     Simple object for capturing info for various details of a Netmiko `command`
     """
-    def __init__(self, input: str, response: str, sent_time: datetime,
-                 received_time: datetime, session: 'SSHSession', expect_string: str) -> None:
-        self.input = input
+    def __init__(self, response: str, command_string: str, sent_time: datetime,
+                session: 'SSHSession', expect_string: str, success: bool = True,
+                received_time: datetime = None) -> None:
+        self.command_string = command_string
         self.expect_string = expect_string
         self.session = session
+        self.success = success
+
+        if not received_time:
+            received_time = datetime.now()
+        
         super().__init__(response, sent_time, received_time)
 
     def __repr__(self) -> str:
-        # return f'[{self.device.hostname}] RE: {self.input}'
-        return f'RE({self.session.host}): {self.input}'
+        # return f'[{self.device.hostname}] RE: {self.command_string}'
+        return f'RE({self.session.host}): {self.command_string}'

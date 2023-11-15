@@ -67,12 +67,10 @@ class Device:
                 if not session.connection:
                     session.connect()
 
-    
     # COMMANDS
 
     def command(self, *args, **kwargs):
         """
         Pass-through for terminal commands to the SSH session
         """
-        if isinstance(self.ssh_session, SSHSession):
-            return self.ssh_session.command(*args, **kwargs)
+        return self.ssh_session.command(*args, **kwargs)
