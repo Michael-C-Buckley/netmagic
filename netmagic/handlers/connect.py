@@ -1,7 +1,8 @@
-from netmiko import BaseConnection, ConnectHandler
+# Project NetMagic Connection Handler Module
+
+# Python Moduls
 from socket import (
     socket, gaierror,
-    AF_INET, AF_INET6,
     SOCK_STREAM,
     getaddrinfo
 )
@@ -12,6 +13,10 @@ from ipaddress import (
     IPv6Address as IPv6
 )
 
+# Third-Party Modules
+from netmiko import BaseConnection, ConnectHandler
+
+# Local Modules
 from netmagic.handlers.response import BannerResponse
 
 def netmiko_connect(host: str|IPv4|IPv6, port: int, username: str, password: str,
@@ -44,9 +49,9 @@ def get_device_type(host: str|IPv4|IPv6, port: int = 22) -> BannerResponse:
     banner_kwargs = {k:v for k, v in locals().items()}
     try:
         addr_info = getaddrinfo(host, port, type=SOCK_STREAM)
-        with socket(addr_info[0][0], SOCK_STREAM) as banner_socket:
-            banner_socket.connect((host, int(port)))
-            banner = banner_socket.recv(1024).decode('utf-8;', errors='ignore').strip('\n').strip('\r')
+        with socket(addr_info[0][0], SOCK_STREAM) as open_socket:
+            open_socket.connect((host, int(port)))
+            banner = open_socket.recv(1024).decode('utf-8;', errors='ignore').strip('\n').strip('\r')
     except (TimeoutError, ConnectionRefusedError, gaierror) as e:
         return BannerResponse(e, **banner_kwargs)
     else:

@@ -1,19 +1,10 @@
-# Project NetMagic
-# Universal Device Library
+# Project NetMagic Universal Device Library
 
-# Python Modules
-from ipaddress import (
-    IPv4Address as IPv4,
-    IPv6Address as IPv6
-)
-from typing import Sequence
 # Third-Party Modules
 from mactools import MacAddress
 
 # Local Modules
 from netmagic.handlers.sessions import (
-    # AnySession,
-    # SessionContainer,
     Session,
     SSHSession,
     RESTCONFSession,

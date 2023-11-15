@@ -1,8 +1,9 @@
 # NetMagic Router Library
 
-from netmagic.devices.universal import Device
+# Local Modules
+from netmagic.devices import NetworkDevice
 
-class Router(Device):
+class Router(NetworkDevice):
     """
     Generic router base class
     """

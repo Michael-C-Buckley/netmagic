@@ -1,3 +1,6 @@
+# Project NetMagic Response Handler Module
+
+# Python Modules
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -7,7 +10,7 @@ from ipaddress import (
 )
 
 if TYPE_CHECKING:
-    from netmagic.devices.universal import Device
+    from netmagic.devices import Device
     from netmagic.handlers.sessions import SSHSession
 
 class Response:

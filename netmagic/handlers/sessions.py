@@ -17,8 +17,8 @@ from netmiko import (
 )
 
 # Local Modules
-from netmagic.handlers.connect import netmiko_connect
 from netmagic.handlers.response import CommandResponse
+from netmagic.handlers.connect import netmiko_connect
 
 class Session:
     """
