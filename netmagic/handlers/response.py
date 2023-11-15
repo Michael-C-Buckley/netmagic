@@ -1,18 +1,25 @@
 from datetime import datetime
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
+
+from ipaddress import (
+    IPv4Address as IPv4,
+    IPv6Address as IPv6
+)
 
 if TYPE_CHECKING:
     from netmagic.devices.universal import Device
     from netmagic.handlers.sessions import SSHSession
-
-from netmagic.definitions import HostType
 
 class Response:
     """
     Response base class for `BannerResponse` and `CommandResponse`    
     """
     def __init__(self, response: str, sent_time: datetime,
-                 received_time: datetime) -> None:
+                 received_time: datetime = None) -> None:
+        
+        if not received_time:
+            received_time = datetime.now()
+        
         self.response = response
         self.sent_time = sent_time
         self.received_time = received_time
@@ -26,8 +33,8 @@ class BannerResponse(Response):
     """
     Simple object for capturing the info from a banner grab for identifying devices.
     """
-    def __init__(self, response: str, host: HostType, port: int,
-                 sent_time: datetime, received_time: datetime) -> None:
+    def __init__(self, response: str, host: str|IPv4|IPv6, port: int,
+                 sent_time: datetime, received_time: datetime = None) -> None:
         self.host = host
         self.port = port
         super().__init__(response, sent_time, received_time)
@@ -47,9 +54,6 @@ class CommandResponse(Response):
         self.expect_string = expect_string
         self.session = session
         self.success = success
-
-        if not received_time:
-            received_time = datetime.now()
         
         super().__init__(response, sent_time, received_time)
 

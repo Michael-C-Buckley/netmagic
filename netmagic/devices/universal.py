@@ -6,14 +6,14 @@ from ipaddress import (
     IPv4Address as IPv4,
     IPv6Address as IPv6
 )
-
+from typing import Sequence
 # Third-Party Modules
 from mactools import MacAddress
 
 # Local Modules
 from netmagic.handlers.sessions import (
-    AnySession,
-    SessionContainer,
+    # AnySession,
+    # SessionContainer,
     Session,
     SSHSession,
     RESTCONFSession,
@@ -24,7 +24,7 @@ class Device:
     """
     Base class for automation and programmability
     """
-    def __init__(self, session: SessionContainer) -> None:
+    def __init__(self, session: Session) -> None:
         self.mac: MacAddress = None
         self.hostname = None
 
@@ -32,8 +32,8 @@ class Device:
         self.netconf_session: NETCONFSession = None
         self.restconf_session: RESTCONFSession = None
 
-        def assign_session(session: AnySession) -> None:
-            if isinstance(session, AnySession):
+        def assign_session(session: Session) -> None:
+            if isinstance(session, Session):
                 session_map = {
                     SSHSession: 'ssh_session',
                     NETCONFSession: 'netconf_session',
@@ -43,7 +43,7 @@ class Device:
                     setattr(self, session_attribute, session)
                 # LOG UNASSIGNED SESSION
 
-        if isinstance(session, AnySession):
+        if isinstance(session, Session):
             assign_session(session)
         elif isinstance(session, list) or isinstance(session, tuple):
             for element in session:

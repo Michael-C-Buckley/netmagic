@@ -1,37 +1,32 @@
+# Project NetMagic Sessions
 
 # Python Modules
 from datetime import datetime
-from serial import SerialException
 from time import sleep
-from typing import Any, Iterable
+from typing import Any
+
+from ipaddress import (
+    IPv4Address as IPv4,
+    IPv6Address as IPv6,
+)
 
 # Third-Party Modules
 from netmiko import (
-    BaseConnection,
-    ReadTimeout,
+    BaseConnection, ReadTimeout,
     NetmikoAuthenticationException,
 )
 
 # Local Modules
-from netmagic.definitions import HostType, CommandContainer
 from netmagic.handlers.connect import netmiko_connect
 from netmagic.handlers.response import CommandResponse
-
-# SEE BOTTOM FOR TYPE CONSTANTS
-# INCLUDES: AnySession, SessionContainer
 
 class Session:
     """
     Base class for configuration or interaction session
     """
-    def __init__(self,
-                 connection: BaseConnection,
-                 host: HostType,
-                 username: str,
-                 password: str,
-                 port: int = 22,
-                 *args, **kwargs
-                 ) -> None:
+    def __init__(self, host: str|IPv4|IPv6, username: str, password: str,
+                 port: int = 22, connection: BaseConnection = None,
+                 *args, **kwargs) -> None:
         self.connection = connection
         self.username = username
         self.password = password
@@ -49,18 +44,11 @@ class SSHSession(Session):
     """
     Container for SSH session
     """
-    def __init__(self,
-                 connection: BaseConnection,
-                 device_type: str,
-                 host: HostType,
-                 username: str,
-                 password: str,
-                 secret: str = None,
-                 port: int = 22,
-                 engine: str = 'netmiko',
-                 *args, **kwargs
-                 ) -> None:
-        super().__init__(connection, host, username, password, port)
+    def __init__(self, host: str|IPv4|IPv6, username: str, password: str,
+                 device_type: str, connection: BaseConnection = None,
+                 secret: str = None, port: int = 22, engine: str = 'netmiko',
+                 *args, **kwargs) -> None:
+        super().__init__(host, username, password, port, connection)
         self.secret = secret
         self.engine = engine
         self.device_type = device_type
@@ -68,9 +56,7 @@ class SSHSession(Session):
         # Collect the remaining kwargs to offer when reconnecting
         self.connection_kwargs = {**kwargs}
         
-
         self.command_log: list[CommandResponse] = []
-        self.prompt = None
 
     # CONNECTION HANDLING
 
@@ -100,7 +86,7 @@ class SSHSession(Session):
             try:
                 self.connection = netmiko_connect(**local_connection_kwargs)
                 return True
-            except (NetmikoAuthenticationException, SerialException):
+            except NetmikoAuthenticationException:
                 self.connection = None
                 if attempt < max_tries:
                     sleep(5)
@@ -147,7 +133,7 @@ class SSHSession(Session):
         except ReadTimeout as e:
             return e
 
-    def command(self, command_string: CommandContainer, expect_string: str = None,
+    def command(self, command_string: str|list[str], expect_string: str = None,
                 blind: bool = False, max_tries: int = 3, *args, **kwargs) -> CommandResponse:
         """
         """
@@ -232,7 +218,3 @@ class RESTCONFSession(Session):
     def disconnect(self) -> None:
         """"""
         super().disconnect()
-
-
-AnySession = Session|SSHSession|NETCONFSession|RESTCONFSession
-SessionContainer = Iterable[AnySession]|AnySession
