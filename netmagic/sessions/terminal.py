@@ -47,6 +47,11 @@ class TerminalSession(Session):
         Connect SSH session using the selected attributes.
         Returns `bool` on success or failure.
         """
+
+        if isinstance(self.connection, BaseConnection):
+            if self.check_session():
+                return True
+
         max_tries = int(max_tries)
         if max_tries > 1:
             raise ValueError('`max_tries` count must be `1` or greater.')

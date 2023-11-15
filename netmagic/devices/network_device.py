@@ -1,12 +1,10 @@
 # Project NetMagic Networking Device Library
 
-# Third-Party Modules
-from mactools import MacAddress
-
 # Local Modules
 from netmagic.devices import Device
 from netmagic.handlers.response import CommandResponse
-from netmagic.sessions.session import Session
+from netmagic.sessions.session import Session, RESTCONFSession, NETCONFSession
+from netmagic.sessions.terminal import TerminalSession
 
 class NetworkDevice(Device):
     """
@@ -14,8 +12,51 @@ class NetworkDevice(Device):
     networking equipment, such as switches and routers that servers do not have.
     """
     def __init__(self, session: Session) -> None:
-        super().__init__(session)
-        self.mac: MacAddress = None # GET CHASSIS/MANAGEMENT MAC
+        super().__init__()
+
+        self.netconf_session: NETCONFSession = None
+        self.restconf_session: RESTCONFSession = None
+
+        def assign_session(session: Session) -> None:
+            if isinstance(session, Session):
+                session_map = {
+                    TerminalSession: 'cli_session',
+                    NETCONFSession: 'netconf_session',
+                    RESTCONFSession: 'restconf_session',
+                }
+                if (session_attribute := session_map.get(type(session))):
+                    setattr(self, session_attribute, session)
+                # LOG UNASSIGNED SESSION
+
+        if isinstance(session, Session):
+            assign_session(session)
+        elif isinstance(session, list) or isinstance(session, tuple):
+            for element in session:
+                assign_session(element)
+
+    def disconnect(self, session: Session = None) -> None:
+        """
+        Closes specified session or all sessions
+        """
+        if session:
+            session.disconnect() if isinstance(session, Session) else None
+            return
+        
+        for session in [self.cli_session, self.restconf_session, self.netconf_session]:
+            session.disconnect() if isinstance(session, Session) else None
+                    
+    def connect(self, session: Session = None) -> None:
+        """
+        Attempts to reconnect non-active sessions
+        """
+        if session:
+            session.connect() if isinstance(session, Session) else None
+            return
+        
+        for session in [self.cli_session, self.restconf_session, self.netconf_session]:
+            if isinstance(session, Session):
+                if not session.connection:
+                    session.connect()
 
     def not_implemeneted_error_generic(self):
         """
