@@ -90,7 +90,7 @@ class TerminalSession(Session):
         `reconnect` will automatically replace the session if bad.
         """
         if escape_attempt:
-            for _ in range(3):
+            for i in range(3):
                 for char in ['\x1B', '\x03']:
                     self.connection.write_channel(char)
                 
@@ -104,7 +104,8 @@ class TerminalSession(Session):
         """
         Generic stand-in that returns the prompt for non-specific devices
         """
-        return self.prompt
+        if isinstance(self.connection, BaseConnection):
+            return self.connection.find_prompt()
     
     # COMMANDS
 
@@ -164,7 +165,7 @@ class TerminalSession(Session):
             self.command_log.append(response)
             return response
 
-        for _ in range(max_tries):
+        for i in range(max_tries):
             response = execute_command()
             if isinstance(response.response, str):
                 break

@@ -18,7 +18,7 @@ class Response:
     Response base class for `BannerResponse` and `CommandResponse`    
     """
     def __init__(self, response: str, sent_time: datetime,
-                 received_time: datetime = None) -> None:
+                 received_time: datetime = None, attempts: int = 1) -> None:
         
         if not received_time:
             received_time = datetime.now()
@@ -27,6 +27,7 @@ class Response:
         self.sent_time = sent_time
         self.received_time = received_time
         self.latency = self.received_time - self.sent_time
+        self.retries = attempts
 
     def __str__(self) -> str:
         return self.response
@@ -52,14 +53,27 @@ class CommandResponse(Response):
     """
     def __init__(self, response: str, command_string: str, sent_time: datetime,
                 session: 'TerminalSession', expect_string: str, success: bool = True,
-                received_time: datetime = None) -> None:
+                received_time: datetime = None, attempts: int = 1) -> None:
         self.command_string = command_string
         self.expect_string = expect_string
         self.session = session
         self.success = success
         
-        super().__init__(response, sent_time, received_time)
+        super().__init__(response, sent_time, received_time, attempts)
 
     def __repr__(self) -> str:
         # return f'[{self.device.hostname}] RE: {self.command_string}'
         return f'RE({self.session.host}): {self.command_string}'
+    
+class ConfigResponse(Response):
+    """
+    Simple objects for capturing info for a CLI configuration
+    """
+    def __init__(self, response: str, config: str, sent_time: datetime,
+                session: 'TerminalSession', success: bool = True,
+                received_time: datetime = None, attempts: int = 1) -> None:
+        super().__init__(response, sent_time, received_time, attempts)
+        self.config_sent = config
+        self.session = session
+        self.success = success
+        

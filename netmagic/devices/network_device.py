@@ -1,8 +1,15 @@
 # Project NetMagic Networking Device Library
 
+# Python Module
+from datetime import datetime
+from typing import Iterable
+
+# Third-Party Modules
+from netmiko import ReadTimeout
+
 # Local Modules
 from netmagic.devices import Device
-from netmagic.handlers.response import CommandResponse
+from netmagic.handlers.response import CommandResponse, ConfigResponse
 from netmagic.sessions.session import Session, RESTCONFSession, NETCONFSession
 from netmagic.sessions.terminal import TerminalSession
 
@@ -76,18 +83,41 @@ class NetworkDevice(Device):
         Manual SSH enable method useful for proxy SSH
         """
 
-    def config_try_loop(self, config: list[str], exit: bool) -> str:
+    def config_try_loop(self, config: list[str], exit: bool) -> str|Exception:
         """
         Inner loop for `send_config`
         """
+        try:
+            output = self.cli_session.connection.send_config_set(config, exit_config_mode=exit)
+        except (ReadTimeout, OSError) as e:
+            return e
+        else:
+            return output
 
-    def send_config(self, config: list[str], exit: bool = True,
-                    *args, **kwargs) -> str:
+    def send_config(self, config: Iterable[str]|str, max_tries: int = 3, 
+                    exit: bool = True, save: bool = True,
+                    *args, **kwargs) -> ConfigResponse:
         """
         Send config
         """
+        success = False
+        # Enable if needed
+        for i in range(max_tries):
+            sent_time = datetime.now()
+            output = self.config_try_loop(config, exit)
+            if not isinstance(output, Exception):
+                success = True
+                break
+
+        if save:
+            self.write_memory()
+
+        return ConfigResponse(output, config, sent_time, self.cli_session, success, i+1)
 
     def write_memory(self):
+        """
+        Command to save the running configuration
+        """
         return self.cli_session.connection.send_command('write memory')
     
     # IDENTITY AND STATUS
