@@ -15,7 +15,7 @@ setup(
     version=__version__,
     packages=find_packages(),
     install_requires=[
-        'httpx',
+        'netmiko',
         'mactools',
     ],
     keywords=['networking','network','ssh','cli','api','automation']

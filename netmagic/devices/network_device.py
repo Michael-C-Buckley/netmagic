@@ -83,17 +83,6 @@ class NetworkDevice(Device):
         Manual SSH enable method useful for proxy SSH
         """
 
-    def config_try_loop(self, config: list[str], exit: bool) -> str|Exception:
-        """
-        Inner loop for `send_config`
-        """
-        try:
-            output = self.cli_session.connection.send_config_set(config, exit_config_mode=exit)
-        except (ReadTimeout, OSError) as e:
-            return e
-        else:
-            return output
-
     def send_config(self, config: Iterable[str]|str, max_tries: int = 3, 
                     exit: bool = True, save: bool = True,
                     *args, **kwargs) -> ConfigResponse:
@@ -104,8 +93,11 @@ class NetworkDevice(Device):
         # Enable if needed
         for i in range(max_tries):
             sent_time = datetime.now()
-            output = self.config_try_loop(config, exit)
-            if not isinstance(output, Exception):
+            try:
+                output = self.cli_session.connection.send_config_set(config, exit_config_mode=exit)
+            except (ReadTimeout, OSError) as e:
+                continue
+            else:
                 success = True
                 break
 
