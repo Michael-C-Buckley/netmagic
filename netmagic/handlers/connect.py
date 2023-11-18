@@ -1,6 +1,6 @@
 # Project NetMagic Connection Handler Module
 
-# Python Moduls
+# Python Modules
 from socket import (
     socket, gaierror,
     SOCK_STREAM,
@@ -14,7 +14,11 @@ from ipaddress import (
 )
 
 # Third-Party Modules
-from netmiko import BaseConnection, ConnectHandler
+from netmiko import (
+    BaseConnection,
+    ConnectHandler,
+    NetmikoAuthenticationException as AuthException,
+)
 
 # Local Modules
 from netmagic.handlers.response import BannerResponse
@@ -46,7 +50,7 @@ def get_device_type(host: str|IPv4|IPv6, port: int = 22) -> BannerResponse:
     """
     host = str(host)
     sent_time = datetime.now()
-    banner_kwargs = {k:v for k, v in locals().items()}
+    banner_kwargs = {**locals()}
     try:
         addr_info = getaddrinfo(host, port, type=SOCK_STREAM)
         with socket(addr_info[0][0], SOCK_STREAM) as open_socket:
@@ -56,4 +60,3 @@ def get_device_type(host: str|IPv4|IPv6, port: int = 22) -> BannerResponse:
         return BannerResponse(e, **banner_kwargs)
     else:
         return BannerResponse(banner, **banner_kwargs)
-    

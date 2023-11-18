@@ -56,6 +56,7 @@ class TerminalSession(Session):
         if max_tries > 1:
             raise ValueError('`max_tries` count must be `1` or greater.')
 
+        # Gather connection information from the session
         attribute_filter = ['host','port','username','password','device_type']
         local_connection_kwargs = {k:v for k,v in self.__dict__.items() if k in attribute_filter}
 
@@ -109,20 +110,18 @@ class TerminalSession(Session):
     
     # COMMANDS
 
-    def command_try_loop(self, command_string: str, expect_string: str = None,
-                         read_timeout: float = 10.0, *args, **kwargs) -> str|Exception:
-        """
-        """
-        command_kwargs = {k:v for k,v in locals().items() if k not in ['args', 'kwargs', 'self']}
-        command_kwargs = {**kwargs, **command_kwargs}
-        try:
-            return self.connection.send_command(*args, **command_kwargs)
-        except ReadTimeout as e:
-            return e
-
     def command(self, command_string: str|list[str], expect_string: str = None,
-                blind: bool = False, max_tries: int = 3, *args, **kwargs) -> CommandResponse:
+                blind: bool = False, max_tries: int = 3, read_timeout: int = 10,
+                *args, **kwargs) -> CommandResponse:
         """
+        Send a command to the command line.
+
+        Params:
+        *command_string: the actual string to be transmitted
+        *expect_string: regex strings the automation will yield console on detection
+        *blind: console will not wait for a response if true
+        *max_tries: amount of times re-transmission will be attempted on failure
+        *read_timeout: how long the console waits for the expects_string before exception
         """
         max_tries = int(max_tries)
         no_session_string = 'Unable to connect a session to send command'
@@ -150,23 +149,23 @@ class TerminalSession(Session):
             **kwargs,
         }
 
-        # Handle enable if needed
-
         if blind:
             self.connection.write_channel(f'{command_string}\n')
-            response = CommandResponse('Blind: True', success=None, **response_kwargs)
+            response = CommandResponse('Blind: True', **response_kwargs)
             self.command_log.append(response)
             return response
 
-        def execute_command():
-            output = self.command_try_loop(**command_kwargs, **kwargs)
-            success = False if isinstance(output, Exception) else True
-            response = CommandResponse(output, success=success, **response_kwargs)
-            self.command_log.append(response)
-            return response
-
+        # Begin execution
         for i in range(max_tries):
-            response = execute_command()
+
+            try:
+                output = self.connection.send_command(*args, **command_kwargs)
+            except ReadTimeout as e:
+                output = e
+
+            response = CommandResponse(output, **response_kwargs, attempts=i+1)
+            self.command_log.append(response)
+
             if isinstance(response.response, str):
                 break
             if isinstance(response.response, Exception):

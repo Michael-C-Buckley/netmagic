@@ -51,13 +51,16 @@ class CommandResponse(Response):
     """
     Simple object for capturing info for various details of a Netmiko `command`
     """
-    def __init__(self, response: str, command_string: str, sent_time: datetime,
-                session: 'TerminalSession', expect_string: str, success: bool = True,
+    def __init__(self, response: str|Exception, command_string: str, sent_time: datetime,
+                session: 'TerminalSession', expect_string: str, success: bool = None,
                 received_time: datetime = None, attempts: int = 1) -> None:
         self.command_string = command_string
         self.expect_string = expect_string
         self.session = session
-        self.success = success
+
+        # Automatic identification based on type
+        success_map = {str: True, Exception: False}
+        self.success = success_map.get(type(response)) if success is None else success
         
         super().__init__(response, sent_time, received_time, attempts)
 
@@ -65,15 +68,19 @@ class CommandResponse(Response):
         # return f'[{self.device.hostname}] RE: {self.command_string}'
         return f'RE({self.session.host}): {self.command_string}'
     
+
 class ConfigResponse(Response):
     """
     Simple objects for capturing info for a CLI configuration
     """
     def __init__(self, response: str, config: str, sent_time: datetime,
-                session: 'TerminalSession', success: bool = True,
+                session: 'TerminalSession', success: bool = None,
                 received_time: datetime = None, attempts: int = 1) -> None:
         super().__init__(response, sent_time, received_time, attempts)
         self.config_sent = config
         self.session = session
-        self.success = success
+        
+        # Automatic identification based on type
+        success_map = {str: True, Exception: False}
+        self.success = success_map.get(type(response)) if success is None else success
         

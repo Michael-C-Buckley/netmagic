@@ -65,7 +65,7 @@ class NetworkDevice(Device):
                 if not session.connection:
                     session.connect()
 
-    def not_implemeneted_error_generic(self):
+    def not_implemented_error_generic(self):
         """
         Error for methods not available on generic network devices
         """
@@ -92,11 +92,13 @@ class NetworkDevice(Device):
         success = False
         # Enable if needed
         for i in range(max_tries):
+
             sent_time = datetime.now()
+
             try:
                 output = self.cli_session.connection.send_config_set(config, exit_config_mode=exit)
             except (ReadTimeout, OSError) as e:
-                continue
+                output = e
             else:
                 success = True
                 break
