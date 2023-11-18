@@ -7,11 +7,7 @@ from socket import (
     getaddrinfo
 )
 from datetime import datetime
-
-from ipaddress import (
-    IPv4Address as IPv4,
-    IPv6Address as IPv6
-)
+from re import search
 
 # Third-Party Modules
 from netmiko import (
@@ -22,26 +18,27 @@ from netmiko import (
 
 # Local Modules
 from netmagic.handlers.response import BannerResponse
+from netmagic.common.types import HostT
 
-def netmiko_connect(host: str|IPv4|IPv6, port: int, username: str, password: str,
+def netmiko_connect(host: HostT, port: int, username: str, password: str,
                     device_type: str, *args, **kwargs) -> BaseConnection|Exception:
     """
     Standard Netmiko connection variables and environment, mostly used as part of a larger connection scheme.
 
     Take in the Profile as keyword arguments and returns a Netmiko Base Connection or Netmiko Timeout/Auth Exceptions.
     """
-    # Collect input the default named input parameters
+    # Collect input the default named input parameters and exclude *args, **kwargs
     host = str(host)
-    connection_profile = {k: v for k, v in locals().items() if k not in ['kwargs', 'args']}
+    connect_kwargs = {k: v for k, v in locals().items() if not search(r'args', k)}
 
     # Collect the additional user optional parameters
     for key, value in kwargs.items():
-        connection_profile[key] = value
+        connect_kwargs[key] = value
 
     # ADD EXCEPTION HANDLING
-    return ConnectHandler(**connection_profile)
+    return ConnectHandler(**connect_kwargs)
 
-def get_device_type(host: str|IPv4|IPv6, port: int = 22) -> BannerResponse:
+def get_device_type(host: HostT, port: int = 22) -> BannerResponse:
     """
     Attempts a banner grab on a location to get the device information from 
     the response packet, mostly used as part of a larger connection scheme.

@@ -20,12 +20,13 @@ from netmiko import (
 from netmagic.sessions.session import Session
 from netmagic.handlers.response import CommandResponse
 from netmagic.handlers.connect import netmiko_connect
+from netmagic.common.types import HostT
 
 class TerminalSession(Session):
     """
     Container for Terminal-based CLI session on SSH, Telnet, serial, etc.
     """
-    def __init__(self, host: str|IPv4|IPv6, username: str, password: str,
+    def __init__(self, host: HostT, username: str, password: str,
                  device_type: str, connection: BaseConnection = None,
                  secret: str = None, port: int = 22, engine: str = 'netmiko',
                  *args, **kwargs) -> None:

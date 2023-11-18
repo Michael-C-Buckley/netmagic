@@ -12,6 +12,7 @@ from netmagic.devices import Device
 from netmagic.handlers.response import CommandResponse, ConfigResponse
 from netmagic.sessions.session import Session, RESTCONFSession, NETCONFSession
 from netmagic.sessions.terminal import TerminalSession
+from netmagic.common.types import ConfigSet
 
 class NetworkDevice(Device):
     """
@@ -73,24 +74,28 @@ class NetworkDevice(Device):
     
     # CONFIG HANDLING
 
-    def enable_loop(self, password: str = None) -> bool:
-        """
-        Inner loop for `enable`
-        """
-
-    def enable(self) -> bool:
+    def enable(self, *args, **kwargs) -> None:
         """
         Manual SSH enable method useful for proxy SSH
         """
+        self.not_implemented_error_generic()
 
-    def send_config(self, config: Iterable[str]|str, max_tries: int = 3, 
+    def send_config(self, config: ConfigSet, max_tries: int = 3, 
                     exit: bool = True, save: bool = True,
                     *args, **kwargs) -> ConfigResponse:
         """
-        Send config
+        Send device configuration commands.
+
+        *config: The config to be sent as either a string or iterable of strings
+        *max_tries: How many total tries to send if not originally successful
+        *exit: bool whether the code should exit global config mode when done
+        *save: bool whether the code should save the config after changes
         """
-        success = False
-        # Enable if needed
+        max_tries = int(max_tries)
+
+        if max_tries < 1:
+            raise ValueError('`max_tries` count must be `1` or greater.')
+
         for i in range(max_tries):
 
             sent_time = datetime.now()
@@ -100,13 +105,12 @@ class NetworkDevice(Device):
             except (ReadTimeout, OSError) as e:
                 output = e
             else:
-                success = True
                 break
 
         if save:
             self.write_memory()
 
-        return ConfigResponse(output, config, sent_time, self.cli_session, success, i+1)
+        return ConfigResponse(output, config, sent_time, self.cli_session, i+1)
 
     def write_memory(self):
         """

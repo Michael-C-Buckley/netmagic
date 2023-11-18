@@ -4,14 +4,11 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from ipaddress import (
-    IPv4Address as IPv4,
-    IPv6Address as IPv6
-)
-
 if TYPE_CHECKING:
     from netmagic.devices import Device
     from netmagic.sessions.terminal import TerminalSession
+from netmagic.common.types import HostT
+    
 
 class Response:
     """
@@ -37,7 +34,7 @@ class BannerResponse(Response):
     """
     Simple object for capturing the info from a banner grab for identifying devices.
     """
-    def __init__(self, response: str, host: str|IPv4|IPv6, port: int,
+    def __init__(self, response: str, host: HostT, port: int,
                  sent_time: datetime, received_time: datetime = None) -> None:
         self.host = host
         self.port = port
