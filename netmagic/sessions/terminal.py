@@ -20,7 +20,8 @@ from netmiko import (
 from netmagic.sessions.session import Session
 from netmagic.handlers.response import CommandResponse
 from netmagic.handlers.connect import netmiko_connect
-from netmagic.common.types import HostT
+from netmagic.handlers.serial_connect import serial_connect
+from netmagic.common.types import HostT, Transport
 
 class TerminalSession(Session):
     """
@@ -29,8 +30,8 @@ class TerminalSession(Session):
     def __init__(self, host: HostT, username: str, password: str,
                  device_type: str, connection: BaseConnection = None,
                  secret: str = None, port: int = 22, engine: str = 'netmiko',
-                 *args, **kwargs) -> None:
-        super().__init__(host, username, password, port, connection)
+                 transport: Transport = Transport.SSH, *args, **kwargs) -> None:
+        super().__init__(host, username, password, port, connection, transport)
         self.secret = secret
         self.engine = engine
         self.device_type = device_type
@@ -52,7 +53,7 @@ class TerminalSession(Session):
         if isinstance(self.connection, BaseConnection):
             if self.check_session():
                 return True
-
+            
         max_tries = int(max_tries)
         if max_tries > 1:
             raise ValueError('`max_tries` count must be `1` or greater.')
@@ -69,6 +70,11 @@ class TerminalSession(Session):
             local_connection_kwargs.update(self.connection_kwargs)
         if connect_kwargs:
             local_connection_kwargs.update(connect_kwargs)
+
+        # Serial is not reconnected the same way and bypasses logic
+        if self.transport == Transport.SERIAL:
+            self.connection = serial_connect(**local_connection_kwargs)
+            return True
 
         for attempt in range(max_tries):
             try:

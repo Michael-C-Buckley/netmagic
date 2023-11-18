@@ -1,3 +1,5 @@
+from enum import Enum
+
 from typing import (
     TypeAlias, TypeVar, Iterable,
     Dict, Any
@@ -11,3 +13,11 @@ from ipaddress import (
 HostT: TypeAlias = str|IPv4|IPv6
 ConfigSet: TypeAlias = Iterable[str]|str
 KwDict: TypeAlias = Dict[str, Any]
+
+class Transport(Enum):
+    SSH = 'ssh'
+    SERIAL = 'serial'
+    TELNET = 'telnet'
+    NETCONF = 'netconf'
+    RESTCONF = 'restconf'
+    CUSTOM = 'custom'

@@ -2,7 +2,6 @@
 
 # Python Module
 from datetime import datetime
-from typing import Iterable
 
 # Third-Party Modules
 from netmiko import ReadTimeout
