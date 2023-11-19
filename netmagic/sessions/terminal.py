@@ -22,6 +22,7 @@ from netmagic.handlers.response import CommandResponse
 from netmagic.handlers.connect import netmiko_connect
 from netmagic.handlers.serial_connect import serial_connect
 from netmagic.common.types import HostT, Transport
+from netmagic.common.utils import validate_max_tries
 
 class TerminalSession(Session):
     """
@@ -43,6 +44,7 @@ class TerminalSession(Session):
 
     # CONNECTION HANDLING
 
+    @validate_max_tries
     def connect(self, max_tries: int = 1, username: str = None, password: str = None,
                 connect_kwargs: dict[str, Any] = None) -> bool:
         """
@@ -54,10 +56,6 @@ class TerminalSession(Session):
             if self.check_session():
                 return True
             
-        max_tries = int(max_tries)
-        if max_tries > 1:
-            raise ValueError('`max_tries` count must be `1` or greater.')
-
         # Gather connection information from the session
         attribute_filter = ['host','port','username','password','device_type']
         local_connection_kwargs = {k:v for k,v in self.__dict__.items() if k in attribute_filter}
@@ -82,7 +80,7 @@ class TerminalSession(Session):
                 return True
             except NetmikoAuthenticationException:
                 self.connection = None
-                if attempt < max_tries:
+                if attempt+1 < max_tries:
                     sleep(5)
         return False
 
@@ -90,17 +88,19 @@ class TerminalSession(Session):
         self.connection.disconnect()
         super().disconnect()
 
+    @validate_max_tries
     def check_session(self, escape_attempt: bool = True,
-                      reconnect: bool = True) -> bool:
+                      reconnect: bool = True, max_tries: int = 3) -> bool:
         """
         Determines if the session is good.
         `attempt_escape` will attempt to back out of the current context.
         `reconnect` will automatically replace the session if bad.
         """
         if escape_attempt:
-            for i in range(3):
+            for i in range(max_tries):
                 for char in ['\x1B', '\x03']:
                     self.connection.write_channel(char)
+                    sleep(1)
                 
         if self.connection.is_alive():
             return True
@@ -117,6 +117,7 @@ class TerminalSession(Session):
     
     # COMMANDS
 
+    @validate_max_tries
     def command(self, command_string: str|list[str], expect_string: str = None,
                 blind: bool = False, max_tries: int = 3, read_timeout: int = 10,
                 *args, **kwargs) -> CommandResponse:
@@ -130,12 +131,8 @@ class TerminalSession(Session):
         *max_tries: amount of times re-transmission will be attempted on failure
         *read_timeout: how long the console waits for the expects_string before exception
         """
-        max_tries = int(max_tries)
         no_session_string = 'Unable to connect a session to send command'
 
-        if max_tries < 1:
-            raise ValueError('`max_tries` count must be `1` or greater.')
-        
         if not self.connection:
             if not self.connect():
                 raise AttributeError(no_session_string)
