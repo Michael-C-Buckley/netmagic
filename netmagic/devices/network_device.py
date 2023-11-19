@@ -8,10 +8,9 @@ from netmiko import ReadTimeout
 
 # Local Modules
 from netmagic.devices import Device
-from netmagic.handlers.response import CommandResponse, ConfigResponse
-from netmagic.sessions.session import Session, RESTCONFSession, NETCONFSession
-from netmagic.sessions.terminal import TerminalSession
-from netmagic.common.types import ConfigSet
+from netmagic.handlers import CommandResponse, ConfigResponse
+from netmagic.sessions import Session, TerminalSession, RESTCONFSession, NETCONFSession
+from netmagic.common import ConfigSet
 
 class NetworkDevice(Device):
     """

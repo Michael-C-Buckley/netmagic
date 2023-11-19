@@ -1,10 +1,9 @@
 # NetMagic Terminal Session Tests
 
 # Python Modules
-from ipaddress import IPv6Address as IPv6
 from typing import TYPE_CHECKING
 from unittest import TestCase, main
-from unittest.mock import Mock, patch, create_autospec
+from unittest.mock import patch
 
 if TYPE_CHECKING:
     from unittest.mock import _patcher
@@ -13,8 +12,8 @@ if TYPE_CHECKING:
 from netmiko import NetmikoAuthenticationException as AuthException
 
 # Local Modules
-from netmagic.common.types import Transport
-from netmagic.sessions.terminal import TerminalSession
+from netmagic.common import Transport
+from netmagic.sessions import TerminalSession
 
 # Test Modules (init corrects path)
 import __init__
@@ -29,7 +28,6 @@ class TestTerminal(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.patchers: dict[str, _patcher] = {}
-        # cls.patchers['netmiko_connect'] = patch(f'{TERMINAL_DIR}.netmiko_connect', return_value=MockBaseConnection())
         cls.patchers['sleep'] = patch(f'{TERMINAL_DIR}.sleep', return_value=None)
         
         for patcher in cls.patchers.values():
@@ -46,7 +44,7 @@ class TestTerminal(TestCase):
     def setUp(self) -> None:
         
         connect_kwargs = {
-            'host': IPv6('::1'),
+            'host': '::1',
             'port': 22,
             'username': 'admin',
             'password': 'admin',
@@ -105,9 +103,9 @@ class TestTerminal(TestCase):
 
     def test_check_session(self) -> None:
         with self.connection_patch():
-            self.assertTrue(self.terminal.check_session())
-            self.terminal.connection.is_alive.return_value = False
-            self.assertTrue(self.terminal.check_session())
+            for test_case in [True, False]:
+                self.terminal.connection.is_alive.return_value = test_case
+                self.assertTrue(self.terminal.check_session())
 
     def test_command(self) -> None:
         cmd_return = 'command return'

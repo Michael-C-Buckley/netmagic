@@ -3,12 +3,7 @@
 # Python Modules
 from datetime import datetime
 from time import sleep
-from typing import Any
-
-from ipaddress import (
-    IPv4Address as IPv4,
-    IPv6Address as IPv6,
-)
+from typing import TYPE_CHECKING
 
 # Third-Party Modules
 from netmiko import (
@@ -18,11 +13,8 @@ from netmiko import (
 
 # Local Modules
 from netmagic.sessions.session import Session
-from netmagic.handlers.response import CommandResponse
-from netmagic.handlers.connect import netmiko_connect
-from netmagic.handlers.serial_connect import serial_connect
-from netmagic.common.types import HostT, Transport
-from netmagic.common.utils import validate_max_tries
+from netmagic.handlers import CommandResponse, netmiko_connect, serial_connect
+from netmagic.common import HostT, KwDict, Transport, validate_max_tries
 
 class TerminalSession(Session):
     """
@@ -46,7 +38,7 @@ class TerminalSession(Session):
 
     @validate_max_tries
     def connect(self, max_tries: int = 1, username: str = None, password: str = None,
-                connect_kwargs: dict[str, Any] = None) -> bool:
+                connect_kwargs: KwDict = None) -> bool:
         """
         Connect SSH session using the selected attributes.
         Returns `bool` on success or failure.

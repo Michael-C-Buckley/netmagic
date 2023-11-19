@@ -6,7 +6,7 @@
 from mactools import MacAddress
 
 # Local Modules
-from netmagic.sessions.terminal import TerminalSession
+from netmagic.sessions import TerminalSession
 
 class Device:
     """
