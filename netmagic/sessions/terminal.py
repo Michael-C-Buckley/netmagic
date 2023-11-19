@@ -53,7 +53,8 @@ class TerminalSession(Session):
         """
 
         if isinstance(self.connection, BaseConnection):
-            if self.check_session():
+            # Reconnecting an actually bad session here causes infinite recursion
+            if self.check_session(reconnect=False):
                 return True
             
         # Gather connection information from the session
