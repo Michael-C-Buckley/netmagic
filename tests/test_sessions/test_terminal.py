@@ -63,7 +63,7 @@ class TestTerminal(TestCase):
     
     def prepare_connection_mock(self) -> MockBaseConnection:
         mock = MockBaseConnection()
-        mock.send_commmand.return_value = 'command return'
+        mock.send_command.return_value = 'command return'
         return mock
 
     def connection_patch(self, dir: str = 'netmiko_connect', return_value = None) -> '_patcher':
@@ -116,7 +116,6 @@ class TestTerminal(TestCase):
             self.assertEqual(test_cmd('').response, cmd_return)
             # Blind command
             self.assertEqual(test_cmd('', blind=True).response, 'Blind: True')
-
 
 
 if __name__ == '__main__':
