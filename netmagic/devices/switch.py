@@ -20,10 +20,7 @@ class Switch(NetworkDevice):
         self.mac: MacAddress = None # GET CHASSIS/MANAGEMENT MAC
 
     def not_implemeneted_error_generic(self):
-        """
-        Error for methods not available on generic switches
-        """
-        raise NotImplementedError('Not available for generic switches')
+        super().not_implemeneted_error_generic('switch')
     
     # IDENTITY AND STATUS
 
