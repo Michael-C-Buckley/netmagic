@@ -50,7 +50,7 @@ class TerminalSession(Session):
                 return True
             
         # Gather connection information from the session
-        attribute_filter = ['host','port','username','password','device_type']
+        attribute_filter = ['host','port','username','password','secret','device_type']
         local_connection_kwargs = {k:v for k,v in self.__dict__.items() if k in attribute_filter}
 
         if password:
