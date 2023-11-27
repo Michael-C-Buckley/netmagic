@@ -113,8 +113,17 @@ class BrocadeSwitch(Switch):
         
         return optics
     
-    def get_lldp(self) -> CommandResponse:
+    def get_lldp(self, template: str|bool = None) -> CommandResponse:
         """
         Returns LLDP neighbor details information.
         """
-        return super().get_lldp()
+        lldp = self.command('show lldp neighbors details')
+        
+        # Cases to skip parsing, lldp only shows up in the response if LLDP is not enabled
+        if template is False or search(r'lldp', lldp.response):
+            return lldp
+
+        template = 'show_lldp_nei_det' if not template else template
+        lldp.fsm_output = get_fsm_data(lldp.response, 'brocade', template, 'Local port')
+
+        return lldp
