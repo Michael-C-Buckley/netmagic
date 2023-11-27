@@ -64,11 +64,10 @@ class NetworkDevice(Device):
                 if not session.connection:
                     session.connect()
 
-    def not_implemented_error_generic(self):
-        """
-        Error for methods not available on generic network devices
-        """
-        raise NotImplementedError('Not available for generic network devices')
+    def not_implemented_error_generic(self, device_type: str = None):
+        if device_type is None:
+            device_type = 'network device'
+        super().not_implemented_error_generic(device_type)
     
     # CONFIG HANDLING
 

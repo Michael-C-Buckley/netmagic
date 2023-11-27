@@ -1,0 +1,7 @@
+Value Required Interface ((\w+)?(\d)\/(\d)\/(\d+))
+Value Medium (\S+)
+Value Media (.+)
+
+Start
+  ^[Pp]ort ${Interface}:\s+[Tt]ype\s+:\s+${Media}\s\(${Medium}\) -> Record
+  ^[Pp]ort ${Interface}:\s+[Tt]ype\s+:\s+${Media} -> Record

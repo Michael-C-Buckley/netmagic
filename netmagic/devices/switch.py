@@ -19,8 +19,8 @@ class Switch(NetworkDevice):
         super().__init__(session)
         self.mac: MacAddress = None # GET CHASSIS/MANAGEMENT MAC
 
-    def not_implemeneted_error_generic(self):
-        super().not_implemeneted_error_generic('switch')
+    def not_implemented_error_generic(self):
+        super().not_implemented_error_generic('switch')
     
     # IDENTITY AND STATUS
 

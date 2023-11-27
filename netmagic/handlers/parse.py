@@ -1,11 +1,11 @@
 # Project NetMagic Parse Module
 
 # Python Modules
+from importlib.resources import open_text
 from re import search, compile, escape
 from typing import Optional
 
 # Third-Party Modules
-from mactools import MacAddress
 from textfsm import TextFSM
 
 # Regex patterns
@@ -16,7 +16,7 @@ HEX_PAIR = f'{HEX_PATTERN}{{2}}'
 MAC_PORTION = f'{HEX_PAIR}[:\-\. ]?'
 EUI48_PATTERN = f'({MAC_PORTION}){{5}}{HEX_PAIR}'
 EUI64_PATTERN = f'({MAC_PORTION}){{7}}{HEX_PAIR}'
-MAC_PATTERN = f'{EUI64_PATTERN}|{EUI64_PATTERN}'
+MAC_PATTERN = f'{EUI48_PATTERN}|{EUI64_PATTERN}'
 
 CITY_STATE_ZIP = r'[a-zA-Z]+?\s?[a-zA-Z]+,\s[A-Z]{2},?\s\d{5}'
 CITY_STATE = r'[a-zA-Z]+?\s?[a-zA-Z]+,\s[A-Z]{2}'
@@ -69,3 +69,43 @@ def dual_escape(string: str) -> str:
     Uses the custom library escape and adds `re.escape` to cover either case
     """
     return f'({escape_string(string)}|{escape(string)})'
+
+def get_fsm_data(input: str|list, vendor: str, template: str,
+                 split_term: str = None) -> list[dict[str, str]]:
+    """
+    Function for handling TextFSM parsing and situational variables.
+    
+    `split_term` is an optional string for splitting the input prior to TextFSM parsing.
+    `output_dicts` is a bool for TextFSM to return a dict with header as keys or just a value list.
+    """
+    if not input:
+        raise ValueError('Function requires an input to parse')
+        
+    with open_text(f'netmagic.templates.{vendor}', f'{template}.textfsm') as file:
+        template: TextFSM = TextFSM(file)
+
+        def fsm_list(closure_input: str) -> list[dict[str, str]]:
+            """
+            Closure for handling `input` as `list`
+            """
+            for item in closure_input:
+                output = template.ParseTextToDicts(item)
+            if output:
+                return output
+
+        def fsm_string(closure_input: str) -> list[dict[str, str]]:
+            """
+            Closure for handling `input` as `string`
+            """
+            return template.ParseTextToDicts(closure_input)
+
+        if split_term:
+            # Split the inputs and restore the lost term back into the lines
+            input = [f'{split_term}{item}'.strip() for item in input.split(split_term) if item != '' or item != split_term]
+        
+        closure_dict = {
+            list: fsm_list,
+            str: fsm_string,
+        }
+        closure = closure_dict.get(type(input))
+        return closure(input)

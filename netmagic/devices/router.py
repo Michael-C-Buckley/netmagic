@@ -11,5 +11,5 @@ class Router(NetworkDevice):
     def __init__(self, session: Session) -> None:
         super().__init__(session)
 
-    def not_implemeneted_error_generic(self):
-        super().not_implemeneted_error_generic('router')
+    def not_implemented_error_generic(self):
+        super().not_implemented_error_generic('router')
