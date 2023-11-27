@@ -1,15 +1,17 @@
-Value Required Interface ((\w+)?(\d)\/(\d)\/(\d+))
+Value Required interface ((\w+)?(\d)\/(\d)\/(\d+))
 Value state (\w+)
 Value speed (\w+)
 Value input_bitrate (\d+)
 Value input_packetrate (\d+)
+Value input_utilization (\d+\.\d+)
 Value output_bitrate (\d+)
 Value output_packetrate (\d+)
-Value MTU (\d+)
+Value output_utilization (\d+\.\d+)
+Value mtu (\d+)
 
 Start
-  ^${Interface} is ${state}
+  ^${interface} is ${state}
   ^\s+Configured speed ${speed}
-  ^\s+300 second input rate: ${input_bitrate} bits/sec, ${input_packetrate}
-  ^\s+300 second output rate: ${output_bitrate} bits/sec, ${output_packetrate}
-  ^\s+MTU ${MTU}
+  ^\s+300 second input rate: ${input_bitrate} bits/sec, ${input_packetrate} packets/sec, ${input_utilization}
+  ^\s+300 second output rate: ${output_bitrate} bits/sec, ${output_packetrate} packets/sec, ${output_utilization}
+  ^\s+MTU ${mtu}

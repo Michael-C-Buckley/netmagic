@@ -13,6 +13,7 @@ from ipaddress import (
 HostT: TypeAlias = str|IPv4|IPv6
 ConfigSet: TypeAlias = Iterable[str]|str
 KwDict: TypeAlias = Dict[str, Any]
+FSMOutputT: TypeAlias = list[dict[str, str]]
 
 class Transport(Enum):
     SSH = 'ssh'

@@ -8,7 +8,7 @@ from re import search
 # Local Modules
 from netmagic.common.types import Transport
 from netmagic.devices.switch import Switch
-from netmagic.handlers import CommandResponse, get_fsm_data
+from netmagic.handlers import CommandResponse, ResponseGroup, get_fsm_data
 from netmagic.sessions import Session, TerminalSession
 
 
@@ -35,6 +35,8 @@ class BrocadeSwitch(Switch):
         if password is not None:
             self.command(password)
 
+    # CUSTOM FSM METHOD
+
     # IDENTITY
     def get_running_config(self) -> CommandResponse:
         """
@@ -42,31 +44,74 @@ class BrocadeSwitch(Switch):
         """
         return super().get_running_config()
 
-    def get_interface_status(self, interface: str = None) -> list[dict[str, str]]:
+    def get_interface_status(self, interface: str = None,
+                             template: str|bool = None) -> CommandResponse:
         """
         Returns interface status of one or all switchports.
+        
+        PARAMS:
+        `interface`: `str` for the name of getting the full status of a single interface
+        `template`: `str` for the path of the TextFSM template to use, else `None`
+           will use the default bulit-in, and `False` will skip parsing 
         """
-        if interface is None:
-            int_status = self.command('show interfaces brief wide')
-        else:
-            int_status = self.command(f'show interface e {interface}')
+        command_portion = 'brief wide' if interface is None else f'e {interface}'
+        int_status = self.command(f'show interfaces {command_portion}')
+
+        if template is False:
+            return int_status
+        
         template = 'show_int' if interface is None else 'show_single_int'
-        return get_fsm_data(int_status.response, 'brocade', template)
+        fsm_output = get_fsm_data(int_status.response, 'brocade', template)
+
+        for entry in fsm_output:
+            if (name := entry.get('name')):
+                # Names may may whitespace characters when they should be None
+                if not name.strip():
+                    entry['name'] = None
+
+        int_status.fsm_output = fsm_output
+        return int_status
     
-    def get_optics(self) -> list[dict[str, str]]:
+    def get_all_interface_status(self) -> ResponseGroup:
+        """
+        Returns all the detailed entries for interfaces on the device
+        """
+    
+    def get_media(self, template: str|bool = None) -> CommandResponse:
+        """
+        Returns the media information on the device
+
+        PARAMS:
+        `template`: `str` for the path of the TextFSM template to use, else `None`
+           will use the default bulit-in, and `False` will skip parsing 
+        """
+        media = self.command('show media')
+
+        if template is not False:
+            template = 'show_media' if template is None else template
+            media.fsm_output = get_fsm_data(media.response, 'brocade', template)
+
+        return media
+    
+    def get_optics(self, template: str|bool = None) -> ResponseGroup:
         """
         Returns information about optical transceivers.
         """
-        media = self.command('show media')
-        parsed_media = get_fsm_data(media.response, 'brocade', 'show_media')
+        media = self.get_media()
 
         optical_interfaces = []
-        for interface in parsed_media:
-            if search(r'(?i)sfp', interface.get('Medium')):
-                optical_interfaces.append(interface.get('Interface'))
+        for interface in media.fsm_output:
+            if search(r'(?i)sfp', interface.get('medium')):
+                optical_interfaces.append(interface.get('interface'))
         
-        optics_data = [self.command(f'show optic {interface}').response for interface in optical_interfaces]
-        return get_fsm_data(optics_data, 'brocade', 'show_optic')
+        optics = ResponseGroup([self.command(f'show optic {interface}') for interface in optical_interfaces])
+        
+        if template is not False:
+            template = 'show_optic' if template is None else template
+            optics_data = [optics_response.response for optics_response in optics.responses]
+            optics.fsm_output = get_fsm_data(optics_data, 'brocade', template)
+        
+        return optics
     
     def get_lldp(self) -> CommandResponse:
         """

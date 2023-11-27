@@ -1,15 +1,15 @@
-Value PORT (\d\/\d\/\d+)
-Value TEMP (-?\d+\.\d+)
-Value TEMP_STATUS (\S+)
-Value VOLTAGE (-?\d+\.\d+)
-Value VOLTAGE_STATUS (\S+)
-Value TX (-?\d+\.\d+)
-Value TX_STATUS (\S+)
-Value RX (-?\d+\.\d+)
-Value RX_STATUS (\S+)
-Value TX_BIAS_CURRENT (-?\d+\.\d+)
-Value TX_BIAS_STATUS (\S+)
+Value port (\d\/\d\/\d+)
+Value temp (-?\d+\.\d+)
+Value temp_status (\S+)
+Value voltage (-?\d+\.\d+)
+Value voltage_status (\S+)
+Value tx (-?\d+\.\d+)
+Value tx_status (\S+)
+Value rx (-?\d+\.\d+)
+Value rx_status (\S+)
+Value tx_bias_current (-?\d+\.\d+)
+Value tx_bias_status (\S+)
 
 Start
-  ^\s*${PORT}\s*${TEMP} C\s*${VOLTAGE} volts\s*${TX} dBm\s*${RX} dBm\s*${TX_BIAS_CURRENT} mA
-  ^\s*${TEMP_STATUS}\s*${VOLTAGE_STATUS}\s*${TX_STATUS}\s*${RX_STATUS}\s*${TX_BIAS_STATUS}\s*
+  ^\s*${port}\s*${temp} C\s*${voltage} volts\s*${tx} dBm\s*${rx} dBm\s*${tx_bias_current} mA
+  ^\s*${temp_status}\s*${voltage_status}\s*${tx_status}\s*${rx_status}\s*${tx_bias_status}\s*

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from netmagic.devices import Device
     from netmagic.sessions.terminal import TerminalSession
-from netmagic.common.types import HostT
+from netmagic.common.types import HostT, FSMOutputT
     
 
 class Response:
@@ -30,6 +30,17 @@ class Response:
         return self.response
 
 
+class ResponseGroup:
+    """
+    Collection of responses
+    """
+    def __init__(self, responses: list[Response], fsm_output: FSMOutputT = None) -> None:
+        self.responses = responses
+        self.fsm_output = fsm_output
+
+    def __repr__(self) -> str:
+        return f'Response Group({len(self.responses)} members)'
+
 class BannerResponse(Response):
     """
     Simple object for capturing the info from a banner grab for identifying devices.
@@ -50,10 +61,12 @@ class CommandResponse(Response):
     """
     def __init__(self, response: str|Exception, command_string: str, sent_time: datetime,
                 session: 'TerminalSession', expect_string: str, success: bool = None,
-                received_time: datetime = None, attempts: int = 1) -> None:
+                received_time: datetime = None, attempts: int = 1,
+                fsm_output: FSMOutputT = None) -> None:
         self.command_string = command_string
         self.expect_string = expect_string
         self.session = session
+        self.fsm_output = fsm_output
 
         # Automatic identification based on type
         success_map = {str: True, Exception: False}
@@ -62,7 +75,6 @@ class CommandResponse(Response):
         super().__init__(response, sent_time, received_time, attempts)
 
     def __repr__(self) -> str:
-        # return f'[{self.device.hostname}] RE: {self.command_string}'
         return f'RE({self.session.host}): {self.command_string}'
     
 

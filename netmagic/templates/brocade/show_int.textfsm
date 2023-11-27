@@ -1,14 +1,14 @@
-Value PORT (\d\/\d\/\d+)
-Value LINK (\S+)
-Value STATE (\S+)
-Value DUPLEX (\S+)
-Value SPEED (\S+)
-Value TRUNK (\S+)
-Value TAG (\S+)
-Value PVID (\S+)
-Value PRIORITY (\S+)
-Value INT_MAC (\S+)
-Value NAME (.+)
+Value port (\d\/\d\/\d+)
+Value link (\S+)
+Value state (\S+)
+Value duplex (\S+)
+Value speed (\S+)
+Value trunk (\S+)
+Value tag (\S+)
+Value pvid (\S+)
+Value priority (\S+)
+Value int_mac (\S+)
+Value name (.+)
 
 Start
-  ^${PORT}\s*${LINK}\s*${STATE}\s*${DUPLEX}\s*${SPEED}\s*${TRUNK}\s*${TAG}\s*${PVID}\s*${PRIORITY}\s*${INT_MAC}\s*${NAME} -> Record
+  ^${port}\s*${link}\s*${state}\s*${duplex}\s*${speed}\s*${trunk}\s*${tag}\s*${pvid}\s*${priority}\s*${int_mac}\s*${name} -> Record
