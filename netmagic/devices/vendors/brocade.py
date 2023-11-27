@@ -117,7 +117,7 @@ class BrocadeSwitch(Switch):
         """
         Returns LLDP neighbor details information.
         """
-        lldp = self.command('show lldp neighbors details')
+        lldp = self.command('show lldp neighbor detail')
         
         # Cases to skip parsing, lldp only shows up in the response if LLDP is not enabled
         if template is False or search(r'lldp', lldp.response):
