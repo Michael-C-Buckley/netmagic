@@ -37,9 +37,15 @@ class ResponseGroup:
     def __init__(self, responses: list[Response], fsm_output: FSMOutputT = None) -> None:
         self.responses = responses
         self.fsm_output = fsm_output
+        self.time_delta = self.find_time_delta()
 
     def __repr__(self) -> str:
         return f'Response Group({len(self.responses)} members)'
+    
+    def find_time_delta(self):
+        sent_times = [response.sent_time for response in self.responses]
+        received_time = [response.received_time for response in self.responses]
+        return max(received_time) - min(sent_times)
 
 class BannerResponse(Response):
     """
