@@ -45,21 +45,21 @@ class InterfaceLLDP(Interface):
 
 @dataclass
 class InterfaceOptics(Interface):
-    temperature: tuple(float, SFPAlert)
-    transmit_power: tuple(float, SFPAlert)
-    receive_power: tuple(float, SFPAlert)
-    current: tuple(float, SFPAlert)
-    temperature: tuple(float, SFPAlert)
+    temperature: tuple[float, SFPAlert]
+    transmit_power: tuple[float, SFPAlert]
+    receive_power: tuple[float, SFPAlert]
+    current: tuple[float, SFPAlert]
+    temperature: tuple[float, SFPAlert]
 
 
 @dataclass
 class InterfaceTDR(Interface):
     speed: int
     # Tuple is remote pair, state, distance (if available)
-    pair_a: tuple(str, TDRStatus, int)
-    pair_b: tuple(str, TDRStatus, int)
-    pair_c: tuple(str, TDRStatus, int)
-    pair_d: tuple(str, TDRStatus, int)
+    pair_a: tuple[str, TDRStatus, int]
+    pair_b: tuple[str, TDRStatus, int]
+    pair_c: tuple[str, TDRStatus, int]
+    pair_d: tuple[str, TDRStatus, int]
 
 
 @dataclass

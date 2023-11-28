@@ -1,11 +1,10 @@
-# Project NetMagic Response Handler Module
+# Project NetMagic Responses
 
 # Python Modules
 from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from netmagic.devices import Device
     from netmagic.sessions.terminal import TerminalSession
 from netmagic.common.types import HostT, FSMOutputT
     
@@ -50,6 +49,7 @@ class ResponseGroup:
         sent_times = [response.sent_time for response in self.responses]
         received_time = [response.received_time for response in self.responses]
         return max(received_time) - min(sent_times)
+
 
 class BannerResponse(Response):
     """

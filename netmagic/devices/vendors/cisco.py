@@ -6,7 +6,8 @@
 
 # Local Modules
 from netmagic.devices.switch import Switch
-from netmagic.handlers import CommandResponse, ResponseGroup, get_fsm_data
+from netmagic.common.classes import CommandResponse, ResponseGroup
+from netmagic.handlers import get_fsm_data
 from netmagic.sessions import Session
 
 class CiscoIOSSwitch(Switch):

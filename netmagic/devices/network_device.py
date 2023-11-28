@@ -7,8 +7,8 @@ from datetime import datetime
 from netmiko import ReadTimeout
 
 # Local Modules
+from netmagic.common.classes import CommandResponse, ConfigResponse
 from netmagic.devices import Device
-from netmagic.handlers import CommandResponse, ConfigResponse
 from netmagic.sessions import Session, TerminalSession, RESTCONFSession, NETCONFSession
 from netmagic.common import ConfigSet
 

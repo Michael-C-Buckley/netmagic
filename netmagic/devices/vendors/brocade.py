@@ -7,8 +7,9 @@ from re import search, sub
 
 # Local Modules
 from netmagic.common.types import Transport
+from netmagic.common.classes import CommandResponse, ResponseGroup
 from netmagic.devices.switch import Switch
-from netmagic.handlers import CommandResponse, ResponseGroup, get_fsm_data
+from netmagic.handlers import get_fsm_data
 from netmagic.sessions import Session, TerminalSession
 
 

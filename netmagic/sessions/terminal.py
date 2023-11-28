@@ -13,7 +13,8 @@ from netmiko import (
 
 # Local Modules
 from netmagic.sessions.session import Session
-from netmagic.handlers import CommandResponse, netmiko_connect, serial_connect
+from netmagic.common.classes import CommandResponse
+from netmagic.handlers import netmiko_connect, serial_connect
 from netmagic.common import HostT, KwDict, Transport, validate_max_tries
 
 class TerminalSession(Session):
