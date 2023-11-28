@@ -1,0 +1,9 @@
+Value interface ([ATGF][pie]\d\/\d\/\d+)
+Value status ((up|(?:admin )?down))
+Value protocol (up|down)
+Value name ((?:.?)+)
+
+Start
+  ^${interface}\s*${status}\s+${protocol}\s+${name} -> Record
+  ^${interface}\s*${status}\s+${protocol} -> Record
+  

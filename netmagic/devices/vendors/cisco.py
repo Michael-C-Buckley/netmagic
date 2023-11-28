@@ -20,14 +20,26 @@ class CiscoIOSSwitch(Switch):
         """
         return super().get_running_config()
 
-    def get_interface_status(self, interface: str = None) -> ResponseGroup:
+    def get_interface_status(self, interface: str = None,
+                             status_template: str|bool = None,
+                             desc_template: str = None) -> CommandResponse|ResponseGroup:
         """
         Returns interface status of one or all switchports.
         """
-        int_desc = self.command('show interface description')
         int_status = self.command('show interface status')
-        # Parse and mix these
-        return super().get_interface_status(interface)
+
+        if status_template is False:
+            return int_status
+        
+        int_desc = self.command('show interface description')
+
+        status_template = 'show_int_status' if not status_template else status_template
+        desc_template = 'show_int_desc' if not desc_template else desc_template
+
+        int_status.fsm_output = get_fsm_data(int_status.response, 'cisco', status_template)
+        int_desc.fsm_output = get_fsm_data(int_desc.response, 'cisco', desc_template)
+
+        return ResponseGroup([int_status, int_desc], None, 'Cisco Interface Status')
     
     def get_optics(self, template: str|bool = None) -> CommandResponse:
         """
@@ -41,8 +53,6 @@ class CiscoIOSSwitch(Switch):
 
         return optics
 
-        return super().get_optics()
-    
     def get_lldp(self, template: str|bool = None) -> CommandResponse:
         """
         Returns LLDP neighbor details information.
