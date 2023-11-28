@@ -16,3 +16,5 @@ Start
   ^\s+\+\s+[Pp]ort VLAN ID:\s+${port_vlan}
   ^\s+\S+\s+[Mm]anagement [Aa]ddress \(IPv4\):\s+${management_ip}
   ^\s+Operational MAU type\s+:\s+${opertional_mau}
+  # Pre-processing adds END to mark the end of a record
+  ^END -> Record
