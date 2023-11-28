@@ -104,7 +104,8 @@ class BrocadeSwitch(Switch):
             if search(r'(?i)sfp', interface.get('medium')):
                 optical_interfaces.append(interface.get('interface'))
         
-        optics = ResponseGroup([self.command(f'show optic {interface}') for interface in optical_interfaces])
+        optics_responses = [self.command(f'show optic {interface}') for interface in optical_interfaces]
+        optics = ResponseGroup(optics_responses, None, 'Brocade Optics Data')
         
         if template is not False:
             template = 'show_optic' if template is None else template

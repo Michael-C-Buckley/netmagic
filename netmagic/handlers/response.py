@@ -34,13 +34,17 @@ class ResponseGroup:
     """
     Collection of responses
     """
-    def __init__(self, responses: list[Response], fsm_output: FSMOutputT = None) -> None:
+    def __init__(self, responses: list[Response], fsm_output: FSMOutputT = None,
+                 description: str = '') -> None:
         self.responses = responses
         self.fsm_output = fsm_output
         self.time_delta = self.find_time_delta()
 
+        # Custom user entered field for `__repr__`
+        self.description = description
+
     def __repr__(self) -> str:
-        return f'Response Group({len(self.responses)} members)'
+        return f'Response Group({len(self.responses)} members): {self.description}'
     
     def find_time_delta(self):
         sent_times = [response.sent_time for response in self.responses]
