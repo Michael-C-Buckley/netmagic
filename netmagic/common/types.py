@@ -1,21 +1,20 @@
+# NetMagic Type Module
+
+# Python Modules
 from enum import Enum
-
-from typing import (
-    TypeAlias, TypeVar, Iterable,
-    Dict, Any, TYPE_CHECKING
-)
-
 from ipaddress import (
     IPv4Address as IPv4,
     IPv6Address as IPv6,
 )
+from typing import Any, Iterable, TypeAlias
 
-if TYPE_CHECKING:
-    from mactools import MacAddress
+# Third-Part Modules
+from mactools import MacAddress
+
 
 HostT: TypeAlias = str|IPv4|IPv6
 ConfigSet: TypeAlias = Iterable[str]|str
-KwDict: TypeAlias = Dict[str, Any]
+KwDict: TypeAlias = dict[str, Any]
 FSMOutputT: TypeAlias = list[dict[str, str]]
 MacT: TypeAlias = MacAddress|str|int
 

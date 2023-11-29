@@ -41,6 +41,9 @@ class NetworkDevice(Device):
             for element in session:
                 assign_session(element)
 
+        if self.cli_session and self.hostname is None:
+            self.get_hostname()
+
     def disconnect(self, session: Session = None) -> None:
         """
         Closes specified session or all sessions
