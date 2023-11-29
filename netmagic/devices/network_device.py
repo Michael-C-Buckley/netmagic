@@ -2,6 +2,7 @@
 
 # Python Module
 from datetime import datetime
+from re import search
 
 # Third-Party Modules
 from netmiko import ReadTimeout
@@ -116,6 +117,16 @@ class NetworkDevice(Device):
         return self.cli_session.connection.send_command('write memory')
     
     # IDENTITY AND STATUS
+
+    def get_hostname(self) -> CommandResponse:
+        hostname = self.command('show run | i hostname')
+        if (hostname_match := search(r'hostname\s(.+)', hostname.response)):
+            hostname_str = hostname_match.group(1)
+        # Check for quotes surrounding the Hostname
+        if hostname_str[0] and hostname_str[-1] == '"':
+            hostname_str.replace('"','')
+        self.hostname = hostname_str
+        return hostname
 
     def get_running_config(self) -> CommandResponse:
         """

@@ -7,10 +7,16 @@ from ipaddress import (
     IPv4Address as IPv4,
     IPv6Address as IPv6
 )
+from typing import Any
 
 # Third-Party Modules
-from pydantic import BaseModel
+from pydantic import BaseModel, validator 
 from mactools import MacAddress
+
+# Local Modules
+from netmagic.common.types import MacT
+
+MacType = Any
 
 class TDRStatus(Enum):
     terminated = 'normal'
@@ -36,13 +42,18 @@ class Interface(BaseModel):
         return self.port
 
 class InterfaceLLDP(Interface):
-    chassis_mac: MacAddress
+    chassis_mac: MacType # Accepts `MacAddress|str|int` into `MacAddress`
     system_name: str
     system_desc: str
     port_desc: str
     port_vlan: int
     management_ipv4: IPv4
     management_ipv6: IPv6
+
+    @validator('chassis_mac')
+    def validate_mac_address(cls, mac: MacT) -> MacAddress:
+        if not isinstance(mac, MacAddress):
+            return MacAddress(mac)
 
 
 class InterfaceOptics(Interface):

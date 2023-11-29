@@ -17,7 +17,7 @@ class Device:
         self.hostname = None
         self.cli_session: TerminalSession = session
 
-    def not_implemeneted_error_generic(self, device_type: str = 'device'):
+    def not_implemented_error_generic(self, device_type: str = 'device'):
         """
         Error for methods not available on generic device
         """
