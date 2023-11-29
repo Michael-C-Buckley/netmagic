@@ -7,7 +7,9 @@ from re import search, sub
 
 # Local Modules
 from netmagic.common.types import Transport
-from netmagic.common.classes import CommandResponse, ResponseGroup
+from netmagic.common.classes import (
+    CommandResponse, ResponseGroup, InterfaceOptics,
+)
 from netmagic.devices.switch import Switch
 from netmagic.handlers import get_fsm_data
 from netmagic.sessions import Session, TerminalSession
@@ -53,7 +55,7 @@ class BrocadeSwitch(Switch):
         PARAMS:
         `interface`: `str` for the name of getting the full status of a single interface
         `template`: `str` for the path of the TextFSM template to use, else `None`
-           will use the default bulit-in, and `False` will skip parsing 
+           will use the default built-in, and `False` will skip parsing 
         """
         command_portion = 'brief wide' if interface is None else f'e {interface}'
         int_status = self.command(f'show interfaces {command_portion}')
@@ -84,7 +86,7 @@ class BrocadeSwitch(Switch):
 
         PARAMS:
         `template`: `str` for the path of the TextFSM template to use, else `None`
-           will use the default bulit-in, and `False` will skip parsing 
+           will use the default built-in, and `False` will skip parsing 
         """
         media = self.command('show media')
 
@@ -99,20 +101,17 @@ class BrocadeSwitch(Switch):
         Returns information about optical transceivers.
         """
         media = self.get_media()
-
-        optical_interfaces = []
-        for interface in media.fsm_output:
-            if search(r'(?i)sfp', interface.get('medium')):
-                optical_interfaces.append(interface.get('interface'))
+        optical_interfaces = [i['interface'] for i in media.fsm_output if search(r'(?i)sfp', i['medium'])]
         
-        optics_responses = [self.command(f'show optic {interface}') for interface in optical_interfaces]
+        optics_responses = [self.command(f'show optic {intf}') for intf in optical_interfaces]
         optics = ResponseGroup(optics_responses, None, 'Brocade Optics Data')
         
         if template is not False:
             template = 'show_optic' if template is None else template
             optics_data = [optics_response.response for optics_response in optics.responses]
-            optics.fsm_output = get_fsm_data(optics_data, 'brocade', template)
-        
+            fsm_output = get_fsm_data(optics_data, 'brocade', template)
+            optics.fsm_output = [InterfaceOptics.create(self.hostname, **optic) for optic in fsm_output]
+
         return optics
     
     def get_lldp(self, template: str|bool = None) -> CommandResponse:

@@ -9,6 +9,7 @@ from ipaddress import (
 )
 
 # Third-Party Modules
+from pydantic import BaseModel
 from mactools import MacAddress
 
 class TDRStatus(Enum):
@@ -26,13 +27,14 @@ class SFPAlert(Enum):
     high_alarm = 'High alarm'
 
 
-@dataclass
-class Interface:
+class Interface(BaseModel):
     host: str
-    name: str
+    port: str
 
+    @property
+    def name(self):
+        return self.port
 
-@dataclass
 class InterfaceLLDP(Interface):
     chassis_mac: MacAddress
     system_name: str
@@ -43,16 +45,33 @@ class InterfaceLLDP(Interface):
     management_ipv6: IPv6
 
 
-@dataclass
 class InterfaceOptics(Interface):
     temperature: tuple[float, SFPAlert]
     transmit_power: tuple[float, SFPAlert]
     receive_power: tuple[float, SFPAlert]
+    voltage: tuple[float, SFPAlert]
     current: tuple[float, SFPAlert]
     temperature: tuple[float, SFPAlert]
 
+    @classmethod
+    def create(cls, hostname: str, **data):
+        """
+        Factory pattern for directly consuming output from TextFSM templates
+        without transformation.
+        """
+        kwargs = {}
+        
+        for key in InterfaceOptics.model_fields:
+            item_data = data.get(key)
+            status_data = data.get(f'{key}_status')
+            if status_data:
+                kwargs[key] = (item_data, SFPAlert(status_data))
+            else:
+                kwargs[key] = item_data
 
-@dataclass
+        return cls(host = hostname, **kwargs)
+    
+
 class InterfaceTDR(Interface):
     speed: int
     # Tuple is remote pair, state, distance (if available)

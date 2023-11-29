@@ -1,15 +1,15 @@
 Value port (\d\/\d\/\d+)
-Value temp (-?\d+\.\d+)
-Value temp_status (\S+)
+Value temperature (-?\d+\.\d+)
+Value temperature_status (\S+)
 Value voltage (-?\d+\.\d+)
 Value voltage_status (\S+)
-Value tx (-?\d+\.\d+)
-Value tx_status (\S+)
-Value rx (-?\d+\.\d+)
-Value rx_status (\S+)
-Value tx_bias_current (-?\d+\.\d+)
-Value tx_bias_status (\S+)
+Value transmit_power (-?\d+\.\d+)
+Value transmit_power_status (\S+)
+Value receive_power (-?\d+\.\d+)
+Value receive_power_status (\S+)
+Value current (-?\d+\.\d+)
+Value current_status (\S+)
 
 Start
-  ^\s*${port}\s*${temp} C\s*${voltage} volts\s*${tx} dBm\s*${rx} dBm\s*${tx_bias_current} mA
-  ^\s*${temp_status}\s*${voltage_status}\s*${tx_status}\s*${rx_status}\s*${tx_bias_status}\s*
+  ^\s*${port}\s*${temperature} C\s*${voltage} volts\s*${transmit_power} dBm\s*${receive_power} dBm\s*${current} mA
+  ^\s*${temperature_status}\s*${voltage_status}\s*${transmit_power_status}\s*${receive_power_status}\s*${current_status}\s*
