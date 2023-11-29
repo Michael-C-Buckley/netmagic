@@ -17,7 +17,7 @@ from netmiko import (
 )
 
 # Local Modules
-from netmagic.handlers.response import BannerResponse
+from netmagic.common.classes import BannerResponse
 from netmagic.common.types import HostT
 
 def netmiko_connect(host: HostT, port: int, username: str, password: str,
