@@ -16,6 +16,7 @@ from mactools import MacAddress
 # Local Modules
 from netmagic.common.types import MacT
 
+# Alias for Pydantic Models
 MacType = Any
 
 def validate_speed(value):
@@ -55,7 +56,7 @@ class SFPAlert(Enum):
 
 class Interface(BaseModel):
     host: str
-    port: int
+    port: str
 
     @property
     def name(self):
@@ -97,7 +98,7 @@ class InterfaceOptics(Interface):
             status_data = data.get(f'{key}_status')
             if status_data:
                 kwargs[key] = (item_data, SFPAlert(status_data))
-            else:
+            elif item_data:
                 kwargs[key] = item_data
 
         return cls(host = hostname, **kwargs)
@@ -118,9 +119,9 @@ class InterfaceTDR(Interface):
 
 class InterfaceStatus(Interface):
     state: str
-    vlan: str
+    vlan: int
     tag: str
-    pvid: str
+    pvid: int
     priority: str
     trunk: str
     speed: int
