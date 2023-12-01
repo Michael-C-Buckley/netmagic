@@ -1,12 +1,12 @@
 # NetMagic Interface Dataclasses
 
 # Python Modules
-from dataclasses import dataclass
 from enum import Enum
 from ipaddress import (
     IPv4Address as IPv4,
     IPv6Address as IPv6
 )
+from re import search
 from typing import Any
 
 # Third-Party Modules
@@ -35,14 +35,14 @@ class SFPAlert(Enum):
 
 class Interface(BaseModel):
     host: str
-    port: str
+    port: int
 
     @property
     def name(self):
         return self.port
 
 class InterfaceLLDP(Interface):
-    chassis_mac: MacType # Accepts `MacAddress|str|int` into `MacAddress`
+    chassis_mac: MacType # Accepts `MacAddress|str|int`, converts into `MacAddress`
     system_name: str
     system_desc: str
     port_desc: str
@@ -84,15 +84,33 @@ class InterfaceOptics(Interface):
     
 
 class InterfaceTDR(Interface):
-    speed: int
+    speed: int # Speed in megabit/second
     # Tuple is remote pair, state, distance (if available)
     pair_a: tuple[str, TDRStatus, int]
     pair_b: tuple[str, TDRStatus, int]
     pair_c: tuple[str, TDRStatus, int]
     pair_d: tuple[str, TDRStatus, int]
 
+    @validator('speed', pre=True)
+    def validate_speed(cls, value):
+        if isinstance(value, str):
+            try:
+                numerical_match = search(r'\d+', value)
+                speed = int(numerical_match.group())
 
-@dataclass
+                if (unit_suffix_match := search(r'(?i)\d+(m|g)', value)):
+                    case_dict = {
+                        'm': 1,
+                        'g': 1000,
+                    }
+                    key = unit_suffix_match.group(1).lower()
+                    speed = speed * case_dict[key]
+            except:
+                raise ValueError('`speed` must be an integer or a string which can have labels like M or G for abbreviation')
+            return speed
+        return value
+
+
 class InterfaceStatus(Interface):
     state: str
     vlan: str
