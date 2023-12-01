@@ -18,6 +18,26 @@ from netmagic.common.types import MacT
 
 MacType = Any
 
+def validate_speed(value):
+    """
+    Validates speed in Pydantic-based Interface dataclasses
+    """
+    if isinstance(value, str):
+        speed_match = search(r'(?i)(\d+)(m|g)?', value)
+        if not speed_match:
+            raise ValueError('`speed` must be an integer or a string which can have labels like M or G for abbreviation')
+        speed = int(speed_match.group(1))
+
+        if (suffix := speed_match.group(2)):
+            case_dict = {
+                'm': 1,
+                'g': 1000,
+            }
+            speed = speed * case_dict[suffix.lower()]
+        
+        return speed
+    return value
+
 class TDRStatus(Enum):
     terminated = 'normal'
     crosstalk = 'crosstalk'
@@ -93,21 +113,7 @@ class InterfaceTDR(Interface):
 
     @validator('speed', pre=True)
     def validate_speed(cls, value):
-        if isinstance(value, str):
-            speed_match = search(r'(?i)(\d+)(m|g)?', value)
-            if not speed_match:
-                raise ValueError('`speed` must be an integer or a string which can have labels like M or G for abbreviation')
-            speed = int(speed_match.group(1))
-
-            if (suffix := speed_match.group(2)):
-                case_dict = {
-                    'm': 1,
-                    'g': 1000,
-                }
-                speed = speed * case_dict[suffix.lower()]
-            
-            return speed
-        return value
+        return validate_speed(value)
 
 
 class InterfaceStatus(Interface):
@@ -120,3 +126,7 @@ class InterfaceStatus(Interface):
     speed: int
     duplex: str
     type: str
+
+    @validator('speed', pre=True)
+    def validate_speed(cls, value):
+        return validate_speed(value)
