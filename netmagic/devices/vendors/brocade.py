@@ -9,6 +9,7 @@ from re import search, sub
 from netmagic.common.types import Transport
 from netmagic.common.classes import (
     CommandResponse, ResponseGroup, InterfaceOptics,
+    InterfaceStatus
 )
 from netmagic.devices.switch import Switch
 from netmagic.handlers import get_fsm_data
@@ -58,19 +59,17 @@ class BrocadeSwitch(Switch):
            will use the default built-in, and `False` will skip parsing 
         """
         command_portion = 'brief wide' if interface is None else f'e {interface}'
-        int_status = self.command(f'show interfaces {command_portion}')
+        int_status = self.command(f'show interface {command_portion}')
 
         if template is False:
             return int_status
         
         template = 'show_int' if interface is None else 'show_single_int'
-        fsm_output = get_fsm_data(int_status.response, 'brocade', template)
+        parsed_output = get_fsm_data(int_status.response, 'brocade', template)
 
-        for entry in fsm_output:
-            if (name := entry.get('name')):
-                # Names may may whitespace characters when they should be None
-                if not name.strip():
-                    entry['name'] = None
+        fsm_output = {}
+        for entry in parsed_output:
+            fsm_output[entry['port']] = InterfaceStatus(host=self.hostname, **entry)
 
         int_status.fsm_output = fsm_output
         return int_status

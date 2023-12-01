@@ -118,15 +118,16 @@ class InterfaceTDR(Interface):
 
 
 class InterfaceStatus(Interface):
-    state: str
-    vlan: int
-    tag: str
-    pvid: int
-    priority: str
-    trunk: str
-    speed: int
-    duplex: str
-    type: str
+    link: str = None
+    state: str = None
+    vlan: int = None
+    tag: str = None
+    pvid: int = None
+    priority: str = None
+    trunk: str = None
+    speed: int = None
+    duplex: str = None
+    type: str = None
 
     @validator('speed', pre=True)
     def validate_speed(cls, value):
