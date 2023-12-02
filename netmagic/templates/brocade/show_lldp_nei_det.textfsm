@@ -12,9 +12,9 @@ Value operational_mau ([^\n]+)
 Start
   ^Local port: ${port}
   ^\s+\S+\s+[Cc]hassis ID \(MAC address\): ${chassis_mac}
-  ^\s+\S+\s+[Ss]ystem [Nn]ame\s+:\s+${system_name}
-  ^\s+\S+\s+[Ss]ystem [Dd]escription\s+:\s+${system_desc}
-  ^\s+\+\s+[Pp]ort [Dd]escription\s+:\s+${port_desc}
+  ^\s+\S+\s+[Ss]ystem [Nn]ame\s+:\s+"${system_name}"
+  ^\s+\S+\s+[Ss]ystem [Dd]escription\s+:\s+"${system_desc}"
+  ^\s+\+\s+[Pp]ort [Dd]escription\s+:\s+"${port_desc}"
   ^\s+\+\s+[Pp]ort VLAN ID:\s+${port_vlan}
   ^\s+\S+\s+[Mm]anagement [Aa]ddress \(IPv4\):\s+${management_ipv4}
   ^\s+\S+\s+[Mm]anagement [Aa]ddress \(IPv6\):\s+${management_ipv6}
