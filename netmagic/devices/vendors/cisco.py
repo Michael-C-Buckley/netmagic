@@ -12,7 +12,7 @@ from netmagic.common.types import Transport
 from netmagic.common.classes import CommandResponse, ResponseGroup
 from netmagic.common.classes.interface import (
     InterfaceStatus, InterfaceOptics, InterfaceLLDP,
-    InterfaceTDR
+    InterfaceTDR, TDRStatus
 )
 from netmagic.devices.switch import Switch
 from netmagic.handlers import get_fsm_data
@@ -128,6 +128,19 @@ class CiscoIOSSwitch(Switch):
         def process_fsm_data(interface: str, response_str: str) -> InterfaceTDR:
             # Convert and normalize the data into the modelZ
             fsm_data = get_fsm_data(response_str, 'cisco', template)
+            tdr_kwargs = {
+                'host': self.hostname,
+                'port': interface,
+                'speed': search(r'\d+[MG]', response_str).group(),
+            }
+            for line in fsm_data:
+                local_pair = line['local_pair']
+                remote_pair = line['remote_pair']
+                tdr_status = TDRStatus(line['status'])
+                distance = line['distance']
+                tdr_kwargs[f'pair_{local_pair}'] = (remote_pair, tdr_status, distance)
+
+            return InterfaceTDR(**tdr_kwargs)
 
         # Show the test results
         check_tdr = lambda intf: self.command(f'show cable-diagnostics tdr int {intf}')

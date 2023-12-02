@@ -40,10 +40,10 @@ def validate_speed(value):
     return value
 
 class TDRStatus(Enum):
-    terminated = 'normal'
-    crosstalk = 'crosstalk'
-    open = 'open'
-    short = 'short'
+    terminated = 'Normal'
+    crosstalk = 'Crosstalk'
+    open = 'Open'
+    short = 'Short'
 
 
 class SFPAlert(Enum):
