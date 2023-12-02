@@ -5,9 +5,10 @@ from datetime import datetime
 from re import search
 
 # Third-Party Modules
-from netmiko import ReadTimeout
+from netmiko import ReadTimeout, redispatch
 
 # Local Modules
+from netmagic.common.types import Engine, Transport
 from netmagic.common.classes import CommandResponse, ConfigResponse
 from netmagic.common.utils import validate_max_tries, unquote
 from netmagic.devices import Device
@@ -73,14 +74,32 @@ class NetworkDevice(Device):
         if device_type is None:
             device_type = 'network device'
         super().not_implemented_error_generic(device_type)
+
+    def session_preparation(self, dispatch: str = 'generic_termserver'):
+        """
+        CLI session preparation either for SSH jumping or serial connections
+        """
+        def redispatch_device(dispatch: str) -> None:
+            if self.cli_session.connection.device_type != dispatch:
+                redispatch(self.cli_session.connection, dispatch, False)
+        
+        if self.cli_session.engine == Engine.NETMIKO:
+            if self.cli_session.transport == Transport.SERIAL:
+                redispatch_device('cisco_ios_serial')
+            else:
+                redispatch_device(dispatch)
+
+        self.enable()
+
+    def enable(self, password: str = None) -> None:
+        """
+        Manual entering of enabled mode
+        """
+        self.command('enable', r'[Pp]assword')
+        password = password if password is not None else self.cli_session.secret
+        self.command(password)
     
     # CONFIG HANDLING
-
-    def enable(self, *args, **kwargs) -> None:
-        """
-        Manual SSH enable method useful for proxy SSH
-        """
-        self.not_implemented_error_generic()
 
     @validate_max_tries
     def send_config(self, config: ConfigSet, max_tries: int = 3, 

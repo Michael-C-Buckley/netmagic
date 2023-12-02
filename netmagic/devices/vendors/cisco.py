@@ -3,19 +3,39 @@
 # Python Modules
 
 # Third-Party Modules
+from netmiko import redispatch
 
 # Local Modules
-from netmagic.devices.switch import Switch
+from netmagic.common.types import Transport
 from netmagic.common.classes import CommandResponse, ResponseGroup
 from netmagic.common.classes.interface import (
     InterfaceStatus, InterfaceOptics, InterfaceLLDP
 )
+from netmagic.devices.switch import Switch
 from netmagic.handlers import get_fsm_data
-from netmagic.sessions import Session
+from netmagic.sessions import Session, TerminalSession
 
 class CiscoIOSSwitch(Switch):
     def __init__(self, session: Session) -> None:
         super().__init__(session)
+        if isinstance(session, TerminalSession):
+            if session.transport == Transport.SERIAL:
+                self.session_preparation()
+
+    def session_preparation(self):
+        """
+        CLI session preparation either for SSH jumping or serial connections
+        """
+        super().session_preparation('cisco_ios')
+        self.command('terminal length 0')
+
+    def enable(self, password: str = None):
+        """
+        Manual entering of enabled mode
+        """
+        output = self.command('enable', r'[Pp]assword')
+        if password is not None:
+            self.command(password)
 
     # IDENTITY
     def get_running_config(self) -> CommandResponse:

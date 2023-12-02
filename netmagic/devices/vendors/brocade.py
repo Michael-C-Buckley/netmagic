@@ -4,6 +4,7 @@
 from re import search, sub
 
 # Third-Party Modules
+from netmiko import redispatch
 
 # Local Modules
 from netmagic.common.types import Transport
@@ -22,13 +23,12 @@ class BrocadeSwitch(Switch):
         if isinstance(session, TerminalSession):
             if session.transport == Transport.SERIAL:
                 self.session_preparation()
-        self.template_path = 'mactools/templates/brocade'
 
     def session_preparation(self):
         """
         CLI session preparation either for SSH jumping or serial connections
         """
-        self.enable()
+        super().session_preparation('brocade_fastiron')
         self.command('skip-page-display')
 
     def enable(self, password: str = None):

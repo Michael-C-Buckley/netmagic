@@ -25,3 +25,7 @@ class Transport(Enum):
     NETCONF = 'netconf'
     RESTCONF = 'restconf'
     CUSTOM = 'custom'
+
+class Engine(Enum):
+    NETMIKO = 'netmiko'
+    SCRAPLI = 'scrapli'
