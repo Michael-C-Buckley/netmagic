@@ -64,12 +64,12 @@ class Interface(BaseModel):
 
 class InterfaceLLDP(Interface):
     chassis_mac: MacType # Accepts `MacAddress|str|int`, converts into `MacAddress`
-    system_name: Optional[str]
-    system_desc: Optional[str]
-    port_desc: Optional[str]
-    port_vlan: Optional[int]
-    management_ipv4: Optional[IPv4]
-    management_ipv6: Optional[IPv6]
+    system_name: Optional[str] = None
+    system_desc: Optional[str] = None
+    port_desc: Optional[str] = None
+    port_vlan: Optional[int] = None
+    management_ipv4: Optional[IPv4] = None
+    management_ipv6: Optional[IPv6] = None
 
     @validator('chassis_mac')
     def validate_mac_address(cls, mac: MacT) -> MacAddress:
@@ -80,7 +80,7 @@ class InterfaceLLDP(Interface):
     def validate_int_fields(cls, value):
         if not value:
             return None
-        return None if search('(?:N/A)|(?:None)', value) else value
+        return None if search(r'(?i)N\/A|None', value) else value
 
 
 class InterfaceOptics(Interface):
@@ -124,27 +124,32 @@ class InterfaceTDR(Interface):
 
 
 class InterfaceStatus(Interface):
-    state: Optional[str]
-    vlan: Optional[str]
-    tag: Optional[str]
-    pvid: Optional[int]
-    priority: Optional[str]
-    trunk: Optional[str]
-    speed: Optional[int]
-    duplex: Optional[str]
-    media: Optional[str]
+    desc: Optional[str] = None
+    state: Optional[str] = None
+    vlan: Optional[str] = None
+    tag: Optional[str] = None
+    pvid: Optional[int] = None
+    priority: Optional[str] = None
+    trunk: Optional[str] = None
+    speed: Optional[int] = None
+    duplex: Optional[str] = None
+    media: Optional[str] = None
 
     @validator('speed', pre=True)
     def validate_speed(cls, value):
-        if value == 'None':
+        if search(r'(?i)none|auto', value):
             return None
         return validate_speed(value)
     
     @validator('state', 'tag', 'pvid', 'vlan', 'priority', 'trunk', 'duplex', 'media', pre=True)
     def validate_optional_fields(cls, value):
-        return None if search(r'(?i)(?:N/A)|(?:None)', value) else value
+        return None if search(r'(?i)N\/A|None', value) else value
     
     # Aliases between vendor terminology
     @property
     def link(self):
         return self.state
+    
+    @property
+    def label(self):
+        return self.desc
