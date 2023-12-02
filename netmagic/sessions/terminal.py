@@ -12,6 +12,7 @@ from netmiko import (
 )
 
 # Local Modules
+from netmagic.common.types import Engine
 from netmagic.sessions.session import Session
 from netmagic.common.classes import CommandResponse
 from netmagic.handlers import netmiko_connect, serial_connect
@@ -22,13 +23,18 @@ class TerminalSession(Session):
     Container for Terminal-based CLI session on SSH, Telnet, serial, etc.
     """
     def __init__(self, host: HostT, username: str, password: str,
-                 device_type: str, connection: BaseConnection = None,
-                 secret: str = None, port: int = 22, engine: str = 'netmiko',
+                 device_type: str = 'generic_termserver',
+                 connection: BaseConnection = None,
+                 secret: str = None, port: int = 22,
+                 engine: Engine = Engine.NETMIKO,
                  transport: Transport = Transport.SSH, *args, **kwargs) -> None:
         super().__init__(host, username, password, port, connection, transport)
         self.secret = secret
         self.engine = engine
         self.device_type = device_type
+
+        if transport == Transport.SERIAL:
+            self.device_type = 'cisco_ios_serial'
 
         # Collect the remaining kwargs to offer when reconnecting
         self.connection_kwargs = {**kwargs}
