@@ -44,9 +44,9 @@ class CiscoIOSSwitch(Switch):
         fsm_desc_data = get_fsm_data(int_desc.response, 'cisco', desc_template)
 
         # Parse and combine for full-length interface descriptions
-        fsm_output = {i['port']: InterfaceStatus(self.hostname, **i) for i in fsm_status_data}
+        fsm_output = {i['port']: InterfaceStatus(host = self.hostname, **i) for i in fsm_status_data}
         for entry in fsm_desc_data:
-            fsm_output[entry]['name'] = entry.get('name')
+            fsm_output['desc'] = entry['desc'].strip()
 
         return ResponseGroup([int_status, int_desc], fsm_output, 'Cisco Interface Status')
     
@@ -59,7 +59,7 @@ class CiscoIOSSwitch(Switch):
         if template is not False:
             template = 'show_int_trans_det' if template is None else template
             fsm_data = get_fsm_data(optics.response, 'cisco', template)
-            optics.fsm_output = {i['port']: InterfaceOptics(self.hostname, **i) for i in fsm_data}
+            optics.fsm_output = {i['port']: InterfaceOptics(host = self.hostname, **i) for i in fsm_data}
 
         return optics
 
@@ -72,6 +72,6 @@ class CiscoIOSSwitch(Switch):
         if template is not False:
             template = 'show_lldp_nei_det' if template is None else template
             fsm_data = get_fsm_data(lldp.response, 'cisco', template)
-            lldp.fsm_output = {i['port']: InterfaceLLDP(self.hostname, **i) for i in fsm_data}
+            lldp.fsm_output = {i['port']: InterfaceLLDP(host = self.hostname, **i) for i in fsm_data}
         
         return lldp
