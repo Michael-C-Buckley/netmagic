@@ -9,7 +9,7 @@ from re import search, sub
 from netmagic.common.types import Transport
 from netmagic.common.classes import (
     CommandResponse, ResponseGroup, InterfaceOptics,
-    InterfaceStatus
+    InterfaceStatus, InterfaceLLDP
 )
 from netmagic.devices.switch import Switch
 from netmagic.handlers import get_fsm_data
@@ -108,8 +108,9 @@ class BrocadeSwitch(Switch):
         if template is not False:
             template = 'show_optic' if template is None else template
             optics_data = [optics_response.response for optics_response in optics.responses]
-            fsm_output = get_fsm_data(optics_data, 'brocade', template)
-            optics.fsm_output = [InterfaceOptics.create(self.hostname, **optic) for optic in fsm_output]
+            optics.fsm_output = {}
+            for optic in get_fsm_data(optics_data, 'brocade', template):
+                optics.fsm_output[optic.get('port')] = InterfaceOptics.create(self.hostname, **optic)
 
         return optics
     
@@ -128,6 +129,8 @@ class BrocadeSwitch(Switch):
 
         # The built-in template REQUIRES the above pre-processing to work correctly
         template = 'show_lldp_nei_det' if not template else template
-        lldp.fsm_output = get_fsm_data(lldp.response, 'brocade', template)
+        lldp.fsm_output = {}
+        for entry in get_fsm_data(lldp.response, 'brocade', template):
+            lldp.fsm_output[entry.get('port')] = InterfaceLLDP(self.hostname, **entry)
 
         return lldp
