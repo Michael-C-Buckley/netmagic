@@ -9,6 +9,7 @@ from netmiko import ReadTimeout
 
 # Local Modules
 from netmagic.common.classes import CommandResponse, ConfigResponse
+from netmagic.common.utils import validate_max_tries
 from netmagic.devices import Device
 from netmagic.sessions import Session, TerminalSession, RESTCONFSession, NETCONFSession
 from netmagic.common import ConfigSet
@@ -81,6 +82,7 @@ class NetworkDevice(Device):
         """
         self.not_implemented_error_generic()
 
+    @validate_max_tries
     def send_config(self, config: ConfigSet, max_tries: int = 3, 
                     exit: bool = True, save: bool = True,
                     *args, **kwargs) -> ConfigResponse:
@@ -92,11 +94,6 @@ class NetworkDevice(Device):
         *exit: bool whether the code should exit global config mode when done
         *save: bool whether the code should save the config after changes
         """
-        max_tries = int(max_tries)
-
-        if max_tries < 1:
-            raise ValueError('`max_tries` count must be `1` or greater.')
-
         for i in range(max_tries):
 
             sent_time = datetime.now()
