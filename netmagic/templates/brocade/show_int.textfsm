@@ -8,7 +8,7 @@ Value tag (\S+)
 Value pvid (\S+)
 Value priority (\S+)
 Value int_mac (\S+)
-Value name (.+)
+Value desc (.+)
 
 Start
-  ^${port}\s*${state}\s*${stp_state}\s*${duplex}\s*${speed}\s*${trunk}\s*${tag}\s*${pvid}\s*${priority}\s*${int_mac}\s*${name} -> Record
+  ^${port}\s*${state}\s*${stp_state}\s*${duplex}\s*${speed}\s*${trunk}\s*${tag}\s*${pvid}\s*${priority}\s*${int_mac}\s*${desc} -> Record

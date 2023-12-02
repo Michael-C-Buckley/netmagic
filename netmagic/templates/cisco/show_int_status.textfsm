@@ -1,5 +1,5 @@
 Value port ([ATGF][pie]\d+\/\d+\/\d+)
-Value name (.{0,19})
+Value desc (.{0,19})
 Value state (disabled|connected|notconnect)
 Value vlan (\S+)
 Value duplex (\S+)
@@ -7,4 +7,4 @@ Value speed (\S+)
 Value media (\S+)
 
 Start
-  ^${port}\s*${name}?\s*${state}\s*${vlan}\s*${duplex}\s*${speed}\s*${media} -> Record
+  ^${port}\s*${desc}?\s*${state}\s*${vlan}\s*${duplex}\s*${speed}\s*${media} -> Record
