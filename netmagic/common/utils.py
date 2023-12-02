@@ -23,3 +23,12 @@ def validate_max_tries(func):
 
         return func(*args, **kwargs)
     return wrapper
+
+def unquote(string: str) -> str:
+    """
+    Removes quotes from the beginning and end of a string, if present
+    """
+    if len(string) >= 2 and string[0] == string[-1] and string[0] in ('"', "'"):
+        return string[1:-1]
+    else:
+        return string

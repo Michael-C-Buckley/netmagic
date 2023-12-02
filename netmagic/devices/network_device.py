@@ -9,7 +9,7 @@ from netmiko import ReadTimeout
 
 # Local Modules
 from netmagic.common.classes import CommandResponse, ConfigResponse
-from netmagic.common.utils import validate_max_tries
+from netmagic.common.utils import validate_max_tries, unquote
 from netmagic.devices import Device
 from netmagic.sessions import Session, TerminalSession, RESTCONFSession, NETCONFSession
 from netmagic.common import ConfigSet
@@ -122,11 +122,8 @@ class NetworkDevice(Device):
         hostname = self.command('show run | i hostname')
         if (hostname_match := search(r'hostname\s(.+)', hostname.response)):
             hostname_str = hostname_match.group(1)
-        # Check for quotes surrounding the Hostname
-        if hostname_str[0] and hostname_str[-1] == '"':
-            hostname_str.replace('"','')
-        self.hostname = hostname_str
-        return hostname
+            self.hostname = unquote(hostname_str)
+            return hostname
 
     def get_running_config(self) -> CommandResponse:
         """
