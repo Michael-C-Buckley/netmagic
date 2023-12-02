@@ -1,6 +1,8 @@
 # NetMagic Cisco Device Library
 
 # Python Modules
+from re import search
+from time import sleep
 
 # Third-Party Modules
 from netmiko import redispatch
@@ -9,7 +11,8 @@ from netmiko import redispatch
 from netmagic.common.types import Transport
 from netmagic.common.classes import CommandResponse, ResponseGroup
 from netmagic.common.classes.interface import (
-    InterfaceStatus, InterfaceOptics, InterfaceLLDP
+    InterfaceStatus, InterfaceOptics, InterfaceLLDP,
+    InterfaceTDR
 )
 from netmagic.devices.switch import Switch
 from netmagic.handlers import get_fsm_data
@@ -95,3 +98,45 @@ class CiscoIOSSwitch(Switch):
             lldp.fsm_output = {i['port']: InterfaceLLDP(host = self.hostname, **i) for i in fsm_data}
         
         return lldp
+    
+    def get_tdr_data(self, interface_status: ResponseGroup = None,
+                     only_bad: bool = True, template: str|bool = None):
+        """
+        Collects TDR data of interfaces
+        """
+        if interface_status is None:
+            interface_status = self.get_interface_status()
+
+        template = 'show_tdr' if template is None else template
+        submitted_tests: list[str] = []
+        responses: list[CommandResponse] = []
+
+        fsm_output: dict[str, InterfaceStatus] = interface_status.fsm_output
+        submit_tdr = lambda intf: self.command(f'test cable-diagnostics tdr int {intf}')
+
+        # Submit the tests
+        for interface in fsm_output.values():
+            if not only_bad:
+                if interface.speed < 1000:
+                    responses.append(submit_tdr(interface.name))
+                    submitted_tests.append(interface.name)
+            else:
+                responses.append(submit_tdr(interface.name))
+                submitted_tests.append(interface.name)
+
+        fsm_output = {}
+        def process_fsm_data(interface: str, response_str: str) -> InterfaceTDR:
+            # Convert and normalize the data into the modelZ
+            fsm_data = get_fsm_data(response_str, 'cisco', template)
+
+        # Show the test results
+        check_tdr = lambda intf: self.command(f'show cable-diagnostics tdr int {intf}')
+        for interface in submitted_tests:
+            tdr_result = check_tdr(interface)
+            while search(r'(?i)not complete', tdr_result.response):
+                sleep(1)
+                tdr_result = check_tdr(interface)
+            responses.append(tdr_result)
+            # parse, add to object
+            if template is not False:
+                fsm_output[interface] = process_fsm_data(interface, tdr_result.response)

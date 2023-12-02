@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from netmagic.sessions.terminal import TerminalSession
-from netmagic.common.types import HostT, FSMOutputT
+from netmagic.common.types import HostT, FSMDataT
     
 
 class Response:
@@ -33,7 +33,7 @@ class ResponseGroup:
     """
     Collection of responses
     """
-    def __init__(self, responses: list[Response], fsm_output: FSMOutputT = None,
+    def __init__(self, responses: list[Response], fsm_output: FSMDataT = None,
                  description: str = '') -> None:
         self.responses = responses
         self.fsm_output = fsm_output
@@ -72,7 +72,7 @@ class CommandResponse(Response):
     def __init__(self, response: str|Exception, command_string: str, sent_time: datetime,
                 session: 'TerminalSession', expect_string: str, success: bool = None,
                 received_time: datetime = None, attempts: int = 1,
-                fsm_output: FSMOutputT = None) -> None:
+                fsm_output: FSMDataT = None) -> None:
         self.command_string = command_string
         self.expect_string = expect_string
         self.session = session

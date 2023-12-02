@@ -15,7 +15,10 @@ from mactools import MacAddress
 HostT: TypeAlias = str|IPv4|IPv6
 ConfigSet: TypeAlias = Iterable[str]|str
 KwDict: TypeAlias = dict[str, Any]
+
 FSMOutputT: TypeAlias = list[dict[str, str]]
+FSMDataT: TypeAlias = dict[str, Any]
+
 MacT: TypeAlias = MacAddress|str|int
 
 class Transport(Enum):
