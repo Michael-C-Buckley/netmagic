@@ -24,7 +24,9 @@ def validate_speed(value):
     Validates speed in Pydantic-based Interface dataclasses
     """
     if isinstance(value, str):
-        if search(r'(?i)auto', value):
+        if value is None:
+            return None
+        if search(r'(?i)auto|none', value):
             return None
         speed_match = search(r'(?i)(?:a-)?(\d+)(m|g)?', value)
         if not speed_match:
@@ -113,7 +115,7 @@ class InterfaceOptics(Interface):
     
 
 class InterfaceTDR(Interface):
-    speed: int # Speed in megabit/second
+    speed: Optional[int] = None # Speed in megabit/second
     # Tuple is remote pair, state, distance (if available)
     pair_a: tuple[str, TDRStatus, int]
     pair_b: tuple[str, TDRStatus, int]
@@ -122,8 +124,6 @@ class InterfaceTDR(Interface):
 
     @validator('speed', pre=True)
     def validate_speed(cls, value):
-        if search(r'(?i)none|auto', value):
-            return None
         return validate_speed(value)
 
 
@@ -141,8 +141,6 @@ class InterfaceStatus(Interface):
 
     @validator('speed', pre=True)
     def validate_speed(cls, value):
-        if search(r'(?i)none|auto', value):
-            return None
         return validate_speed(value)
     
     @validator('state', 'tag', 'pvid', 'vlan', 'priority', 'trunk', 'duplex', 'media', pre=True)
