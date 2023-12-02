@@ -7,7 +7,7 @@ from ipaddress import (
     IPv6Address as IPv6
 )
 from re import search
-from typing import Any
+from typing import Any, Optional
 
 # Third-Party Modules
 from pydantic import BaseModel, validator 
@@ -64,17 +64,23 @@ class Interface(BaseModel):
 
 class InterfaceLLDP(Interface):
     chassis_mac: MacType # Accepts `MacAddress|str|int`, converts into `MacAddress`
-    system_name: str
-    system_desc: str
-    port_desc: str
-    port_vlan: int
-    management_ipv4: IPv4
-    management_ipv6: IPv6
+    system_name: Optional[str]
+    system_desc: Optional[str]
+    port_desc: Optional[str]
+    port_vlan: Optional[int]
+    management_ipv4: Optional[IPv4]
+    management_ipv6: Optional[IPv6]
 
     @validator('chassis_mac')
     def validate_mac_address(cls, mac: MacT) -> MacAddress:
         if not isinstance(mac, MacAddress):
             return MacAddress(mac)
+
+    @validator('management_ipv4', 'management_ipv6', 'port_vlan', pre=True)
+    def validate_int_fields(cls, value):
+        if not value:
+            return None
+        return None if search('(?:N/A)|(?:None)', value) else value
 
 
 class InterfaceOptics(Interface):
@@ -118,17 +124,23 @@ class InterfaceTDR(Interface):
 
 
 class InterfaceStatus(Interface):
-    link: str = None
-    state: str = None
-    vlan: int = None
-    tag: str = None
-    pvid: int = None
-    priority: str = None
-    trunk: str = None
-    speed: int = None
-    duplex: str = None
-    type: str = None
+    link: Optional[str]
+    state: Optional[str]
+    vlan: Optional[int]
+    tag: Optional[str]
+    pvid: Optional[int]
+    priority: Optional[str]
+    trunk: Optional[str]
+    speed: Optional[int]
+    duplex: Optional[str]
+    type: Optional[str]
 
     @validator('speed', pre=True)
     def validate_speed(cls, value):
+        if value == 'None':
+            return None
         return validate_speed(value)
+    
+    @validator('pvid', 'vlan', pre=True)
+    def validate_int_fields(cls, value):
+        return None if search('(?:N/A)|(?:None)', value) else value
