@@ -144,9 +144,16 @@ class NetworkDevice(Device):
         """
         Returns information about optical transceivers.
         """
+        self.not_implemented_error_generic()
         
     def get_lldp(self) -> CommandResponse:
         """
         Returns LLDP neighbor details information.
         """
         return self.command('show lldp neighbor detail')
+    
+    def get_media(self) -> None:
+        """
+        Gets transceiver information.
+        """
+        self.not_implemented_error_generic()

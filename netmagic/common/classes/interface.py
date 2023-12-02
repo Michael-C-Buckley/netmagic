@@ -124,16 +124,15 @@ class InterfaceTDR(Interface):
 
 
 class InterfaceStatus(Interface):
-    link: Optional[str]
     state: Optional[str]
-    vlan: Optional[int]
+    vlan: Optional[str]
     tag: Optional[str]
     pvid: Optional[int]
     priority: Optional[str]
     trunk: Optional[str]
     speed: Optional[int]
     duplex: Optional[str]
-    type: Optional[str]
+    media: Optional[str]
 
     @validator('speed', pre=True)
     def validate_speed(cls, value):
@@ -141,6 +140,11 @@ class InterfaceStatus(Interface):
             return None
         return validate_speed(value)
     
-    @validator('pvid', 'vlan', pre=True)
-    def validate_int_fields(cls, value):
-        return None if search('(?:N/A)|(?:None)', value) else value
+    @validator('state', 'tag', 'pvid', 'vlan', 'priority', 'trunk', 'duplex', 'media', pre=True)
+    def validate_optional_fields(cls, value):
+        return None if search(r'(?i)(?:N/A)|(?:None)', value) else value
+    
+    # Aliases between vendor terminology
+    @property
+    def link(self):
+        return self.state
