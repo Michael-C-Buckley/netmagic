@@ -1,7 +1,8 @@
 Value Required local_pair ([A-D])
-Value remote_pair ([A-D])
+Value remote_pair (\S+)
 Value distance (\d+)
 Value status (\w+)
 
 Start
-  ^.+Pair ${local_pair}\s+${distance}\s+\+\/- \d+ meters Pair ${remote_pair}\s+${status} -> Record
+  ^.+Pair ${local_pair}\s+${distance}\s+\+\/- \d+\s+meters\s+Pair ${remote_pair}\s+${status} -> Record
+  ^.+Pair ${local_pair}\s+${distance}\s+\+\/- \d+\s+meters\s+${remote_pair}\s+${status} -> Record

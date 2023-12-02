@@ -69,7 +69,7 @@ class CiscoIOSSwitch(Switch):
         # Parse and combine for full-length interface descriptions
         fsm_output = {i['port']: InterfaceStatus(host = self.hostname, **i) for i in fsm_status_data}
         for entry in fsm_desc_data:
-            fsm_output['desc'] = entry['desc'].strip()
+            fsm_output[entry['interface']].desc = entry['desc'].strip()
 
         return ResponseGroup([int_status, int_desc], fsm_output, 'Cisco Interface Status')
     
@@ -116,7 +116,11 @@ class CiscoIOSSwitch(Switch):
 
         # Submit the tests
         for interface in fsm_output.values():
-            if not only_bad:
+            if only_bad:
+                if not isinstance(interface.speed, int):
+                    continue
+                if search(r'SFP', interface.media):
+                    continue
                 if interface.speed < 1000:
                     responses.append(submit_tdr(interface.name))
                     submitted_tests.append(interface.name)
@@ -126,19 +130,21 @@ class CiscoIOSSwitch(Switch):
 
         fsm_output = {}
         def process_fsm_data(interface: str, response_str: str) -> InterfaceTDR:
-            # Convert and normalize the data into the modelZ
+            # Convert and normalize the data into the model
             fsm_data = get_fsm_data(response_str, 'cisco', template)
             tdr_kwargs = {
                 'host': self.hostname,
                 'port': interface,
-                'speed': search(r'\d+[MG]', response_str).group(),
             }
+            if (speed_match := search(r'\d+[MG]', response_str)):
+                tdr_kwargs['speed'] = speed_match.group()
+
             for line in fsm_data:
                 local_pair = line['local_pair']
                 remote_pair = line['remote_pair']
                 tdr_status = TDRStatus(line['status'])
                 distance = line['distance']
-                tdr_kwargs[f'pair_{local_pair}'] = (remote_pair, tdr_status, distance)
+                tdr_kwargs[f'pair_{local_pair.lower()}'] = (remote_pair, tdr_status, distance)
 
             return InterfaceTDR(**tdr_kwargs)
 
@@ -153,3 +159,6 @@ class CiscoIOSSwitch(Switch):
             # parse, add to object
             if template is not False:
                 fsm_output[interface] = process_fsm_data(interface, tdr_result.response)
+
+        if responses:
+            return ResponseGroup(responses, fsm_output, 'Cisco TDRs')

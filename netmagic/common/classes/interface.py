@@ -24,7 +24,9 @@ def validate_speed(value):
     Validates speed in Pydantic-based Interface dataclasses
     """
     if isinstance(value, str):
-        speed_match = search(r'(?i)(\d+)(m|g)?', value)
+        if search(r'(?i)auto', value):
+            return None
+        speed_match = search(r'(?i)(?:a-)?(\d+)(m|g)?', value)
         if not speed_match:
             raise ValueError('`speed` must be an integer or a string which can have labels like M or G for abbreviation')
         speed = int(speed_match.group(1))
@@ -120,6 +122,8 @@ class InterfaceTDR(Interface):
 
     @validator('speed', pre=True)
     def validate_speed(cls, value):
+        if search(r'(?i)none|auto', value):
+            return None
         return validate_speed(value)
 
 
