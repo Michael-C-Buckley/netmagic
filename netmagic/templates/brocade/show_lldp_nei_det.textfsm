@@ -1,20 +1,23 @@
-Value local_port (\S+)
-Value chassis_mac (\S+)
+# Values with #NAME# are replaced at runtime
+Value port (\S+)
+Value chassis_mac (#MAC_PATTERN#)
 Value system_name (\S+)
 Value system_desc ([^+]+)
 Value port_desc ([^\n]+)
 Value port_vlan (\S+)
-Value management_ip (\d+\.\d+\.\d+\.\d+)
-Value opertional_mau ([^\n]+)
+Value management_ipv4 (#IPV4_PATTERN#)
+Value management_ipv6 (#IPV6_PATTERN#)
+Value operational_mau ([^\n]+)
 
 Start
-  ^Local port: ${local_port}
+  ^Local port: ${port}
   ^\s+\S+\s+[Cc]hassis ID \(MAC address\): ${chassis_mac}
   ^\s+\S+\s+[Ss]ystem [Nn]ame\s+:\s+${system_name}
   ^\s+\S+\s+[Ss]ystem [Dd]escription\s+:\s+${system_desc}
   ^\s+\+\s+[Pp]ort [Dd]escription\s+:\s+${port_desc}
   ^\s+\+\s+[Pp]ort VLAN ID:\s+${port_vlan}
-  ^\s+\S+\s+[Mm]anagement [Aa]ddress \(IPv4\):\s+${management_ip}
-  ^\s+Operational MAU type\s+:\s+${opertional_mau}
+  ^\s+\S+\s+[Mm]anagement [Aa]ddress \(IPv4\):\s+${management_ipv4}
+  ^\s+\S+\s+[Mm]anagement [Aa]ddress \(IPv6\):\s+${management_ipv6}
+  ^\s+Operational MAU type\s+:\s+${operational_mau}
   # Pre-processing adds END to mark the end of a record
   ^END -> Record

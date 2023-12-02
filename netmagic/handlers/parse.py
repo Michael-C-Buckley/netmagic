@@ -2,7 +2,8 @@
 
 # Python Modules
 from importlib.resources import open_text
-from re import search, compile, escape
+from io import StringIO
+from re import search, compile, escape, match, sub
 from typing import Optional
 
 # Third-Party Modules
@@ -40,9 +41,9 @@ Consider validating with `ipaddress`
 """
 BASIC_IPV6 = r'(?:[a-fA-F\d]{0,4}:?){0,7}(?:[a-fA-F\d]{0,4}:?)'
 MIXED_IPV6 = fr'::(?:[fF]{{4}}:)?{IPV4_PATTERN}'
-IPV6_REGEX = fr'{BASIC_IPV6}|{MIXED_IPV6}'
+IPV6_PATTERN = fr'{BASIC_IPV6}|{MIXED_IPV6}'
 
-IP_PATTERN = f'{IPV4_PATTERN}|{IPV6_REGEX}'
+IP_PATTERN = f'{IPV4_PATTERN}|{IPV6_PATTERN}'
 
 # Device Regex
 INTERFACE_REGEX = r'(\w+)?(\d)\/(\d)\/(\d+)'
@@ -81,31 +82,48 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
     if not input:
         raise ValueError('Function requires an input to parse')
         
-    with open_text(f'netmagic.templates.{vendor}', f'{template}.textfsm') as file:
-        template: TextFSM = TextFSM(file)
+    raw_template_string = open_text(f'netmagic.templates.{vendor}', f'{template}.textfsm').read()
+    template_string = ''
 
-        def fsm_list(closure_input: str) -> list[dict[str, str]]:
-            """
-            Closure for handling `input` as `list`
-            """
-            for item in closure_input:
-                output = template.ParseTextToDicts(item)
-            if output:
-                return output
+    for line in raw_template_string.split('\n'):
+        # Substitutions only exist currently for Regex patterns of values
+        if not match(r'Value', line):
+            template_string = f'{template_string}\n{line}' if template_string else line
+            continue
 
-        def fsm_string(closure_input: str) -> list[dict[str, str]]:
-            """
-            Closure for handling `input` as `string`
-            """
-            return template.ParseTextToDicts(closure_input)
+        # Extract the pattern from the global variables from this module
+        if (swap_match := search(r'\#(\w+)\#', line)):
+            if (swap_pattern := globals().get(swap_match.group(1))):
+                # sub(r'\#(\w+)\#', fr'{swap_pattern}', line)
+                line = line.replace(swap_match.group(), swap_pattern)
+            else:
+                raise ValueError(f'Template swap did not resolve a matching regex pattern: `{swap_match}` in `{template}.textfsm`')
+        template_string = f'{template_string}\n{line}' if template_string else line
 
-        if split_term:
-            # Split the inputs and restore the lost term back into the lines
-            input = [f'{split_term}{item}'.strip() for item in input.split(split_term) if item != '' or item != split_term]
-        
-        closure_dict = {
-            list: fsm_list,
-            str: fsm_string,
-        }
-        closure = closure_dict.get(type(input))
-        return closure(input)
+    template: TextFSM = TextFSM(StringIO(template_string))
+
+    def fsm_list(closure_input: str) -> list[dict[str, str]]:
+        """
+        Closure for handling `input` as `list`
+        """
+        for item in closure_input:
+            output = template.ParseTextToDicts(item)
+        if output:
+            return output
+
+    def fsm_string(closure_input: str) -> list[dict[str, str]]:
+        """
+        Closure for handling `input` as `string`
+        """
+        return template.ParseTextToDicts(closure_input)
+
+    if split_term:
+        # Split the inputs and restore the lost term back into the lines
+        input = [f'{split_term}{item}'.strip() for item in input.split(split_term) if item != '' or item != split_term]
+    
+    closure_dict = {
+        list: fsm_list,
+        str: fsm_string,
+    }
+    closure = closure_dict.get(type(input))
+    return closure(input)
