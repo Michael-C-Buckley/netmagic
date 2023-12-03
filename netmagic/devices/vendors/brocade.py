@@ -140,7 +140,6 @@ class BrocadeSwitch(Switch):
         if interface_status is None:
             interface_status = self.get_interface_status()
 
-        params = get_param_names(self.get_tdr_data)
         input_kwargs = {k:v for k,v in locals().items() if k in get_param_names(self.get_tdr_data)}
 
         tdr_common = 'cable-diagnostics tdr'

@@ -14,6 +14,7 @@ from netmagic.common.classes.interface import (
     InterfaceStatus, InterfaceOptics, InterfaceLLDP,
     InterfaceTDR, TDRStatus
 )
+from netmagic.common.utils import get_param_names
 from netmagic.devices.switch import Switch
 from netmagic.handlers import get_fsm_data
 from netmagic.sessions import Session, TerminalSession
@@ -104,64 +105,20 @@ class CiscoIOSSwitch(Switch):
         """
         Collects TDR data of interfaces
         """
-        tdr_common = 'cable-diagnostics tdr int'
-        send_tdr_command = f'test {tdr_common}'
-        show_tdr_command = f'show {tdr_common}'
         if interface_status is None:
             interface_status = self.get_interface_status()
 
-        template = 'show_tdr' if template is None else template
-        submitted_tests: list[str] = []
-        responses: list[CommandResponse] = []
+        input_kwargs = {k:v for k,v in locals().items() if k in get_param_names(self.get_tdr_data)}
 
-        fsm_output: dict[str, InterfaceStatus] = interface_status.fsm_output
-        submit_tdr = lambda intf: self.command(f'test cable-diagnostics tdr int {intf}')
+        tdr_common = 'cable-diagnostics tdr int'
+        
+        additional_kwargs = {
+            'send_tdr_command': f'test {tdr_common}',
+            'show_tdr_command': f'show {tdr_common}',
+            'vendor': 'cisco'
+        }
 
-        # Submit the tests
-        for interface in fsm_output.values():
-            if only_bad:
-                if not isinstance(interface.speed, int):
-                    continue
-                if search(r'SFP', interface.media):
-                    continue
-                if interface.speed < 1000:
-                    responses.append(submit_tdr(interface.name))
-                    submitted_tests.append(interface.name)
-            else:
-                responses.append(submit_tdr(interface.name))
-                submitted_tests.append(interface.name)
-
-        fsm_output = {}
-        def process_fsm_data(interface: str, response_str: str) -> InterfaceTDR:
-            # Convert and normalize the data into the model
-            fsm_data = get_fsm_data(response_str, 'cisco', template)
-            tdr_kwargs = {
-                'host': self.hostname,
-                'port': interface,
-            }
-            if (speed_match := search(r'\d+[MG]', response_str)):
-                tdr_kwargs['speed'] = speed_match.group()
-
-            for line in fsm_data:
-                local_pair = line['local_pair']
-                remote_pair = line['remote_pair']
-                tdr_status = TDRStatus(line['status'])
-                distance = line['distance']
-                tdr_kwargs[f'pair_{local_pair.lower()}'] = (remote_pair, tdr_status, distance)
-
-            return InterfaceTDR(**tdr_kwargs)
-
-        # Show the test results
-        check_tdr = lambda intf: self.command(f'show cable-diagnostics tdr int {intf}')
-        for interface in submitted_tests:
-            tdr_result = check_tdr(interface)
-            while search(r'(?i)not complete', tdr_result.response):
-                sleep(1)
-                tdr_result = check_tdr(interface)
-            responses.append(tdr_result)
-            # parse, add to object
-            if template is not False:
-                fsm_output[interface] = process_fsm_data(interface, tdr_result.response)
-
-        if responses:
-            return ResponseGroup(responses, fsm_output, 'Cisco TDRs')
+        response = super().get_tdr_data(**input_kwargs, **additional_kwargs)
+        if response:
+            response.description = f'{self.hostname} TDR'
+            return response
