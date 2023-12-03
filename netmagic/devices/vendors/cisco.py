@@ -104,6 +104,9 @@ class CiscoIOSSwitch(Switch):
         """
         Collects TDR data of interfaces
         """
+        tdr_common = 'cable-diagnostics tdr int'
+        send_tdr_command = f'test {tdr_common}'
+        show_tdr_command = f'show {tdr_common}'
         if interface_status is None:
             interface_status = self.get_interface_status()
 

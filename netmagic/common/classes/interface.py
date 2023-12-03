@@ -44,11 +44,36 @@ def validate_speed(value):
         return speed
     return value
 
+
 class TDRStatus(Enum):
-    terminated = 'Normal'
-    crosstalk = 'Crosstalk'
-    open = 'Open'
-    short = 'Short'
+    NORMAL = ('Normal', 'terminated')
+    CROSSTALK = ('Crosstalk', 'crosstalk')
+    OPEN = ('Open', 'open')
+    SHORT = ('Short', 'short')
+
+    def __new__(cls, *values: object):
+        obj = object.__new__(cls)
+        obj._value_ = values[0]
+        obj.all_values = values
+        return obj
+
+    @classmethod
+    def create(cls, value):
+        for member in cls:
+            if value in member.all_values:
+                return member
+        raise ValueError(f'Value `{value}` not a valid TDRStatus')
+
+
+class TDRPair(BaseModel):
+    local: str
+    status: TDRStatus
+    remote: Optional[str] = None
+    distance: Optional[int] = None
+
+    @validator('remote', 'distance')
+    def validate_optionals(cls, value):
+        return value if value else None
 
 
 class SFPAlert(Enum):
@@ -58,6 +83,7 @@ class SFPAlert(Enum):
     low_alarm = 'Low alarm'
     high_alarm = 'High alarm'
 
+# INTERFACE MODELS
 
 class Interface(BaseModel):
     host: str
@@ -66,6 +92,7 @@ class Interface(BaseModel):
     @property
     def name(self):
         return self.port
+
 
 class InterfaceLLDP(Interface):
     chassis_mac: MacType # Accepts `MacAddress|str|int`, converts into `MacAddress`
@@ -118,10 +145,10 @@ class InterfaceOptics(Interface):
 class InterfaceTDR(Interface):
     speed: Optional[int] = None # Speed in megabit/second
     # Tuple is remote pair, state, distance (if available)
-    pair_a: tuple[str, TDRStatus, int]
-    pair_b: tuple[str, TDRStatus, int]
-    pair_c: tuple[str, TDRStatus, int]
-    pair_d: tuple[str, TDRStatus, int]
+    pair_a: TDRPair
+    pair_b: TDRPair
+    pair_c: TDRPair
+    pair_d: TDRPair
 
     @validator('speed', pre=True)
     def validate_speed(cls, value):
@@ -133,22 +160,26 @@ class InterfaceTDR(Interface):
         Factory pattern for directly consuming output from TextFSM templates
         by transforming it into the expected format.
         """
-        create_kwargs = {'hostname': hostname}
+        create_kwargs = {'host': hostname}
         for line in fsm_data:
             # FSM Optional values
             if (speed := line.get('speed')):
                 create_kwargs['speed'] = speed
             if (port := line.get('port')):
                 create_kwargs['port'] = port
-            distance = line.get('distance')
 
             # FSM Required values
             local = line['local_pair']
-            remote = line['remote_pair']
-            tdr_status = TDRStatus(line['status'])
-            
-            create_kwargs[f'pair_{local.lower()}'] = (remote, tdr_status, distance)
+            distance = line.get('distance') if line.get('distance') else None
+            pair_kwargs = {
+                'local': local,
+                'remote': line['remote_pair'],
+                'status': TDRStatus.create(line['status']),
+                'distance': distance
+            }
+            create_kwargs[f'pair_{local.lower()}'] = TDRPair(**pair_kwargs)
         return cls(**create_kwargs)
+
 
 class InterfaceStatus(Interface):
     desc: Optional[str] = None

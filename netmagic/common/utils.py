@@ -12,16 +12,17 @@ def output_cache(func: Callable):
     cache = {}
     def wrapper(arg):
         if arg:
-            if arg in cache:
-                result = cache[arg]
+            cache_key = (func, arg)
+            if cache_key in cache:
+                result = cache[cache_key]
             else:
                 result = func(arg)
-                cache[arg] = result
+                cache[cache_key] = result
             return result
         return func(arg)
     return wrapper
 
-# @output_cache
+@output_cache
 def get_param_names(func: Callable = None) -> list[str]:
     """
     Returns a list of strings of the names of input params of a function.

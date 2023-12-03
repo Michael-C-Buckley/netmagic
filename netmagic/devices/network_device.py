@@ -3,15 +3,19 @@
 # Python Module
 from datetime import datetime
 from re import search
+from time import sleep
 
 # Third-Party Modules
 from netmiko import ReadTimeout, redispatch
 
 # Local Modules
+from netmagic.common.classes import CommandResponse, ConfigResponse, ResponseGroup
+from netmagic.common.classes.interface import InterfaceStatus, InterfaceTDR, TDRStatus
 from netmagic.common.types import Engine, Transport
-from netmagic.common.classes import CommandResponse, ConfigResponse
-from netmagic.common.utils import validate_max_tries, unquote
+from netmagic.common.utils import get_param_names, validate_max_tries, unquote
 from netmagic.devices import Device
+from netmagic.handlers import get_fsm_data
+from netmagic.handlers.parse import INTERFACE_REGEX
 from netmagic.sessions import Session, TerminalSession, RESTCONFSession, NETCONFSession
 from netmagic.common import ConfigSet
 
@@ -176,3 +180,63 @@ class NetworkDevice(Device):
         Gets transceiver information.
         """
         self.not_implemented_error_generic()
+
+    def get_tdr_data(self, send_tdr_command: str, show_tdr_command: str, vendor: str,
+                     interface_status: ResponseGroup|CommandResponse = None,
+                     only_bad: bool = True, template: str|bool = None):
+        """
+        Collects TDR data of interfaces.
+
+        PARAMS:
+        `send_tdr_command`: string format of CLI command to submit TDR
+        `show_tdr_command`: string format of CLI command to show the submitted TDR result
+        `vendor`: string of the vendor name for template lookup
+        `interface_status`: Response-form output of the device's interface status for assessment
+        `only_bad`: bool for only doing suspected bad cables or all interfaces
+        `template`: string entry for the path to a custom TextFSM template
+        """
+        for command in [send_tdr_command, show_tdr_command]:
+            if search(INTERFACE_REGEX, command):
+                raise ValueError('TDR commands should not have interfaces in them')
+            
+        if interface_status is None:
+            interface_status = self.get_interface_status()
+
+        template = 'show_tdr' if template is None else template
+        submitted_tests: list[str] = []
+        responses: list[CommandResponse] = []
+
+        fsm_output: dict[str, InterfaceStatus] = interface_status.fsm_output
+        submit_tdr = lambda intf: self.command(f'{send_tdr_command} {intf}')
+
+        # Submit the tests
+        for interface in fsm_output.values():
+            if only_bad:
+                if not isinstance(interface.speed, int):
+                    continue
+                if interface.media:
+                    if search(r'SFP', interface.media):
+                        continue
+                if interface.speed < 1000:
+                    responses.append(submit_tdr(interface.name))
+                    submitted_tests.append(interface.name)
+            else:
+                responses.append(submit_tdr(interface.name))
+                submitted_tests.append(interface.name)
+
+        fsm_output = {}
+        # Show the test results
+        check_tdr = lambda intf: self.command(f'{show_tdr_command} {intf}')
+        for interface in submitted_tests:
+            tdr_result = check_tdr(interface)
+            while search(r'(?i)not complete', tdr_result.response):
+                sleep(1)
+                tdr_result = check_tdr(interface)
+            responses.append(tdr_result)
+            # parse, add to object
+            if template is not False:
+                fsm_data = get_fsm_data(tdr_result.response, vendor, template)
+                fsm_output[interface] = InterfaceTDR.create(self.hostname, fsm_data)
+
+        if responses:
+            return ResponseGroup(responses, fsm_output, 'TDR Data')

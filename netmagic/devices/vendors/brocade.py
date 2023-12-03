@@ -1,7 +1,9 @@
 # NetMagic Brocade Device Library
 
 # Python Modules
+from inspect import signature
 from re import search, sub
+
 
 # Third-Party Modules
 from netmiko import redispatch
@@ -12,6 +14,7 @@ from netmagic.common.classes import (
     CommandResponse, ResponseGroup, InterfaceOptics,
     InterfaceStatus, InterfaceLLDP
 )
+from netmagic.common.utils import get_param_names
 from netmagic.devices.switch import Switch
 from netmagic.handlers import get_fsm_data
 from netmagic.sessions import Session, TerminalSession
@@ -128,3 +131,27 @@ class BrocadeSwitch(Switch):
         lldp.fsm_output = {i['port']: InterfaceLLDP(host = self.hostname, **i) for i in fsm_data}
 
         return lldp
+    
+    def get_tdr_data(self, interface_status: CommandResponse = None,
+                     only_bad: bool = True, template: str|bool = None):
+        """
+        Collects TDR data of interfaces
+        """
+        if interface_status is None:
+            interface_status = self.get_interface_status()
+
+        params = get_param_names(self.get_tdr_data)
+        input_kwargs = {k:v for k,v in locals().items() if k in get_param_names(self.get_tdr_data)}
+
+        tdr_common = 'cable-diagnostics tdr'
+
+        additional_kwargs = {
+            'send_tdr_command': f'phy {tdr_common}',
+            'show_tdr_command': f'show {tdr_common}',
+            'vendor': 'brocade'
+        }
+
+        response = super().get_tdr_data(**input_kwargs, **additional_kwargs)
+        if response:
+            response.description = f'{self.hostname} TDR'
+            return response

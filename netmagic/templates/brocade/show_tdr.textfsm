@@ -1,0 +1,9 @@
+Value Required local_pair ([A-D])
+Value Required status (\w+)
+Value remote_pair (\S+)
+Value distance (\d+)
+Value speed (\d+)
+Value port (\d\/\d\/\d+)
+
+Start
+  ^(?:${port}\s+${speed}[M|G])?\s+Pair ${local_pair}\s+(?:Pair ?${remote_pair}\s+)?${status} -> Record
