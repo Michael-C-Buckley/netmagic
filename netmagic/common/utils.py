@@ -1,9 +1,39 @@
 # NetMagic General Utilities
 
 # Python Modules
-
-import inspect
 from functools import wraps
+from inspect import signature, stack
+from typing import Callable
+
+def output_cache(func: Callable):
+    """
+    Caches the output of a single argument function
+    """
+    cache = {}
+    def wrapper(arg):
+        if arg:
+            if arg in cache:
+                result = cache[arg]
+            else:
+                result = func(arg)
+                cache[arg] = result
+            return result
+        return func(arg)
+    return wrapper
+
+# @output_cache
+def get_param_names(func: Callable = None) -> list[str]:
+    """
+    Returns a list of strings of the names of input params of a function.
+    Detects the function that called it when not function is passed.
+    """
+    if func is None:
+        caller_frame = stack()[1]
+        if caller_frame.function in ['<dictcomp>', '<listcomp>']:
+            caller_frame = stack()[2]
+        func = caller_frame.frame.f_globals[caller_frame.function]
+    sig = signature(func)
+    return [param.name for param in sig.parameters.values()]
 
 def validate_max_tries(func):
     """
@@ -11,7 +41,7 @@ def validate_max_tries(func):
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        sig = inspect.signature(func)
+        sig = signature(func)
         bound_arguments = sig.bind(*args, **kwargs)
         bound_arguments.apply_defaults()
         
