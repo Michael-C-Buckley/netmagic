@@ -21,7 +21,8 @@ MacType = Any
 
 def validate_speed(value):
     """
-    Validates speed in Pydantic-based Interface dataclasses
+    Validates speed in Pydantic-based Interface dataclasses.
+    Normals into mbps and has cases to return None.
     """
     if isinstance(value, str):
         if value is None:
@@ -126,6 +127,28 @@ class InterfaceTDR(Interface):
     def validate_speed(cls, value):
         return validate_speed(value)
 
+    @classmethod
+    def create(cls, hostname: str, fsm_data: list[dict[str, str]]):
+        """
+        Factory pattern for directly consuming output from TextFSM templates
+        by transforming it into the expected format.
+        """
+        create_kwargs = {'hostname': hostname}
+        for line in fsm_data:
+            # FSM Optional values
+            if (speed := line.get('speed')):
+                create_kwargs['speed'] = speed
+            if (port := line.get('port')):
+                create_kwargs['port'] = port
+            distance = line.get('distance')
+
+            # FSM Required values
+            local = line['local_pair']
+            remote = line['remote_pair']
+            tdr_status = TDRStatus(line['status'])
+            
+            create_kwargs[f'pair_{local.lower()}'] = (remote, tdr_status, distance)
+        return cls(**create_kwargs)
 
 class InterfaceStatus(Interface):
     desc: Optional[str] = None
