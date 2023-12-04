@@ -26,14 +26,6 @@ class BrocadeSwitch(Switch):
         super().session_preparation('brocade_fastiron')
         self.command('skip-page-display')
 
-    def enable(self, password: str = None):
-        """
-        Manual entering of enabled mode
-        """
-        output = self.command('enable', r'[Pp]assword')
-        if password is not None:
-            self.command(password)
-
     # CUSTOM FSM METHOD
 
     # IDENTITY
