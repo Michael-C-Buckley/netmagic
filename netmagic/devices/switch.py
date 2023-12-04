@@ -27,14 +27,14 @@ class Switch(NetworkDevice):
     
     # IDENTITY AND STATUS
 
-    def get_poe_status(self, vendor: str, poe_command: str, template: str|bool) -> CommandResponse:
+    def get_poe_status(self, poe_command: str, template: str|bool) -> CommandResponse:
         """
         Returns POE status
         """
         show_poe = self.command(poe_command)
 
         if isinstance(template, str):
-            fsm_data = get_fsm_data(show_poe.response, vendor, template)
+            fsm_data = self.fsm_parse(show_poe.response, template)
 
             host_kwargs = {'host': self.hostname}
             show_poe.fsm_output = {}

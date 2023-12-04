@@ -21,6 +21,7 @@ FSMDataT: TypeAlias = dict[str, Any]
 
 MacT: TypeAlias = MacAddress|str|int
 
+
 class Transport(Enum):
     SSH = 'ssh'
     SERIAL = 'serial'
@@ -29,6 +30,13 @@ class Transport(Enum):
     RESTCONF = 'restconf'
     CUSTOM = 'custom'
 
+
 class Engine(Enum):
     NETMIKO = 'netmiko'
     SCRAPLI = 'scrapli'
+
+
+class Vendors(Enum):
+    BROCADE = 'brocade'
+    CISCO = 'cisco'
+    RUCKUS = 'ruckus'

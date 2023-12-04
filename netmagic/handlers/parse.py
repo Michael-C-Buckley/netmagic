@@ -9,6 +9,9 @@ from typing import Optional
 # Third-Party Modules
 from textfsm import TextFSM
 
+# Local Modules
+from netmagic.common.types import Vendors
+
 # Regex patterns
 
 # Universal
@@ -82,6 +85,7 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
     if not input:
         raise ValueError('Function requires an input to parse')
         
+    vendor = vendor.value if isinstance(vendor, Vendors) else vendor
     raw_template_string = open_text(f'netmagic.templates.{vendor}', f'{template}.textfsm').read()
     template_string = ''
 

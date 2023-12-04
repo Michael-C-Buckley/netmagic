@@ -95,6 +95,7 @@ class NetworkDevice(Device):
                 redispatch_device(dispatch)
 
         self.enable()
+        self.cli_session.connection.find_prompt()
 
     def enable(self, password: str = None) -> None:
         """

@@ -4,7 +4,7 @@
 from re import search, sub
 
 # Local Modules
-from netmagic.common.types import Transport
+from netmagic.common.types import Transport, Vendors
 from netmagic.common.classes import (
     CommandResponse, ResponseGroup, InterfaceOptics,
     InterfaceStatus, InterfaceLLDP
@@ -19,8 +19,8 @@ class BrocadeSwitch(Switch):
     def __init__(self, session: Session) -> None:
         super().__init__(session)
         if isinstance(session, TerminalSession):
-            if session.transport == Transport.SERIAL:
-                self.session_preparation()
+            self.session_preparation()
+        self.vendor = Vendors.BROCADE
 
     def session_preparation(self):
         """
@@ -63,7 +63,7 @@ class BrocadeSwitch(Switch):
             return int_status
         
         template = 'show_int' if interface is None else 'show_single_int'
-        fsm_data = get_fsm_data(int_status.response, 'brocade', template)
+        fsm_data = self.fsm_parse(int_status.response, template)
         int_status.fsm_output = {i['port']: InterfaceStatus(host = self.hostname, **i) for i in fsm_data}
         
         return int_status
@@ -85,7 +85,7 @@ class BrocadeSwitch(Switch):
 
         if template is not False:
             template = 'show_media' if template is None else template
-            media.fsm_output = get_fsm_data(media.response, 'brocade', template)
+            media.fsm_output = self.fsm_parse(media.response, template)
 
         return media
     
@@ -102,7 +102,7 @@ class BrocadeSwitch(Switch):
         if template is not False:
             template = 'show_optic' if template is None else template
             optics_data = [optics_response.response for optics_response in optics.responses]
-            fsm_data = get_fsm_data(optics_data, 'brocade', template)
+            fsm_data = self.fsm_parse(optics_data, template)
             optics.fsm_output = {i['port']: InterfaceOptics.create(self.hostname, **i) for i in fsm_data}
 
         return optics
@@ -122,7 +122,7 @@ class BrocadeSwitch(Switch):
 
         # The built-in template REQUIRES the above pre-processing to work correctly
         template = 'show_lldp_nei_det' if not template else template
-        fsm_data = get_fsm_data(lldp.response, 'brocade', template)
+        fsm_data = self.fsm_parse(lldp.response, template)
         lldp.fsm_output = {i['port']: InterfaceLLDP(host = self.hostname, **i) for i in fsm_data}
 
         return lldp
@@ -149,4 +149,4 @@ class BrocadeSwitch(Switch):
         
     def get_poe_status(self, template: str|bool = None) -> CommandResponse:
         template = 'show_poe' if template is None else template
-        return super().get_poe_status('brocade', 'show poe', template)
+        return super().get_poe_status('show poe', template)

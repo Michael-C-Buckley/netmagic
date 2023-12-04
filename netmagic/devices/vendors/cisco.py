@@ -1,7 +1,7 @@
 # NetMagic Cisco Device Library
 
 # Local Modules
-from netmagic.common.types import Transport
+from netmagic.common.types import Vendors
 from netmagic.common.classes import (
     CommandResponse, ResponseGroup, InterfaceOptics,
     InterfaceStatus, InterfaceLLDP
@@ -15,8 +15,8 @@ class CiscoIOSSwitch(Switch):
     def __init__(self, session: Session) -> None:
         super().__init__(session)
         if isinstance(session, TerminalSession):
-            if session.transport == Transport.SERIAL:
-                self.session_preparation()
+            self.session_preparation()
+        self.vendor = Vendors.CISCO
 
     def session_preparation(self):
         """
@@ -114,4 +114,4 @@ class CiscoIOSSwitch(Switch):
         
     def get_poe_status(self, template: str|bool = None) -> CommandResponse:
         template = 'show_poe' if template is None else template
-        return super().get_poe_status('cisco', 'show inline power', template)
+        return super().get_poe_status('show power inline', template)
