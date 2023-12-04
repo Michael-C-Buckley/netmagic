@@ -1,12 +1,7 @@
 # NetMagic Brocade Device Library
 
 # Python Modules
-from inspect import signature
 from re import search, sub
-
-
-# Third-Party Modules
-from netmiko import redispatch
 
 # Local Modules
 from netmagic.common.types import Transport

@@ -9,10 +9,9 @@ from netmiko import redispatch
 
 # Local Modules
 from netmagic.common.types import Transport
-from netmagic.common.classes import CommandResponse, ResponseGroup
-from netmagic.common.classes.interface import (
-    InterfaceStatus, InterfaceOptics, InterfaceLLDP,
-    InterfaceTDR, TDRStatus
+from netmagic.common.classes import (
+    CommandResponse, ResponseGroup, InterfaceOptics,
+    InterfaceStatus, InterfaceLLDP
 )
 from netmagic.common.utils import get_param_names
 from netmagic.devices.switch import Switch

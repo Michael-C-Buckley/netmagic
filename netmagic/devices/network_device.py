@@ -9,15 +9,16 @@ from time import sleep
 from netmiko import ReadTimeout, redispatch
 
 # Local Modules
-from netmagic.common.classes import CommandResponse, ConfigResponse, ResponseGroup
-from netmagic.common.classes.interface import InterfaceStatus, InterfaceTDR, TDRStatus
-from netmagic.common.types import Engine, Transport
-from netmagic.common.utils import get_param_names, validate_max_tries, unquote
-from netmagic.devices import Device
+from netmagic.common.classes import (
+    CommandResponse, ConfigResponse, ResponseGroup,
+    InterfaceStatus, InterfaceTDR
+)
+from netmagic.common.types import Engine, Transport, ConfigSet
+from netmagic.common.utils import validate_max_tries, unquote
+from netmagic.devices.universal import Device
 from netmagic.handlers import get_fsm_data
 from netmagic.handlers.parse import INTERFACE_REGEX
 from netmagic.sessions import Session, TerminalSession, RESTCONFSession, NETCONFSession
-from netmagic.common import ConfigSet
 
 class NetworkDevice(Device):
     """
