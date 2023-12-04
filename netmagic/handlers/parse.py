@@ -3,14 +3,15 @@
 # Python Modules
 from importlib.resources import open_text
 from io import StringIO
-from re import search, compile, escape, match, sub
+from os import path
+from re import search, escape, match
 from typing import Optional
 
 # Third-Party Modules
 from textfsm import TextFSM
 
 # Local Modules
-from netmagic.common.types import FSMOutputT, Vendors
+from netmagic.common.types import FSMOutputT
 
 # Regex patterns
 
@@ -84,8 +85,21 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
     """
     if not input:
         raise ValueError('Function requires an input to parse')
-        
-    raw_template_string = open_text(f'netmagic.templates.{vendor}', f'{template}.textfsm').read()
+
+    try:
+        if path.exists(template):
+            raw_template_string = open(template).read()
+        else:
+            raw_template_string = open_text(f'netmagic.templates.{vendor}', f'{template}.textfsm').read()
+    except FileNotFoundError:
+        # Check to see if the template string passed itself is the template
+        if search(r'Value', template) and search(r'Start', template):
+            raw_template_string = template
+
+    message = '`template` must either be a file path, internal template, or template passed directly as a string'
+    if not raw_template_string:
+        raise ValueError(message)
+
     template_string = ''
 
     for line in raw_template_string.split('\n'):
@@ -100,7 +114,8 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
                 # sub(r'\#(\w+)\#', fr'{swap_pattern}', line)
                 line = line.replace(swap_match.group(), swap_pattern)
             else:
-                raise ValueError(f'Template swap did not resolve a matching regex pattern: `{swap_match}` in `{template}.textfsm`')
+                message = f'Template swap did not resolve a matching regex pattern: `{swap_match}` in `{template}.textfsm`'
+                raise ValueError(message)
         template_string = f'{template_string}\n{line}' if template_string else line
 
     template: TextFSM = TextFSM(StringIO(template_string))
