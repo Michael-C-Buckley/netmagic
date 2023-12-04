@@ -1,0 +1,52 @@
+Value port (\S+)
+Value temp (-?\d+\.\d+)
+Value voltage (-?\d+\.\d+)
+Value transmit_power (-?\d+\.\d+)
+Value receive_power (-?\d+\.\d+)
+Value current (-?\d+\.\d+)
+Value temp_high_alarm (-?\d+\.\d+)
+Value temp_low_alarm (-?\d+\.\d+)
+Value temp_high_warning (-?\d+\.\d+)
+Value temp_low_warning (-?\d+\.\d+)
+Value voltage_high_alarm (-?\d+\.\d+)
+Value voltage_low_alarm (-?\d+\.\d+)
+Value voltage_high_warning (-?\d+\.\d+)
+Value voltage_low_warning (-?\d+\.\d+)
+Value current_high_alarm (-?\d+\.\d+)
+Value current_low_alarm (-?\d+\.\d+)
+Value current_high_warning (-?\d+\.\d+)
+Value current_low_warning (-?\d+\.\d+)
+Value transmit_high_alarm (-?\d+\.\d+)
+Value transmit_low_alarm (-?\d+\.\d+)
+Value transmit_high_warning (-?\d+\.\d+)
+Value transmit_low_warning (-?\d+\.\d+)
+Value receive_high_alarm (-?\d+\.\d+)
+Value receive_low_alarm (-?\d+\.\d+)
+Value receive_high_warning (-?\d+\.\d+)
+Value receive_low_warning (-?\d+\.\d+)
+Value current_lane (\S+)
+Value tx_lane (\S+)
+Value rx_lane (\S+)
+
+
+Start
+  ^.*Temperature -> TempSection
+
+TempSection
+  ^${port}\s+${temp}\s+${temp_high_alarm}\s+${temp_high_warning}\s+${temp_low_warning}\s+${temp_low_alarm} -> Record
+  ^.*Voltage -> VoltSection
+
+VoltSection
+  ^${port}\s+${voltage}\s+${voltage_high_alarm}\s+${voltage_high_warning}\s+${voltage_low_warning}\s+${voltage_low_alarm} -> Record
+  ^.*Current -> CurrentSection
+
+CurrentSection
+  ^${port}\s+${current_lane}\s+${current}\s+${current_high_alarm}\s+${current_high_warning}\s+${current_low_warning}\s+${current_low_alarm} -> Record
+  ^.*Transmit Power -> TxSection
+
+TxSection
+  ^${port}\s+${tx_lane}\s+${transmit_power}\s+${transmit_high_alarm}\s+${transmit_high_warning}\s+${transmit_low_warning}\s+${transmit_low_alarm} -> Record
+  ^.*Receive Power -> RxSection
+
+RxSection
+  ^${port}\s+${rx_lane}\s+${receive_power}\s+${receive_high_alarm}\s+${receive_high_warning}\s+${receive_low_warning}\s+${receive_low_alarm} -> Record
