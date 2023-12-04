@@ -10,7 +10,7 @@ from typing import Optional
 from textfsm import TextFSM
 
 # Local Modules
-from netmagic.common.types import FSMOutputT
+from netmagic.common.types import FSMOutputT, Vendors
 
 # Regex patterns
 
