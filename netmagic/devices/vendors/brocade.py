@@ -103,7 +103,7 @@ class BrocadeSwitch(Switch):
             template = 'show_optic' if template is None else template
             optics_data = [optics_response.response for optics_response in optics.responses]
             fsm_data = get_fsm_data(optics_data, 'brocade', template)
-            optics.fsm_output = {i['port']: InterfaceOptics(host = self.hostname, **i) for i in fsm_data}
+            optics.fsm_output = {i['port']: InterfaceOptics.create(self.hostname, **i) for i in fsm_data}
 
         return optics
     

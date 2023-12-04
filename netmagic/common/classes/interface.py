@@ -45,6 +45,14 @@ def validate_speed(value):
     return value
 
 
+class SFPAlert(Enum):
+    normal = 'Normal'
+    low_warn = 'Low warning'
+    high_warn = 'High warning'
+    low_alarm = 'Low alarm'
+    high_alarm = 'High alarm'
+
+
 class TDRStatus(Enum):
     NORMAL = ('Normal', 'terminated')
     CROSSTALK = ('Crosstalk', 'crosstalk')
@@ -76,12 +84,10 @@ class TDRPair(BaseModel):
         return value if value else None
 
 
-class SFPAlert(Enum):
-    normal = 'Normal'
-    low_warn = 'Low warning'
-    high_warn = 'High warning'
-    low_alarm = 'Low alarm'
-    high_alarm = 'High alarm'
+class OpticStatus(BaseModel):
+    reading: float
+    status: Optional[SFPAlert] = None
+
 
 # INTERFACE MODELS
 
@@ -116,12 +122,12 @@ class InterfaceLLDP(Interface):
 
 
 class InterfaceOptics(Interface):
-    temperature: tuple[float, SFPAlert]
-    transmit_power: tuple[float, SFPAlert]
-    receive_power: tuple[float, SFPAlert]
-    voltage: tuple[float, SFPAlert]
-    current: tuple[float, SFPAlert]
-    temperature: tuple[float, SFPAlert]
+    temperature: OpticStatus
+    transmit_power: OpticStatus
+    receive_power: OpticStatus
+    voltage: OpticStatus
+    current: OpticStatus
+    temperature: OpticStatus
 
     @classmethod
     def create(cls, hostname: str, **data):
@@ -132,10 +138,11 @@ class InterfaceOptics(Interface):
         kwargs = {}
         
         for key in InterfaceOptics.model_fields:
+            # With status data is an Optics field, others are regular Interface fields
             item_data = data.get(key)
             status_data = data.get(f'{key}_status')
             if status_data:
-                kwargs[key] = (item_data, SFPAlert(status_data))
+                kwargs[key] = OpticStatus(reading = item_data, status = SFPAlert(status_data))
             elif item_data:
                 kwargs[key] = item_data
 
