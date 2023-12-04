@@ -4,7 +4,7 @@
 from netmagic.common.types import Vendors
 from netmagic.common.classes import (
     CommandResponse, ResponseGroup, InterfaceOptics,
-    InterfaceStatus, InterfaceLLDP
+    InterfaceStatus, InterfaceLLDP, SFPAlert, OpticStatus
 )
 from netmagic.common.utils import get_param_names
 from netmagic.devices.switch import Switch
@@ -63,8 +63,34 @@ class CiscoIOSSwitch(Switch):
 
         if template is not False:
             template = 'show_int_trans_det' if template is None else template
-            fsm_data = self.fsm_parse(optics.received_time, template)
-            optics.fsm_output = {i['port']: InterfaceOptics(host = self.hostname, **i) for i in fsm_data}
+            fsm_data = self.fsm_parse(optics.response, template, flatten_key='port')
+            optics.fsm_output = {}
+
+            for entry in fsm_data:
+                port = entry['port']
+                port_dict = {'port': port}
+                for root_key in ['temperature', 'voltage', 'current', 'transmit_power', 'receive_power']:
+                    primary_value = float(entry.get(root_key))
+
+                    def create_values(low_value, high_value):
+                        if isinstance(low_value, str):
+                            low_value = float(entry[f'{root_key}_{low_value}'])
+                        if isinstance(high_value, str):
+                            high_value = float(entry[f'{root_key}_{high_value}'])
+                        return (low_value, high_value)
+
+                    ranges_dict = {
+                        SFPAlert.normal: create_values('low_warning', 'high_warning'),
+                        SFPAlert.low_warn: create_values('low_alarm', 'low_warning'),
+                        SFPAlert.high_warn: create_values('high_warning', 'high_alarm'),
+                        SFPAlert.low_alarm: create_values(float('-inf'), 'low_alarm'),
+                        SFPAlert.high_alarm: create_values('high_alarm', float('inf')),
+                    }
+                    # Prepare the ranges for analysis
+                    for status, values in ranges_dict.items():
+                        if values[0] <= primary_value < values[1]:
+                            port_dict[root_key] = OpticStatus(reading=primary_value, status=status)
+                optics.fsm_output[port] = InterfaceOptics(host = self.hostname, **port_dict)
 
         return optics
 

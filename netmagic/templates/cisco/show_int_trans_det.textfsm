@@ -1,9 +1,9 @@
 Value port (\S+)
-Value temp (-?\d+\.\d+)
-Value temp_high_alarm (-?\d+\.\d+)
-Value temp_low_alarm (-?\d+\.\d+)
-Value temp_high_warning (-?\d+\.\d+)
-Value temp_low_warning (-?\d+\.\d+)
+Value temperature (-?\d+\.\d+)
+Value temperature_high_alarm (-?\d+\.\d+)
+Value temperature_low_alarm (-?\d+\.\d+)
+Value temperature_high_warning (-?\d+\.\d+)
+Value temperature_low_warning (-?\d+\.\d+)
 Value voltage (-?\d+\.\d+)
 Value voltage_high_alarm (-?\d+\.\d+)
 Value voltage_low_alarm (-?\d+\.\d+)
@@ -14,26 +14,26 @@ Value current_high_alarm (-?\d+\.\d+)
 Value current_low_alarm (-?\d+\.\d+)
 Value current_high_warning (-?\d+\.\d+)
 Value current_low_warning (-?\d+\.\d+)
-Value transmit (-?\d+\.\d+)
-Value transmit_high_alarm (-?\d+\.\d+)
-Value transmit_low_alarm (-?\d+\.\d+)
-Value transmit_high_warning (-?\d+\.\d+)
-Value transmit_low_warning (-?\d+\.\d+)
-Value receive (-?\d+\.\d+)
-Value receive_high_alarm (-?\d+\.\d+)
-Value receive_low_alarm (-?\d+\.\d+)
-Value receive_high_warning (-?\d+\.\d+)
-Value receive_low_warning (-?\d+\.\d+)
+Value transmit_power (-?\d+\.\d+)
+Value transmit_power_high_alarm (-?\d+\.\d+)
+Value transmit_power_low_alarm (-?\d+\.\d+)
+Value transmit_power_high_warning (-?\d+\.\d+)
+Value transmit_power_low_warning (-?\d+\.\d+)
+Value receive_power (-?\d+\.\d+)
+Value receive_power_high_alarm (-?\d+\.\d+)
+Value receive_power_low_alarm (-?\d+\.\d+)
+Value receive_power_high_warning (-?\d+\.\d+)
+Value receive_power_low_warning (-?\d+\.\d+)
 Value current_lane (\S+)
-Value transmit_lane (\S+)
-Value receive_lane (\S+)
+Value transmit_power_lane (\S+)
+Value receive_power_lane (\S+)
 
 
 Start
   ^.*Temperature -> TempSection
 
 TempSection
-  ^${port}\s+${temp}\s+${temp_high_alarm}\s+${temp_high_warning}\s+${temp_low_warning}\s+${temp_low_alarm} -> Record
+  ^${port}\s+${temperature}\s+${temperature_high_alarm}\s+${temperature_high_warning}\s+${temperature_low_warning}\s+${temperature_low_alarm} -> Record
   ^.*Voltage -> VoltSection
 
 VoltSection
@@ -45,8 +45,8 @@ CurrentSection
   ^.*Transmit Power -> TxSection
 
 TxSection
-  ^${port}\s+${transmit_lane}\s+${transmit}\s+${transmit_high_alarm}\s+${transmit_high_warning}\s+${transmit_low_warning}\s+${transmit_low_alarm} -> Record
+  ^${port}\s+${transmit_power_lane}\s+${transmit_power}\s+${transmit_power_high_alarm}\s+${transmit_power_high_warning}\s+${transmit_power_low_warning}\s+${transmit_power_low_alarm} -> Record
   ^.*Receive Power -> RxSection
 
 RxSection
-  ^${port}\s+${receive_lane}\s+${receive}\s+${receive_high_alarm}\s+${receive_high_warning}\s+${receive_low_warning}\s+${receive_low_alarm} -> Record
+  ^${port}\s+${receive_power_lane}\s+${receive_power}\s+${receive_power_high_alarm}\s+${receive_power_high_warning}\s+${receive_power_low_warning}\s+${receive_power_low_alarm} -> Record
