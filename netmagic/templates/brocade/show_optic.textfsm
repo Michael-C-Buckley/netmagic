@@ -1,4 +1,4 @@
-Value port (\d\/\d\/\d+)
+Value port (#INTERFACE_PATTERN#)
 Value temperature (-?\d+\.\d+)
 Value temperature_status (\S+)
 Value voltage (-?\d+\.\d+)

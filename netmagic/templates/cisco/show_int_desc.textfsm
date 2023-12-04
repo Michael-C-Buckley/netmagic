@@ -1,4 +1,4 @@
-Value port ([ATGF][pie]\d\/\d\/\d+)
+Value port (#INTERFACE_PATTERN#)
 Value status ((up|(?:admin )?down))
 Value protocol (up|down)
 Value desc ((?:.?)+)

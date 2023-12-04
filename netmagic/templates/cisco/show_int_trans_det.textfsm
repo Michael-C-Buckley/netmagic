@@ -1,4 +1,4 @@
-Value port (\S+)
+Value port (#INTERFACE_PATTERN#)
 Value temperature (-?\d+\.\d+)
 Value temperature_high_alarm (-?\d+\.\d+)
 Value temperature_low_alarm (-?\d+\.\d+)

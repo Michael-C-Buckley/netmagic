@@ -50,7 +50,7 @@ IPV6_PATTERN = fr'{BASIC_IPV6}|{MIXED_IPV6}'
 IP_PATTERN = f'{IPV4_PATTERN}|{IPV6_PATTERN}'
 
 # Device Regex
-INTERFACE_REGEX = r'(\w+)?(\d)\/(\d)\/(\d+)'
+INTERFACE_PATTERN = r'(\w+)?(\d)\/(\d)\/(\d+)'
 INTERFACE_ABBRIEV = r'(((SFP\+?)|([Pp]ort))\s?\d+?\s(o[fn])?\s)'
 
 

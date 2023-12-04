@@ -1,7 +1,7 @@
 Value Filldown capacity (\d+(?:\.\d+)?)
 Value Filldown available (\d+(?:\.\d+)?)
 Value Filldown unit ([Ww]att|[Mm][Ww])
-Value port (\S+)
+Value port (#INTERFACE_PATTERN#)
 Value admin_state (\S+)
 Value operation_state (\S+)
 Value consumed (\d+(?:\.\d+)?)

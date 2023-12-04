@@ -16,7 +16,7 @@ from netmagic.common.classes import (
 from netmagic.common.types import Engine, Transport, ConfigSet
 from netmagic.common.utils import validate_max_tries, unquote
 from netmagic.devices.universal import Device
-from netmagic.handlers.parse import INTERFACE_REGEX
+from netmagic.handlers.parse import INTERFACE_PATTERN
 from netmagic.sessions import Session, TerminalSession, RESTCONFSession, NETCONFSession
 
 class NetworkDevice(Device):
@@ -198,8 +198,8 @@ class NetworkDevice(Device):
         `template`: string entry for the path to a custom TextFSM template
         """
         for command in [send_tdr_command, show_tdr_command]:
-            if search(INTERFACE_REGEX, command):
-                raise ValueError('TDR commands should not have interfaces in them')
+            if search(INTERFACE_PATTERN, command):
+                raise ValueError('TDR commands can not have interfaces in them')
             
         if interface_status is None:
             interface_status = self.get_interface_status()

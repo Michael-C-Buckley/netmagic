@@ -1,4 +1,4 @@
-Value port ([ATGF][pie]\d+\/\d+\/\d+)
+Value port (#INTERFACE_PATTERN#)
 Value desc (.{0,19})
 Value state (disabled|connected|notconnect)
 Value vlan (\S+)

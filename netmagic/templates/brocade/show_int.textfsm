@@ -1,4 +1,4 @@
-Value port (\d\/\d\/\d+)
+Value port (#INTERFACE_PATTERN#)
 Value state (\S+)
 Value stp_state (\S+)
 Value duplex (\S+)
@@ -7,7 +7,7 @@ Value trunk (\S+)
 Value tag (\S+)
 Value pvid (\S+)
 Value priority (\S+)
-Value int_mac (\S+)
+Value int_mac (#MAC_PATTERN#)
 Value desc (.+)
 
 Start

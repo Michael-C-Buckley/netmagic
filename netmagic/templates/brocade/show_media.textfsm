@@ -1,4 +1,4 @@
-Value Required interface ((\w+)?(\d)\/(\d)\/(\d+))
+Value Required interface (#INTERFACE_PATTERN#)
 Value medium (\S+)
 Value media (.+)
 
