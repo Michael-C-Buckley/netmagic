@@ -111,3 +111,7 @@ class CiscoIOSSwitch(Switch):
         if response:
             response.description = f'{self.hostname} TDR'
             return response
+        
+    def get_poe_status(self, template: str|bool = None) -> CommandResponse:
+        template = 'show_poe' if template is None else template
+        return super().get_poe_status('cisco', 'show inline power', template)
