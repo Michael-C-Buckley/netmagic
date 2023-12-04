@@ -98,6 +98,10 @@ class Interface(BaseModel):
     @property
     def name(self):
         return self.port
+    
+    @property
+    def interface(self):
+        return self.port
 
 
 class InterfaceLLDP(Interface):

@@ -1,12 +1,5 @@
 # NetMagic Cisco Device Library
 
-# Python Modules
-from re import search
-from time import sleep
-
-# Third-Party Modules
-from netmiko import redispatch
-
 # Local Modules
 from netmagic.common.types import Transport
 from netmagic.common.classes import (
