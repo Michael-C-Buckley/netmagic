@@ -6,7 +6,7 @@
 from mactools import MacAddress
 
 # Local Modules
-from netmagic.common.types import FSMOutputT
+from netmagic.common.types import FSMOutputT, Vendors
 from netmagic.sessions import TerminalSession
 from netmagic.handlers import get_fsm_data
 
@@ -18,7 +18,7 @@ class Device:
         self.mac: MacAddress = None
         self.hostname = None
         self.cli_session: TerminalSession = session
-        self.vendor = None
+        self.vendor: Vendors = None
 
     def not_implemented_error_generic(self, device_type: str = 'device'):
         """
@@ -53,4 +53,4 @@ class Device:
         """
         Wrapper method for `TextFSM` and `Parse` handler
         """
-        return get_fsm_data(input, self.vendor, template, split_term, flatten_key)
+        return get_fsm_data(input, self.vendor.value, template, split_term, flatten_key)
