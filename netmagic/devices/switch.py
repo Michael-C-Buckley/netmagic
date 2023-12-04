@@ -49,7 +49,7 @@ class Switch(NetworkDevice):
                 port = entry.get('port')
 
                 if port:
-                    port_kwargs = {k:v for k,v in entry.items() if v != ''}
+                    port_kwargs = {k:v for k,v in entry.items() if v}
                     poe_port = POEPort(host = self.hostname, **port_kwargs)
                     show_poe.fsm_output[port] = poe_port
 
