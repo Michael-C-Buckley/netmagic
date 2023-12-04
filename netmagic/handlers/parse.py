@@ -10,7 +10,7 @@ from typing import Optional
 from textfsm import TextFSM
 
 # Local Modules
-from netmagic.common.types import Vendors
+from netmagic.common.types import FSMOutputT
 
 # Regex patterns
 
@@ -75,7 +75,7 @@ def dual_escape(string: str) -> str:
     return f'({escape_string(string)}|{escape(string)})'
 
 def get_fsm_data(input: str|list, vendor: str, template: str,
-                 split_term: str = None) -> list[dict[str, str]]:
+                 split_term: str = None) -> FSMOutputT:
     """
     Function for handling TextFSM parsing and situational variables.
     
@@ -85,7 +85,6 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
     if not input:
         raise ValueError('Function requires an input to parse')
         
-    vendor = vendor.value if isinstance(vendor, Vendors) else vendor
     raw_template_string = open_text(f'netmagic.templates.{vendor}', f'{template}.textfsm').read()
     template_string = ''
 
@@ -106,7 +105,7 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
 
     template: TextFSM = TextFSM(StringIO(template_string))
 
-    def fsm_list(closure_input: str) -> list[dict[str, str]]:
+    def fsm_list(closure_input: str) -> FSMOutputT:
         """
         Closure for handling `input` as `list`
         """
@@ -115,7 +114,7 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
         if output:
             return output
 
-    def fsm_string(closure_input: str) -> list[dict[str, str]]:
+    def fsm_string(closure_input: str) -> FSMOutputT:
         """
         Closure for handling `input` as `string`
         """
@@ -131,3 +130,23 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
     }
     closure = closure_dict.get(type(input))
     return closure(input)
+
+def flatten_fsm_output(prime_key: str, fsm_output: FSMOutputT) -> FSMOutputT:
+    """
+    Flattens and collects FSM output into a structure with a matching primary key
+    """
+    merge_dict: dict[str, dict] = {}
+    for item in fsm_output:
+        try:
+            key = item[prime_key]
+        except KeyError:
+            raise KeyError('`prime_key` must be a common element to collect other values')
+        
+        add_dict = {k:v for k,v in item.items() if v}
+        
+        if key in merge_dict:
+            merge_dict[key].update(add_dict)
+        else:
+            merge_dict[key] = add_dict
+
+    return [v for v in merge_dict.values()]
