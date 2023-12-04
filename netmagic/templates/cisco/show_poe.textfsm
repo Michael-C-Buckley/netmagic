@@ -1,0 +1,18 @@
+Value Filldown capacity (\d+(?:\.\d+)?)
+Value Filldown available (\d+(?:\.\d+)?)
+Value Filldown unit ([Ww]att|[Mm][Ww])
+Value port (\S+)
+Value admin_state (\S+)
+Value operation_state (\S+)
+Value consumed (\d+(?:\.\d+)?)
+Value allocated (\d+(?:\.\d+)?)
+Value power_type (\S+(?:\s\S+)?)
+Value power_class (((?:Class )?\d+)|n\/a)
+Value priority (\d+)
+Value error (\S+)
+
+
+Start
+  ^\s+\(?${unit}
+  ^\d\s+${capacity}\s+\d+(?:\.\d+)?\s+${available}
+  ^${port}\s+${admin_state}\s+${operation_state}\s+${consumed}\s+${power_type}\s+${power_class}\s+${allocated} -> Record
