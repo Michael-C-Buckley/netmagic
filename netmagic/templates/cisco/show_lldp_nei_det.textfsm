@@ -1,4 +1,4 @@
-Value Required local_port (\S+)
+Value Required port (\S+)
 Value chassis_mac (\S+)
 Value system_name (\S+)
 Value system_desc (.+)
@@ -8,7 +8,7 @@ Value management_ipv4 (\d+\.\d+\.\d+\.\d+)
 Value management_ipv6 ((?:[a-fA-F\d]{0,4}:?){0,7}(?:[a-fA-F\d]{0,4}:?))
 
 Start
-  ^Local [Ii]ntf: ${local_port}
+  ^Local [Ii]ntf: ${port}
   ^[Cc]hassis [Ii][Dd]: ${chassis_mac}
   ^[Pp]ort [Dd]escription:\s+${port_desc}
   ^[Ss]ystem [Nn]ame:\s+${system_name}

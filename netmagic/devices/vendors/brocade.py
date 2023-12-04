@@ -11,8 +11,7 @@ from netmagic.common.classes import (
 )
 from netmagic.common.utils import get_param_names
 from netmagic.devices.switch import Switch
-from netmagic.handlers import get_fsm_data
-from netmagic.sessions import Session, TerminalSession
+from netmagic.sessions import Session
 
 
 class BrocadeSwitch(Switch):
@@ -137,7 +136,6 @@ class BrocadeSwitch(Switch):
         additional_kwargs = {
             'send_tdr_command': f'phy {tdr_common}',
             'show_tdr_command': f'show {tdr_common}',
-            'vendor': 'brocade'
         }
 
         response = super().get_tdr_data(**input_kwargs, **additional_kwargs)

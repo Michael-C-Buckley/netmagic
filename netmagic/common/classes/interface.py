@@ -122,9 +122,8 @@ class InterfaceLLDP(Interface):
     def validate_int_fields(cls, value):
         if not value:
             return None
-        return None if search(r'(?i)N\/A|None', value) else value
-
-
+        return None if search(r'(?i)N\/A|None|not advertised', value) else value
+    
 class InterfaceOptics(Interface):
     temperature: OpticStatus
     transmit_power: OpticStatus

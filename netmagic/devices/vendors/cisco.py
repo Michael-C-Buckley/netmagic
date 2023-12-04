@@ -8,8 +8,7 @@ from netmagic.common.classes import (
 )
 from netmagic.common.utils import get_param_names
 from netmagic.devices.switch import Switch
-from netmagic.handlers import get_fsm_data
-from netmagic.sessions import Session, TerminalSession
+from netmagic.sessions import Session
 
 class CiscoIOSSwitch(Switch):
     def __init__(self, session: Session) -> None:
@@ -44,15 +43,15 @@ class CiscoIOSSwitch(Switch):
         int_desc = self.command('show interface description')
 
         status_template = 'show_int_status' if not status_template else status_template
-        fsm_status_data = get_fsm_data(int_status.response, 'cisco', status_template)
+        fsm_status_data = self.fsm_parse(int_status.response, status_template)
 
         desc_template = 'show_int_desc' if not desc_template else desc_template
-        fsm_desc_data = get_fsm_data(int_desc.response, 'cisco', desc_template)
+        fsm_desc_data = self.fsm_parse(int_desc.response, desc_template)
 
         # Parse and combine for full-length interface descriptions
         fsm_output = {i['port']: InterfaceStatus(host = self.hostname, **i) for i in fsm_status_data}
         for entry in fsm_desc_data:
-            fsm_output[entry['interface']].desc = entry['desc'].strip()
+            fsm_output[entry['port']].desc = entry['desc'].strip()
 
         return ResponseGroup([int_status, int_desc], fsm_output, 'Cisco Interface Status')
     
@@ -64,7 +63,7 @@ class CiscoIOSSwitch(Switch):
 
         if template is not False:
             template = 'show_int_trans_det' if template is None else template
-            fsm_data = get_fsm_data(optics.response, 'cisco', template)
+            fsm_data = self.fsm_parse(optics.received_time, template)
             optics.fsm_output = {i['port']: InterfaceOptics(host = self.hostname, **i) for i in fsm_data}
 
         return optics
@@ -77,7 +76,7 @@ class CiscoIOSSwitch(Switch):
 
         if template is not False:
             template = 'show_lldp_nei_det' if template is None else template
-            fsm_data = get_fsm_data(lldp.response, 'cisco', template)
+            fsm_data = self.fsm_parse(lldp.response, template)
             lldp.fsm_output = {i['port']: InterfaceLLDP(host = self.hostname, **i) for i in fsm_data}
         
         return lldp
@@ -94,7 +93,6 @@ class CiscoIOSSwitch(Switch):
         additional_kwargs = {
             'send_tdr_command': f'test {tdr_common}',
             'show_tdr_command': f'show {tdr_common}',
-            'vendor': 'cisco'
         }
 
         response = super().get_tdr_data(**input_kwargs, **additional_kwargs)
@@ -103,5 +101,11 @@ class CiscoIOSSwitch(Switch):
             return response
         
     def get_poe_status(self, template: str|bool = None) -> CommandResponse:
+        """
+        Returns the POE information of the switch.
+
+        `template` is the path to a custom TextFSM template.  `None` will use the 
+        library default version.
+        """
         template = 'show_poe' if template is None else template
         return super().get_poe_status('show power inline', template)

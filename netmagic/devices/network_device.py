@@ -16,7 +16,6 @@ from netmagic.common.classes import (
 from netmagic.common.types import Engine, Transport, ConfigSet
 from netmagic.common.utils import validate_max_tries, unquote
 from netmagic.devices.universal import Device
-from netmagic.handlers import get_fsm_data
 from netmagic.handlers.parse import INTERFACE_REGEX
 from netmagic.sessions import Session, TerminalSession, RESTCONFSession, NETCONFSession
 
@@ -184,7 +183,7 @@ class NetworkDevice(Device):
         """
         self.not_implemented_error_generic()
 
-    def get_tdr_data(self, send_tdr_command: str, show_tdr_command: str, vendor: str,
+    def get_tdr_data(self, send_tdr_command: str, show_tdr_command: str,
                      interface_status: ResponseGroup|CommandResponse = None,
                      only_bad: bool = True, template: str|bool = None):
         """
@@ -238,7 +237,7 @@ class NetworkDevice(Device):
             responses.append(tdr_result)
             # parse, add to object
             if template is not False:
-                fsm_data = get_fsm_data(tdr_result.response, vendor, template)
+                fsm_data = self.fsm_parse(tdr_result.response, template)
                 fsm_output[interface] = InterfaceTDR.create(self.hostname, fsm_data)
 
         if responses:
