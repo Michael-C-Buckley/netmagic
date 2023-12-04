@@ -1,2 +1,3 @@
 mactools
 netmiko
+pydantic

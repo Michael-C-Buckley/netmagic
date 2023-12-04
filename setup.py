@@ -17,6 +17,8 @@ setup(
     install_requires=[
         'netmiko',
         'mactools',
+        'pydantic',
+        'textfsm',
     ],
     keywords=['networking','network','ssh','cli','api','automation']
 )
