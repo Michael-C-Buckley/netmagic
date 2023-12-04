@@ -75,7 +75,7 @@ def dual_escape(string: str) -> str:
     return f'({escape_string(string)}|{escape(string)})'
 
 def get_fsm_data(input: str|list, vendor: str, template: str,
-                 split_term: str = None) -> FSMOutputT:
+                 split_term: str = None, flatten_key: str = None) -> FSMOutputT:
     """
     Function for handling TextFSM parsing and situational variables.
     
@@ -129,7 +129,10 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
         str: fsm_string,
     }
     closure = closure_dict.get(type(input))
-    return closure(input)
+    output = closure(input)
+    if flatten_key is not None:
+        output = flatten_fsm_output(flatten_key, output)
+    return output
 
 def flatten_fsm_output(prime_key: str, fsm_output: FSMOutputT) -> FSMOutputT:
     """
@@ -143,7 +146,7 @@ def flatten_fsm_output(prime_key: str, fsm_output: FSMOutputT) -> FSMOutputT:
             raise KeyError('`prime_key` must be a common element to collect other values')
         
         add_dict = {k:v for k,v in item.items() if v}
-        
+
         if key in merge_dict:
             merge_dict[key].update(add_dict)
         else:
