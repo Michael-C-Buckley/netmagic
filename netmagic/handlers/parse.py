@@ -105,31 +105,19 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
 
     template: TextFSM = TextFSM(StringIO(template_string))
 
-    def fsm_list(closure_input: str) -> FSMOutputT:
-        """
-        Closure for handling `input` as `list`
-        """
-        for item in closure_input:
-            output = template.ParseTextToDicts(item)
-        if output:
-            return output
-
-    def fsm_string(closure_input: str) -> FSMOutputT:
-        """
-        Closure for handling `input` as `string`
-        """
-        return template.ParseTextToDicts(closure_input)
-
     if split_term:
         # Split the inputs and restore the lost term back into the lines
         input = [f'{split_term}{item}'.strip() for item in input.split(split_term) if item != '' or item != split_term]
     
-    closure_dict = {
-        list: fsm_list,
-        str: fsm_string,
-    }
-    closure = closure_dict.get(type(input))
-    output = closure(input)
+    if isinstance(input, str):
+        output = template.ParseTextToDicts(input)
+    elif isinstance(input, list):
+        output = []
+        for item in input:
+            output.append(template.ParseTextToDicts(item))
+    else:
+        raise ValueError('`input` must be a string or list of strings')
+
     if flatten_key is not None:
         output = flatten_fsm_output(flatten_key, output)
     return output
