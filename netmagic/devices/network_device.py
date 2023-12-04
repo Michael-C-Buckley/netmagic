@@ -101,9 +101,10 @@ class NetworkDevice(Device):
         """
         Manual entering of enabled mode
         """
-        self.command('enable', r'[Pp]assword')
-        password = password if password is not None else self.cli_session.secret
-        self.command(password)
+        if not search(r'#', self.cli_session.connection.find_prompt()):
+            self.command('enable', fr'[Pp]assword|{self.hostname}')
+            password = password if password is not None else self.cli_session.secret
+            self.command(password)
     
     # CONFIG HANDLING
 

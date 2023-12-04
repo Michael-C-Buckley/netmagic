@@ -11,8 +11,7 @@ from mactools import MacAddress
 from netmagic.common.classes import CommandResponse 
 from netmagic.common.classes.status import POEPort, POEHost
 from netmagic.devices import NetworkDevice
-from netmagic.sessions import Session
-from netmagic.handlers import get_fsm_data
+from netmagic.sessions import Session, TerminalSession
 
 class Switch(NetworkDevice):
     """
@@ -20,6 +19,8 @@ class Switch(NetworkDevice):
     """
     def __init__(self, session: Session) -> None:
         super().__init__(session)
+        if isinstance(session, TerminalSession):
+            self.session_preparation()
         self.mac: MacAddress = None # GET CHASSIS/MANAGEMENT MAC
 
     def not_implemented_error_generic(self):

@@ -18,8 +18,6 @@ from netmagic.sessions import Session, TerminalSession
 class BrocadeSwitch(Switch):
     def __init__(self, session: Session) -> None:
         super().__init__(session)
-        if isinstance(session, TerminalSession):
-            self.session_preparation()
         self.vendor = Vendors.BROCADE
 
     def session_preparation(self):

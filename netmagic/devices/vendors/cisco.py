@@ -14,8 +14,6 @@ from netmagic.sessions import Session, TerminalSession
 class CiscoIOSSwitch(Switch):
     def __init__(self, session: Session) -> None:
         super().__init__(session)
-        if isinstance(session, TerminalSession):
-            self.session_preparation()
         self.vendor = Vendors.CISCO
 
     def session_preparation(self):
@@ -24,14 +22,6 @@ class CiscoIOSSwitch(Switch):
         """
         super().session_preparation('cisco_ios')
         self.command('terminal length 0')
-
-    def enable(self, password: str = None):
-        """
-        Manual entering of enabled mode
-        """
-        output = self.command('enable', r'[Pp]assword')
-        if password is not None:
-            self.command(password)
 
     # IDENTITY
     def get_running_config(self) -> CommandResponse:
