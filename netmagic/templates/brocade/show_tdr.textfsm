@@ -3,7 +3,7 @@ Value Required status (\w+)
 Value remote_pair (\S+)
 Value distance (\d+)
 Value speed (\d+)
-Value port (\d\/\d\/\d+)
+Value port (#INTERFACE_PATTERN#)
 
 Start
   ^(?:${port}\s+${speed}[M|G])?\s+Pair ${local_pair}\s+(?:Pair ?${remote_pair}\s+)?${status} -> Record

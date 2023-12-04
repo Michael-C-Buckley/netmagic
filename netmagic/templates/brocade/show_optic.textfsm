@@ -1,13 +1,13 @@
 Value port (#INTERFACE_PATTERN#)
-Value temperature (-?\d+\.\d+)
+Value temperature (#NUMBER_PATTERN#)
 Value temperature_status (\S+)
-Value voltage (-?\d+\.\d+)
+Value voltage (#NUMBER_PATTERN#)
 Value voltage_status (\S+)
-Value transmit_power (-?\d+\.\d+)
+Value transmit_power (#NUMBER_PATTERN#)
 Value transmit_power_status (\S+)
-Value receive_power (-?\d+\.\d+)
+Value receive_power (#NUMBER_PATTERN#)
 Value receive_power_status (\S+)
-Value current (-?\d+\.\d+)
+Value current (#NUMBER_PATTERN#)
 Value current_status (\S+)
 
 Start

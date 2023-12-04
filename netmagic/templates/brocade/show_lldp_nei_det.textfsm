@@ -1,5 +1,5 @@
 # Values with #NAME# are replaced at runtime
-Value port (\S+)
+Value port (#INTERFACE_PATTERN#)
 Value chassis_mac (#MAC_PATTERN#)
 Value system_name (\S+)
 Value system_desc ([^+]+)

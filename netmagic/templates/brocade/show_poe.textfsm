@@ -1,6 +1,6 @@
 Value capacity (\d+)
 Value available (\d+)
-Value port (\S+)
+Value port (#INTERFACE_PATTERN#)
 Value admin_state (\S+)
 Value operation_state (\S+)
 Value consumed (\d+)

@@ -26,6 +26,8 @@ MAC_PATTERN = f'{EUI48_PATTERN}|{EUI64_PATTERN}'
 CITY_STATE_ZIP = r'[a-zA-Z]+?\s?[a-zA-Z]+,\s[A-Z]{2},?\s\d{5}'
 CITY_STATE = r'[a-zA-Z]+?\s?[a-zA-Z]+,\s[A-Z]{2}'
 
+NUMBER_PATTERN = r'(?:-?\d+|-)(?:\.\d+)?'
+
 # IPv4
 """
 WARNING: Some expressions are not robust and do not fully validate but only

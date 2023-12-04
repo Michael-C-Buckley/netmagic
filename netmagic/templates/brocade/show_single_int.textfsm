@@ -3,10 +3,10 @@ Value state (\w+)
 Value speed (\w+)
 Value input_bitrate (\d+)
 Value input_packetrate (\d+)
-Value input_utilization (\d+\.\d+)
+Value input_utilization (#NUMBER_PATTERN#)
 Value output_bitrate (\d+)
 Value output_packetrate (\d+)
-Value output_utilization (\d+\.\d+)
+Value output_utilization (#NUMBER_PATTERN#)
 Value mtu (\d+)
 
 Start
