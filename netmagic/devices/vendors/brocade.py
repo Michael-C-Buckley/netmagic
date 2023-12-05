@@ -1,6 +1,7 @@
 # NetMagic Brocade Device Library
 
 # Python Modules
+from itertools import chain
 from re import search, sub
 
 # Local Modules
@@ -91,8 +92,8 @@ class BrocadeSwitch(Switch):
         if template is not False:
             template = 'show_optic' if template is None else template
             optics_data = [optics_response.response for optics_response in optics.responses]
-            fsm_data = self.fsm_parse(optics_data, template)
-            optics.fsm_output = {i['port']: InterfaceOptics.create(self.hostname, **i) for i in fsm_data}
+            fsm_data = [self.fsm_parse(i, template) for i in optics_data]
+            optics.fsm_output = {i['port']: InterfaceOptics.create(self.hostname, **i) for i in chain(*fsm_data)}
 
         return optics
     
