@@ -1,4 +1,4 @@
-Value vlan (\S+)
+Value vlan (\d+)
 Value mac (\S+)
 Value type (\S+)
 Value port (\S+)

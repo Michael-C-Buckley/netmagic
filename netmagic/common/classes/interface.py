@@ -14,35 +14,8 @@ from pydantic import BaseModel, validator
 from mactools import MacAddress
 
 # Local Modules
-from netmagic.common.types import MacT
+from netmagic.common.types import MacT, TDRStatus, SFPAlert
 from netmagic.common.classes.pydantic import MacType, validate_speed
-
-class SFPAlert(Enum):
-    normal = 'Normal'
-    low_warn = 'Low warning'
-    high_warn = 'High warning'
-    low_alarm = 'Low alarm'
-    high_alarm = 'High alarm'
-
-
-class TDRStatus(Enum):
-    NORMAL = ('Normal', 'terminated')
-    CROSSTALK = ('Crosstalk', 'crosstalk')
-    OPEN = ('Open', 'open')
-    SHORT = ('Short', 'short')
-
-    def __new__(cls, *values: object):
-        obj = object.__new__(cls)
-        obj._value_ = values[0]
-        obj.all_values = values
-        return obj
-
-    @classmethod
-    def create(cls, value):
-        for member in cls:
-            if value in member.all_values:
-                return member
-        raise ValueError(f'Value `{value}` not a valid TDRStatus')
 
 
 class TDRPair(BaseModel):

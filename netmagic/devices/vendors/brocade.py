@@ -4,7 +4,7 @@
 from re import search, sub
 
 # Local Modules
-from netmagic.common.types import Transport, Vendors
+from netmagic.common.types import Vendors
 from netmagic.common.classes import (
     CommandResponse, ResponseGroup, InterfaceOptics,
     InterfaceStatus, InterfaceLLDP

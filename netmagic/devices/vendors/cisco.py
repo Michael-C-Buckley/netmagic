@@ -1,10 +1,10 @@
 # NetMagic Cisco Device Library
 
 # Local Modules
-from netmagic.common.types import Vendors
+from netmagic.common.types import Vendors, SFPAlert
 from netmagic.common.classes import (
     CommandResponse, ResponseGroup, InterfaceOptics,
-    InterfaceStatus, InterfaceLLDP, SFPAlert, OpticStatus
+    InterfaceStatus, InterfaceLLDP, OpticStatus
 )
 from netmagic.common.utils import get_param_names
 from netmagic.devices.switch import Switch

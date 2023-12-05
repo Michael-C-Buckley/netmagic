@@ -57,12 +57,33 @@ class POEHost(BaseModel):
         create_kwargs = prepare_poe_kwargs(cls, unit, **data)
         return cls(host = hostname, **create_kwargs)
 
-class MACTableEntry(Interface):
+class MACTableEntry(BaseModel):
+    """
+    Entries from a MAC address table.
+    
+    """
     mac: MacType # Accepts `MacAddress|str|int`, converts into `MacAddress`
+    host: str
+    port: set[str]
     type: str
-    vlan: str
+    vlan: dict[int, str]
+
+    @property
+    def count(self):
+        return len(self.vlan)
 
     @validator('mac')
     def validate_mac_address(cls, mac: MacT) -> MacAddress:
         if not isinstance(mac, MacAddress):
             return MacAddress(mac)
+        
+    @classmethod
+    def create(cls, hostname: str, mac: MacAddress|str, **data):
+        """
+        Handle the creation of dicts for tracking multiple occurrences
+        """
+        port_data = data.pop('port')
+        vlan_data = int(data.pop('vlan'))
+        data['port'] = set([port_data])
+        data['vlan'] = {vlan_data: port_data}
+        return cls(host=hostname, mac=mac, **data)

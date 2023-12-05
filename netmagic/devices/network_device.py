@@ -6,6 +6,7 @@ from re import search
 from time import sleep
 
 # Third-Party Modules
+from mactools import MacAddress
 from netmiko import ReadTimeout, redispatch
 
 # Local Modules
@@ -253,10 +254,18 @@ class NetworkDevice(Device):
         if template is not False:
             template = 'show_mac_table' if template is None else template
             fsm_data = self.fsm_parse(mac_table.response, template)
-            mac_table.fsm_output = {}
+            mac_table.fsm_output: dict[MacAddress, MACTableEntry] = {}
 
             for item in fsm_data:
-                mac_entry = MACTableEntry(host = self.hostname, **item)
-                mac_table.fsm_output[mac_entry.mac] = mac_entry
+                mac = MacAddress(item.pop('mac'))
+                # Create the MAC entries or increment a new occurrence
+                if (mac_entry := mac_table.fsm_output.get(mac)):
+                    port = item['port']
+                    vlan = int(item['vlan'])
+                    mac_entry.port.add(port)
+                    mac_entry.vlan[vlan] = port 
+                else:
+                    mac_entry = MACTableEntry.create(self.hostname, mac, **item)
+                    mac_table.fsm_output[mac] = mac_entry
 
         return mac_table
