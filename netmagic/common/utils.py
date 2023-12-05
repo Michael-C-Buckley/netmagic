@@ -5,7 +5,7 @@ from functools import wraps
 from inspect import signature, stack
 from typing import Callable
 
-def output_cache(func: Callable):
+def param_cache(func: Callable):
     """
     Caches the output of a single argument function
     """
@@ -22,7 +22,7 @@ def output_cache(func: Callable):
         return func(arg)
     return wrapper
 
-@output_cache
+@param_cache
 def get_param_names(func: Callable = None) -> list[str]:
     """
     Returns a list of strings of the names of input params of a function.

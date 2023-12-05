@@ -13,6 +13,8 @@ from netmagic.common.types import MacT
 from netmagic.common.classes.interface import Interface
 from netmagic.common.classes.pydantic import MacType
 
+# POE STATUS
+
 def prepare_poe_kwargs(cls: 'POEPort|POEHost', unit: str, **data) -> dict[str, str|float]:
     """
     Data preparation and normalization for POE models.
@@ -56,6 +58,8 @@ class POEHost(BaseModel):
     def create(cls, hostname: str, unit: str, **data) -> 'POEHost':
         create_kwargs = prepare_poe_kwargs(cls, unit, **data)
         return cls(host = hostname, **create_kwargs)
+
+# MAC ADDRESS TABLE
 
 class MACTableEntry(BaseModel):
     """

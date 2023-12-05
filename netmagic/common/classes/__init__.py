@@ -3,7 +3,6 @@ from netmagic.common.classes.responses import (
     CommandResponse, ConfigResponse,
 )
 from netmagic.common.classes.interface import (
-    SFPAlert, TDRStatus, Interface, InterfaceLLDP,
-    InterfaceOptics, InterfaceStatus, InterfaceTDR,
-    OpticStatus,
+    Interface, InterfaceLLDP, InterfaceOptics, 
+    InterfaceStatus, InterfaceTDR, OpticStatus,
 )
