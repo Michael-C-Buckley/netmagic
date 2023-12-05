@@ -77,34 +77,13 @@ def dual_escape(string: str) -> str:
     """
     return f'({escape_string(string)}|{escape(string)})'
 
-def get_fsm_data(input: str|list, vendor: str, template: str,
-                 split_term: str = None, flatten_key: str = None) -> FSMOutputT:
+def swap(input_string: str, template: str):
     """
-    Function for handling TextFSM parsing and situational variables.
-    
-    `split_term` is an optional string for splitting the input prior to TextFSM parsing.
-    `output_dicts` is a bool for TextFSM to return a dict with header as keys or just a value list.
+    Swaps regex patterns detected on templates with variables in this file
     """
-    if not input:
-        raise ValueError('Function requires an input to parse')
-
-    try:
-        if path.exists(template):
-            raw_template_string = open(template).read()
-        else:
-            raw_template_string = open_text(f'netmagic.templates.{vendor}', f'{template}.textfsm').read()
-    except FileNotFoundError:
-        # Check to see if the template string passed itself is the template
-        if search(r'Value', template) and search(r'Start', template):
-            raw_template_string = template
-
-    message = '`template` must either be a file path, internal template, or template passed directly as a string'
-    if not raw_template_string:
-        raise ValueError(message)
-
     template_string = ''
 
-    for line in raw_template_string.split('\n'):
+    for line in input_string.split('\n'):
         # Substitutions only exist currently for Regex patterns of values
         if not match(r'Value', line):
             template_string = f'{template_string}\n{line}' if template_string else line
@@ -113,31 +92,12 @@ def get_fsm_data(input: str|list, vendor: str, template: str,
         # Extract the pattern from the global variables from this module
         if (swap_match := search(r'\#(\w+)\#', line)):
             if (swap_pattern := globals().get(swap_match.group(1))):
-                # sub(r'\#(\w+)\#', fr'{swap_pattern}', line)
                 line = line.replace(swap_match.group(), swap_pattern)
             else:
-                message = f'Template swap did not resolve a matching regex pattern: `{swap_match}` in `{template}.textfsm`'
-                raise ValueError(message)
+                raise ValueError(f'Template swap did not resolve a matching regex pattern: `{swap_match}` in `{template}.textfsm`')
         template_string = f'{template_string}\n{line}' if template_string else line
 
-    template: TextFSM = TextFSM(StringIO(template_string))
-
-    if split_term:
-        # Split the inputs and restore the lost term back into the lines
-        input = [f'{split_term}{item}'.strip() for item in input.split(split_term) if item != '' or item != split_term]
-    
-    if isinstance(input, str):
-        output = template.ParseTextToDicts(input)
-    elif isinstance(input, list):
-        output = []
-        for item in input:
-            output.append(template.ParseTextToDicts(item))
-    else:
-        raise ValueError('`input` must be a string or list of strings')
-
-    if flatten_key is not None:
-        output = flatten_fsm_output(flatten_key, output)
-    return output
+    return template_string
 
 def flatten_fsm_output(prime_key: str, fsm_output: FSMOutputT) -> FSMOutputT:
     """
@@ -158,3 +118,33 @@ def flatten_fsm_output(prime_key: str, fsm_output: FSMOutputT) -> FSMOutputT:
             merge_dict[key] = add_dict
 
     return [v for v in merge_dict.values()]
+
+def get_fsm_data(input: str, template: str, vendor: str = None,
+                 flatten_key: str = None) -> FSMOutputT:
+    """
+    Function for handling TextFSM parsing and situational variables.
+    
+    `input` is the string to parse
+    `template` is either a path to the template or the template directly as a string
+    `vendor` is the name of the vendor for fetching the internal template
+    `flatten_key` is the string to flatten the dicts around
+    """
+    try:
+        if path.exists(template):
+            raw_template_string = open(template).read()
+        else:
+            raw_template_string = open_text(f'netmagic.templates.{vendor.lower()}', f'{template}.textfsm').read()
+    except FileNotFoundError:
+        # Check to see if the template string passed itself is the template
+        if search(r'Value', template) and search(r'Start', template):
+            raw_template_string = template
+        else:
+            raise ValueError('`template` must either be a file path, internal template, or template passed directly as a string')
+
+    # Prepare and load the template by swapping then loading the string into IO
+    parser: TextFSM = TextFSM(StringIO(swap(raw_template_string, template)))
+
+    output = parser.ParseTextToDicts(input)
+    if flatten_key is not None:
+        output = flatten_fsm_output(flatten_key, output)
+    return output

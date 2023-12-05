@@ -49,8 +49,8 @@ class Device:
     # HANDLING
 
     def fsm_parse(self, input: str|list[str], template: str,
-                  split_term: str = None, flatten_key: str = None) -> FSMOutputT:
+                  flatten_key: str = None) -> FSMOutputT:
         """
         Wrapper method for `TextFSM` and `Parse` handler
         """
-        return get_fsm_data(input, self.vendor.value, template, split_term, flatten_key)
+        return get_fsm_data(input, template, self.vendor.value, flatten_key)
