@@ -13,6 +13,7 @@ from netmagic.common.classes import (
     CommandResponse, ConfigResponse, ResponseGroup,
     InterfaceStatus, InterfaceTDR
 )
+from netmagic.common.classes.status import MACTableEntry
 from netmagic.common.types import Engine, Transport, ConfigSet
 from netmagic.common.utils import validate_max_tries, unquote
 from netmagic.devices.universal import Device
@@ -242,3 +243,20 @@ class NetworkDevice(Device):
 
         if responses:
             return ResponseGroup(responses, fsm_output, 'TDR Data')
+        
+    def get_mac_table(self, show_command: str, template: str|bool = None) -> CommandResponse:
+        """
+        Returns the MAC address table
+        """
+        mac_table = self.command(show_command)
+
+        if template is not False:
+            template = 'show_mac_table' if template is None else template
+            fsm_data = self.fsm_parse(mac_table.response, template)
+            mac_table.fsm_output = {}
+
+            for item in fsm_data:
+                mac_entry = MACTableEntry(host = self.hostname, **item)
+                mac_table.fsm_output[mac_entry.mac] = mac_entry
+
+        return mac_table

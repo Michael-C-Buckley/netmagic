@@ -140,3 +140,7 @@ class CiscoIOSSwitch(Switch):
         """
         template = 'show_poe' if template is None else template
         return super().get_poe_status('show power inline', template)
+    
+    def get_mac_table(self, template: str | bool = None) -> CommandResponse:
+        show_command = 'show mac address-table'
+        return super().get_mac_table(show_command, template)

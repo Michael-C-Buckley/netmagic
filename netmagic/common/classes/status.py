@@ -5,10 +5,13 @@ from re import search
 from typing import Optional
 
 # Third-Party Modules
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
+from mactools import MacAddress
 
 # Local Modules
+from netmagic.common.types import MacT
 from netmagic.common.classes.interface import Interface
+from netmagic.common.classes.pydantic import MacType
 
 def prepare_poe_kwargs(cls: 'POEPort|POEHost', unit: str, **data) -> dict[str, str|float]:
     """
@@ -53,3 +56,13 @@ class POEHost(BaseModel):
     def create(cls, hostname: str, unit: str, **data) -> 'POEHost':
         create_kwargs = prepare_poe_kwargs(cls, unit, **data)
         return cls(host = hostname, **create_kwargs)
+
+class MACTableEntry(Interface):
+    mac: MacType # Accepts `MacAddress|str|int`, converts into `MacAddress`
+    type: str
+    vlan: str
+
+    @validator('mac')
+    def validate_mac_address(cls, mac: MacT) -> MacAddress:
+        if not isinstance(mac, MacAddress):
+            return MacAddress(mac)
