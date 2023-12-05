@@ -30,30 +30,21 @@ class Switch(NetworkDevice):
 
     def get_poe_status(self, poe_command: str, template: str|bool) -> CommandResponse:
         """
-        Returns POE status
+        Returns POE status by interface name and also the hostname for overall
+        capacity and availability data.
         """
         show_poe = self.command(poe_command)
 
         if isinstance(template, str):
             fsm_data = self.fsm_parse(show_poe.response, template)
-
-            host_kwargs = {'host': self.hostname}
             show_poe.fsm_output = {}
 
             for entry in fsm_data:
-                # Host-specific data will show up on only one line
-                if (capacity := entry.get('capacity')):
-                    host_kwargs['capacity'] = capacity
-                if (available := entry.get('available')):
-                    host_kwargs['available'] = available
+                poe_port = POEPort.create(self.hostname, **entry)
+                show_poe.fsm_output[entry['port']] = poe_port
 
-                port = entry.get('port')
-
-                if port:
-                    port_kwargs = {k:v for k,v in entry.items() if v}
-                    poe_port = POEPort(host = self.hostname, **port_kwargs)
-                    show_poe.fsm_output[port] = poe_port
-
-                show_poe.fsm_output[self.hostname] = POEHost(**host_kwargs)
+            # Add another entry for the chassis using the Filldown values
+            poe_host = POEHost.create(self.hostname, **entry)
+            show_poe.fsm_output[self.hostname] = poe_host
 
         return show_poe
