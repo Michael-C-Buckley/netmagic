@@ -9,6 +9,7 @@ from typing import Optional
 
 # Third-Party Modules
 from textfsm import TextFSM
+from functools import lru_cache
 
 # Local Modules
 from netmagic.common.types import FSMOutputT
@@ -52,7 +53,8 @@ IPV6_PATTERN = fr'{BASIC_IPV6}|{MIXED_IPV6}'
 IP_PATTERN = f'{IPV4_PATTERN}|{IPV6_PATTERN}'
 
 # Device Regex
-INTERFACE_PATTERN = r'(\w+)?(\d)\/(\d)\/(\d+)'
+INTERFACE_PATTERN = r'[A-Za-z]{0,2}\d\/\d\/\d{1,2}'
+INTERFACE_PATTERN_GROUPS = r'(\w+)?(\d)\/(\d)\/(\d+)'
 INTERFACE_ABBRIEV = r'(((SFP\+?)|([Pp]ort))\s?\d+?\s(o[fn])?\s)'
 
 
@@ -99,6 +101,26 @@ def swap(input_string: str, template: str):
 
     return template_string
 
+@lru_cache()
+def get_parser(template: str, vendor: str):
+    """
+    Memoized wrapper for get TextFSM parsers
+    """
+    try:
+        if path.exists(template):
+            raw_template_string = open(template).read()
+        else:
+            raw_template_string = open_text(f'netmagic.templates.{vendor.lower()}', f'{template}.textfsm').read()
+    except FileNotFoundError:
+        # Check to see if the template string passed itself is the template
+        if search(r'Value', template) and search(r'Start', template):
+            raw_template_string = template
+        else:
+            raise ValueError('`template` must either be a file path, internal template, or template passed directly as a string')
+        
+    parser = TextFSM(StringIO(swap(raw_template_string, template)))
+    return parser
+
 def flatten_fsm_output(prime_key: str, fsm_output: FSMOutputT) -> FSMOutputT:
     """
     Flattens and collects FSM output into a structure with a matching primary key
@@ -129,22 +151,11 @@ def get_fsm_data(input: str, template: str, vendor: str = None,
     `vendor` is the name of the vendor for fetching the internal template
     `flatten_key` is the string to flatten the dicts around
     """
-    try:
-        if path.exists(template):
-            raw_template_string = open(template).read()
-        else:
-            raw_template_string = open_text(f'netmagic.templates.{vendor.lower()}', f'{template}.textfsm').read()
-    except FileNotFoundError:
-        # Check to see if the template string passed itself is the template
-        if search(r'Value', template) and search(r'Start', template):
-            raw_template_string = template
-        else:
-            raise ValueError('`template` must either be a file path, internal template, or template passed directly as a string')
-
-    # Prepare and load the template by swapping then loading the string into IO
-    parser: TextFSM = TextFSM(StringIO(swap(raw_template_string, template)))
+    parser = get_parser(template, vendor)
 
     output = parser.ParseTextToDicts(input)
+
     if flatten_key is not None:
         output = flatten_fsm_output(flatten_key, output)
+
     return output
