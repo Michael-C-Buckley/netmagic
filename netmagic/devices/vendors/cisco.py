@@ -108,8 +108,9 @@ class CiscoIOSSwitch(Switch):
         if template is not False:
             template = 'show_lldp_nei_det' if template is None else template
             fsm_data = self.fsm_parse(lldp.response, template)
-            lldp.fsm_output = {i['port']: InterfaceLLDP(host=self.hostname, **i) for i in fsm_data}
-        
+            raw_output = {i['port']: InterfaceLLDP(host=self.hostname, **i) for i in fsm_data}
+            lldp.fsm_output = {i: raw_output[i] for i in sorted(raw_output)}
+
         return lldp
     
     def get_tdr_data(self, interface_status: ResponseGroup = None,
