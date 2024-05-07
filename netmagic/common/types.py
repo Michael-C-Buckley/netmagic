@@ -44,10 +44,10 @@ class Vendors(Enum):
 
 class SFPAlert(Enum):
     normal = 'Normal'
-    low_warn = 'Low warning'
-    high_warn = 'High warning'
-    low_alarm = 'Low alarm'
-    high_alarm = 'High alarm'
+    low_warn = 'Low Warning'
+    high_warn = 'High Warning'
+    low_alarm = 'Low Alarm'
+    high_alarm = 'High Alarm'
 
 
 class TDRStatus(Enum):
