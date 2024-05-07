@@ -2,9 +2,9 @@ Value Required local_pair ([A-D])
 Value Required remote_pair (\S+)
 Value Required status (\w+)
 Value distance (\d+)
-Value speed (\d+)
+Value speed (\S+)
 Value port (#INTERFACE_PATTERN#)
 
 Start
-  ^${port}\s+${speed}[M|G]\s+Pair ${local_pair}\s+${distance}\s+\+\/- \d+\s+meters\s+(?:Pair )?${remote_pair}\s+${status} -> Record
+  ^${port}\s+${speed}\s+Pair ${local_pair}\s+${distance}\s+\+\/- \d+\s+meters\s+(?:Pair )?${remote_pair}\s+${status} -> Record
   ^\s+Pair ${local_pair}\s+${distance}\s+\+\/- \d+\s+meters\s+(?:Pair )?${remote_pair}\s+${status} -> Record
