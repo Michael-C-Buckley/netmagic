@@ -102,9 +102,9 @@ def swap(input_string: str, template: str):
     return template_string
 
 @lru_cache()
-def get_parser(template: str, vendor: str):
+def parser_preparation(template: str, vendor: str):
     """
-    Memoized wrapper for get TextFSM parsers
+    Memoized wrapper for getting the text file and preparing it
     """
     try:
         if path.exists(template):
@@ -117,9 +117,13 @@ def get_parser(template: str, vendor: str):
             raw_template_string = template
         else:
             raise ValueError('`template` must either be a file path, internal template, or template passed directly as a string')
-        
-    parser = TextFSM(StringIO(swap(raw_template_string, template)))
-    return parser
+    return StringIO(swap(raw_template_string, template))
+
+def get_parser(template: str, vendor: str):
+    """
+    Gets a TextFSM parser with specified inputs
+    """
+    return TextFSM(parser_preparation(template, vendor))
 
 def flatten_fsm_output(prime_key: str, fsm_output: FSMOutputT) -> FSMOutputT:
     """
