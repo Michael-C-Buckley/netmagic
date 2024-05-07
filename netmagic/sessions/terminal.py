@@ -46,14 +46,14 @@ class TerminalSession(Session):
     # CONNECTION HANDLING
 
     @validate_max_tries
-    def connect(self, max_tries: int = 1, username: str = None, password: str = None,
-                connect_kwargs: KwDict = None) -> bool:
+    def connect(self, max_tries: int = 1, check: bool = True, username: str = None,
+                 password: str = None, connect_kwargs: KwDict = None) -> bool:
         """
         Connect SSH session using the selected attributes.
         Returns `bool` on success or failure.
         """
 
-        if isinstance(self.connection, BaseConnection):
+        if check and if isinstance(self.connection, BaseConnection):
             # Reconnecting an actually bad session here causes infinite recursion
             if self.check_session(reconnect=False):
                 return True
@@ -101,8 +101,11 @@ class TerminalSession(Session):
         if escape_attempt:
             for i in range(max_tries):
                 for char in ['\x1B', '\x03']:
-                    self.connection.write_channel(char)
-                    sleep(1)
+                    try:
+                        self.connection.write_channel(char)
+                        sleep(1)
+                    except OSError:
+                        return self.connect(check=False)
                 
         if self.connection.is_alive():
             return True
@@ -166,7 +169,7 @@ class TerminalSession(Session):
 
             try:
                 output = self.connection.send_command(*args, **command_kwargs)
-            except ReadTimeout as e:
+            except (OSError, ReadTimeout) as e:
                 output = e
 
             response = CommandResponse(output, **response_kwargs, attempts=i+1)
