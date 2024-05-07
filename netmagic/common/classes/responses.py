@@ -47,8 +47,9 @@ class ResponseGroup:
     
     def find_time_delta(self):
         sent_times = [response.sent_time for response in self.responses]
-        received_time = [response.received_time for response in self.responses]
-        return max(received_time) - min(sent_times)
+        received_times = [response.received_time for response in self.responses]
+        if sent_times and received_times:
+            return max(received_times) - min(sent_times)
 
 
 class BannerResponse(Response):
