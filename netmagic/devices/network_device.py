@@ -211,7 +211,7 @@ class NetworkDevice(Device):
         responses: list[CommandResponse] = []
 
         fsm_output: dict[str, InterfaceStatus] = interface_status.fsm_output
-        submit_tdr = lambda intf: self.command(f'{send_tdr_command} {intf}')
+        submit_tdr = lambda intf: self.command(f'{send_tdr_command} {intf}', max_tries=1)
 
         # Submit the tests
         for interface in fsm_output.values():
