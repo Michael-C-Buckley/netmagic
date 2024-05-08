@@ -53,7 +53,7 @@ class TerminalSession(Session):
         Returns `bool` on success or failure.
         """
 
-        if check and if isinstance(self.connection, BaseConnection):
+        if check and isinstance(self.connection, BaseConnection):
             # Reconnecting an actually bad session here causes infinite recursion
             if self.check_session(reconnect=False):
                 return True
