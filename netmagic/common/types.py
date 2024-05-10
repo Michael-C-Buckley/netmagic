@@ -43,11 +43,11 @@ class Vendors(Enum):
 
 
 class SFPAlert(Enum):
-    normal = 'Normal'
-    low_warn = 'Low Warning'
-    high_warn = 'High Warning'
-    low_alarm = 'Low Alarm'
-    high_alarm = 'High Alarm'
+    NORMAL = 'Normal'
+    LOW_WARN = 'low warning'
+    HIGH_WARN = 'high warning'
+    LOW_ALARM = 'low alarm'
+    HIGH_ALARM = 'high alarm'
 
 
 class TDRStatus(Enum):
@@ -55,6 +55,7 @@ class TDRStatus(Enum):
     CROSSTALK = ('Crosstalk', 'crosstalk')
     OPEN = ('Open', 'open')
     SHORT = ('Short', 'short')
+    UNKNOWN = ('Unknown', 'unknown')
 
     def __new__(cls, *values: object):
         obj = object.__new__(cls)

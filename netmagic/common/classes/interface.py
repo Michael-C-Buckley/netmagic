@@ -88,9 +88,10 @@ class InterfaceOptics(Interface):
         for key in InterfaceOptics.model_fields:
             # With status data is an Optics field, others are regular Interface fields
             item_data = data.get(key)
-            status_data = data.get(f'{key}_status')
+            status_data: str = data.get(f'{key}_status')
+
             if status_data:
-                kwargs[key] = OpticStatus(reading = item_data, status = SFPAlert(status_data))
+                kwargs[key] = OpticStatus(reading = item_data, status = SFPAlert(status_data.replace('-',' ').lower()))
             elif item_data:
                 kwargs[key] = item_data
 
