@@ -9,7 +9,7 @@ from typing import Optional
 
 # Third-Party Modules
 from textfsm import TextFSM
-from functools import lru_cache
+from functools import cache
 
 # Local Modules
 from netmagic.common.types import FSMOutputT
@@ -101,7 +101,7 @@ def swap(input_string: str, template: str):
 
     return template_string
 
-@lru_cache()
+@cache
 def parser_preparation(template: str, vendor: str):
     """
     Memoized wrapper for getting the text file and preparing it
