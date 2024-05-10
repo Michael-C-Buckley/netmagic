@@ -4,6 +4,7 @@
 from functools import wraps
 from inspect import signature, stack
 from typing import Callable
+from re import search
 
 def param_cache(func: Callable):
     """
@@ -45,7 +46,7 @@ def validate_max_tries(func):
         sig = signature(func)
         bound_arguments = sig.bind(*args, **kwargs)
         bound_arguments.apply_defaults()
-        
+
         max_tries = bound_arguments.arguments.get('max_tries', 1)
         max_tries = int(max_tries)
 
@@ -63,3 +64,18 @@ def unquote(string: str) -> str:
         return string[1:-1]
     else:
         return string
+
+def sort_interfaces(intf_list: list[str]) -> list[str]:
+    """
+    Converts a list of interfaces into one sorted by STACK/MODULE/SLOT
+    since standard sorting will not do this correctly.
+    """
+    parsed_interfaces = []
+    for intf in intf_list:
+        match = search(r'([A-Za-z]+)?(\d+)\/(\d+)\/(\d+)', intf)
+        if match:
+            prefix, dev_stack, module, slot = match.groups()
+            parsed_interfaces.append((prefix or '', int(dev_stack), int(module), int(slot), intf))
+
+    parsed_interfaces.sort(key=lambda x: (x[0], x[1], x[2], x[3]))
+    return [x[4] for x in parsed_interfaces]

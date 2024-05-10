@@ -6,7 +6,7 @@ from netmagic.common.classes import (
     CommandResponse, ResponseGroup, InterfaceOptics,
     InterfaceStatus, InterfaceLLDP, OpticStatus
 )
-from netmagic.common.utils import get_param_names
+from netmagic.common.utils import get_param_names, sort_interfaces
 from netmagic.devices.switch import Switch
 from netmagic.sessions import Session
 
@@ -84,11 +84,11 @@ class CiscoIOSSwitch(Switch):
                     return (low_value, high_value)
 
                 ranges_dict = {
-                    SFPAlert.normal: create_values('low_warning', 'high_warning'),
-                    SFPAlert.low_warn: create_values('low_alarm', 'low_warning'),
-                    SFPAlert.high_warn: create_values('high_warning', 'high_alarm'),
-                    SFPAlert.low_alarm: create_values(float('-inf'), 'low_alarm'),
-                    SFPAlert.high_alarm: create_values('high_alarm', float('inf')),
+                    SFPAlert.NORMAL: create_values('low_warning', 'high_warning'),
+                    SFPAlert.LOW_WARN: create_values('low_alarm', 'low_warning'),
+                    SFPAlert.HIGH_WARN: create_values('high_warning', 'high_alarm'),
+                    SFPAlert.LOW_ALARM: create_values(float('-inf'), 'low_alarm'),
+                    SFPAlert.HIGH_ALARM: create_values('high_alarm', float('inf')),
                 }
                 # Prepare the ranges for analysis
                 for status, values in ranges_dict.items():
@@ -109,7 +109,7 @@ class CiscoIOSSwitch(Switch):
             template = 'show_lldp_nei_det' if template is None else template
             fsm_data = self.fsm_parse(lldp.response, template)
             raw_output = {i['port']: InterfaceLLDP(host=self.hostname, **i) for i in fsm_data}
-            lldp.fsm_output = {i: raw_output[i] for i in sorted(raw_output)}
+            lldp.fsm_output = {i: raw_output[i] for i in sort_interfaces(raw_output)}
 
         return lldp
     

@@ -1,16 +1,15 @@
 # NetMagic Interface Dataclasses
 
 # Python Modules
-from enum import Enum
 from ipaddress import (
     IPv4Address as IPv4,
     IPv6Address as IPv6
 )
 from re import search
-from typing import Any, Optional
+from typing import Optional
 
 # Third-Party Modules
-from pydantic import BaseModel, validator 
+from pydantic import BaseModel, validator
 from mactools import MacAddress
 
 # Local Modules
@@ -60,6 +59,8 @@ class InterfaceLLDP(Interface):
 
     @validator('chassis_mac')
     def validate_mac_address(cls, mac: MacT) -> MacAddress:
+        if mac is None or mac == '':
+            return None
         if not isinstance(mac, MacAddress):
             return MacAddress(mac)
 
@@ -84,19 +85,19 @@ class InterfaceOptics(Interface):
         without transformation.
         """
         kwargs = {}
-        
+
         for key in InterfaceOptics.model_fields:
             # With status data is an Optics field, others are regular Interface fields
             item_data = data.get(key)
-            status_data: str = data.get(f'{key}_status')
+            status_data = data.get(f'{key}_status').replace('-',' ').lower()
 
             if status_data:
-                kwargs[key] = OpticStatus(reading = item_data, status = SFPAlert(status_data.replace('-',' ').lower()))
+                kwargs[key] = OpticStatus(reading = item_data, status = SFPAlert(status_data))
             elif item_data:
                 kwargs[key] = item_data
 
         return cls(host = hostname, **kwargs)
-    
+
 
 class InterfaceTDR(Interface):
     speed: Optional[int] = None # Speed in megabit/second
@@ -152,16 +153,16 @@ class InterfaceStatus(Interface):
     @validator('speed', pre=True)
     def validate_speed(cls, value):
         return validate_speed(value)
-    
+
     @validator('state', 'tag', 'pvid', 'vlan', 'priority', 'trunk', 'duplex', 'media', pre=True)
     def validate_optional_fields(cls, value):
         return None if search(r'(?i)N\/A|None', value) else value
-    
+
     # Aliases between vendor terminology
     @property
     def link(self):
         return self.state
-    
+
     @property
     def label(self):
         return self.desc
