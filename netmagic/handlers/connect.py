@@ -38,7 +38,7 @@ def netmiko_connect(host: HostT, port: int, username: str, password: str,
     # ADD EXCEPTION HANDLING
     return ConnectHandler(**connect_kwargs)
 
-def get_device_type(host: HostT, port: int = 22) -> BannerResponse:
+def get_device_type(host: HostT, port: int = 22, timeout: int = 10) -> BannerResponse:
     """
     Attempts a banner grab on a location to get the device information from 
     the response packet, mostly used as part of a larger connection scheme.
@@ -51,6 +51,7 @@ def get_device_type(host: HostT, port: int = 22) -> BannerResponse:
     try:
         addr_info = getaddrinfo(host, port, type=SOCK_STREAM)
         with socket(addr_info[0][0], SOCK_STREAM) as open_socket:
+            open_socket.settimeout(timeout)
             open_socket.connect((host, int(port)))
             banner = open_socket.recv(1024).decode('utf-8;', errors='ignore').strip('\n').strip('\r')
     except (TimeoutError, ConnectionRefusedError, gaierror) as e:
