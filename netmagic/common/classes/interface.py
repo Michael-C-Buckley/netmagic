@@ -21,7 +21,7 @@ class TDRPair(BaseModel):
     local: str
     status: TDRStatus
     remote: Optional[str] = None
-    distance: Optional[int] = None
+    distance: Optional[str] = None
 
     @validator('remote', 'distance')
     def validate_optionals(cls, value):
@@ -49,7 +49,7 @@ class Interface(BaseModel):
 
 
 class InterfaceLLDP(Interface):
-    chassis_mac: MacType # Accepts `MacAddress|str|int`, converts into `MacAddress`
+    chassis_mac: MacType = None # Accepts `MacAddress|str|int`, converts into `MacAddress`
     system_name: Optional[str] = None
     system_desc: Optional[str] = None
     port_desc: Optional[str] = None
@@ -92,7 +92,11 @@ class InterfaceOptics(Interface):
             status_data = data.get(f'{key}_status').replace('-',' ').lower()
 
             if status_data:
-                kwargs[key] = OpticStatus(reading = item_data, status = SFPAlert(status_data))
+                if (status_match := search(r'([Hh]igh|[Ll]ow)[\s-_]([Ww]arn|[Aa]larm)', status_data)):
+                    status_result = f'{status_match.group(1).lower()} {status_match.group(2).lower()}'
+                else:
+                    status_result = 'none'
+                kwargs[key] = OpticStatus(reading = item_data, status = SFPAlert(status_result))
             elif item_data:
                 kwargs[key] = item_data
 

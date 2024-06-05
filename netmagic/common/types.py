@@ -43,7 +43,8 @@ class Vendors(Enum):
 
 
 class SFPAlert(Enum):
-    NORMAL = 'Normal'
+    NONE = 'non'
+    NORMAL = 'normal'
     LOW_WARN = 'low warning'
     HIGH_WARN = 'high warning'
     LOW_ALARM = 'low alarm'
