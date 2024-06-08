@@ -1,0 +1,16 @@
+Value vlan (\d+)
+Value group (\d+ to \d+)
+Value tags ([^\n]+)
+Value untags ([^\n]+)
+Value interface (\S+)
+Value dual (\d+)
+
+
+Start
+  ^vlan ${vlan}
+  ^vlan-group \d+ vlan ${group}
+  ^\s{1,4}tagged ${tags}
+  ^\s{1,4}untagged ${untags}
+  ^interface ethernet ${interface}
+  ^\s{1,4}dual-mode\s{1,4}${dual}
+  ^! -> Record

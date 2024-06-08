@@ -1,0 +1,16 @@
+Value Required interface (\S+)
+Value access (\S+)
+Value trunk (\S+)
+Value native (\S+)
+Value mode (\S+)
+Value ip_address (\S+)
+Value subnet (\S+)
+
+Start
+  ^interface ${interface}
+  ^\s{1,4}switchport access vlan ${access}
+  ^\s{1,4}switchport mode ${mode}
+  ^\s{1,4}switchport trunk allowed vlan ${trunk}
+  ^\s{1,4}switchport trunk native vlan ${native}
+  ^\s{1,4}ip address ${ip_address} ${subnet}
+  ^! -> Record
