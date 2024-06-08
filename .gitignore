@@ -3,7 +3,7 @@
 logs/
 Output/
 **/__pycache__/
-test.py
+scrap/
 
 # Template added
 # Editors
