@@ -22,6 +22,12 @@ FSMDataT: TypeAlias = dict[str, Any]
 MacT: TypeAlias = MacAddress|str|int
 
 
+class SwitchportMode(Enum):
+    NONE = 'none'
+    TRUNK = 'trunk'
+    ACCESS = 'access'
+
+
 class Transport(Enum):
     SSH = 'ssh'
     SERIAL = 'serial'
@@ -43,7 +49,7 @@ class Vendors(Enum):
 
 
 class SFPAlert(Enum):
-    NONE = 'non'
+    NONE = 'none'
     NORMAL = 'normal'
     LOW_WARN = 'low warning'
     HIGH_WARN = 'high warning'

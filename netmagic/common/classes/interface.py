@@ -9,7 +9,7 @@ from re import search
 from typing import Optional
 
 # Third-Party Modules
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from mactools import MacAddress
 
 # Local Modules
@@ -23,7 +23,7 @@ class TDRPair(BaseModel):
     remote: Optional[str] = None
     distance: Optional[str] = None
 
-    @validator('remote', 'distance')
+    @field_validator('remote', 'distance')
     def validate_optionals(cls, value):
         return value if value else None
 
@@ -37,15 +37,15 @@ class OpticStatus(BaseModel):
 
 class Interface(BaseModel):
     host: str
-    port: str
+    interface: str
 
     @property
     def name(self):
-        return self.port
+        return self.interface
     
     @property
-    def interface(self):
-        return self.port
+    def port(self):
+        return self.interface
 
 
 class InterfaceLLDP(Interface):
@@ -57,14 +57,14 @@ class InterfaceLLDP(Interface):
     management_ipv4: Optional[IPv4] = None
     management_ipv6: Optional[IPv6] = None
 
-    @validator('chassis_mac')
+    @field_validator('chassis_mac')
     def validate_mac_address(cls, mac: MacT) -> MacAddress:
         if mac is None or mac == '':
             return None
         if not isinstance(mac, MacAddress):
             return MacAddress(mac)
 
-    @validator('management_ipv4', 'management_ipv6', 'port_vlan', pre=True)
+    @field_validator('management_ipv4', 'management_ipv6', 'port_vlan', mode='before')
     def validate_int_fields(cls, value):
         if not value:
             return None
@@ -111,7 +111,7 @@ class InterfaceTDR(Interface):
     pair_c: TDRPair
     pair_d: TDRPair
 
-    @validator('speed', pre=True)
+    @field_validator('speed', mode='before')
     def validate_speed(cls, value):
         return validate_speed(value)
 
@@ -126,8 +126,8 @@ class InterfaceTDR(Interface):
             # FSM Optional values
             if (speed := line.get('speed')):
                 create_kwargs['speed'] = speed
-            if (port := line.get('port')):
-                create_kwargs['port'] = port
+            if (interface := line.get('port')):
+                create_kwargs['port'] = interface
 
             # FSM Required values
             local = line['local_pair']
@@ -154,11 +154,11 @@ class InterfaceStatus(Interface):
     duplex: Optional[str] = None
     media: Optional[str] = None
 
-    @validator('speed', pre=True)
+    @field_validator('speed', mode='before')
     def validate_speed(cls, value):
         return validate_speed(value)
 
-    @validator('state', 'tag', 'pvid', 'vlan', 'priority', 'trunk', 'duplex', 'media', pre=True)
+    @field_validator('state', 'tag', 'pvid', 'vlan', 'priority', 'trunk', 'duplex', 'media', mode='before')
     def validate_optional_fields(cls, value):
         return None if search(r'(?i)N\/A|None', value) else value
 
