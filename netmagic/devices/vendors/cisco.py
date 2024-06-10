@@ -6,9 +6,11 @@ from netmagic.common.classes import (
     CommandResponse, ResponseGroup, InterfaceOptics,
     InterfaceStatus, InterfaceLLDP, OpticStatus
 )
-from netmagic.common.utils import get_param_names, sort_interfaces
+from netmagic.common.classes.interface import Interface, InterfaceVLANs, SVI
+from netmagic.common.utils import abbreviate_interface, get_param_names, sort_interfaces
 from netmagic.devices.switch import Switch
 from netmagic.sessions import Session
+
 
 class CiscoIOSSwitch(Switch):
     def __init__(self, session: Session) -> None:
@@ -145,3 +147,27 @@ class CiscoIOSSwitch(Switch):
     def get_mac_table(self, template: str | bool = None) -> CommandResponse:
         show_command = 'show mac address-table'
         return super().get_mac_table(show_command, template)
+    
+    def get_interface_vlans(self, template: str|bool = None) -> dict[InterfaceVLANs|SVI]:
+        """
+        Returns the VLAN information of the switchports.
+
+        `template` is the path to a custom TextFSM template.  `None` will use the 
+        library default version.
+        """
+        template = 'show_run_vlans' if template is None else template
+        fsm_data = self.fsm_parse(self.get_running_config().response, template)
+        results: dict[Interface] = {}
+
+        for line in fsm_data:
+            interface = abbreviate_interface(line['interface'])
+
+            kwargs = {k:v for k,v in line.items() if v}
+            kwargs['interface'] = interface 
+
+            if kwargs.get('ip_address'):
+                results[interface] = SVI(host=self.hostname, **kwargs)
+            elif kwargs.get('access') or kwargs.get('trunk'):
+                results[interface] = InterfaceVLANs(host=self.hostname, **kwargs)
+
+        return results

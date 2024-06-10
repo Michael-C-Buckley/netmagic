@@ -47,3 +47,12 @@ class Switch(NetworkDevice):
             show_poe.fsm_output[self.hostname] = poe_host
 
         return show_poe
+    
+    def get_interface_vlans(self, template: str|bool = None) -> CommandResponse:
+        """
+        Returns the VLAN information of the switchports.
+
+        `template` is the path to a custom TextFSM template.  `None` will use the 
+        library default version.
+        """
+        self.not_implemented_error_generic()
