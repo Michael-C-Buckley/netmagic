@@ -13,7 +13,7 @@ from pydantic import BaseModel, field_validator
 from mactools import MacAddress
 
 # Local Modules
-from netmagic.common.types import MacT, TDRStatus, SFPAlert
+from netmagic.common.types import MacT, HostT, TDRStatus, SFPAlert, SwitchportMode
 from netmagic.common.classes.pydantic import MacType, validate_speed
 
 
@@ -170,3 +170,33 @@ class InterfaceStatus(Interface):
     @property
     def label(self):
         return self.desc
+
+
+class InterfaceVLANs(Interface):
+    access: Optional[int] = None
+    dual: Optional[str] = None
+    native: Optional[int] = None
+    mode: Optional[SwitchportMode] = None
+    trunk: Optional[str] = None
+    untags: Optional[str] = None
+
+    @property
+    def tags(self):
+        return self.trunk
+
+    @field_validator('mode', mode='before')
+    def validate_switchport_mode(cls, value):
+        value = '' if not value else value
+        return SwitchportMode(value)
+
+    @field_validator('mode', 'trunk', 'untags', mode='before')
+    def validate_string_items(cls, value):
+        return None if value == '' else value
+    
+    @field_validator('access', 'native', mode='before')
+    def validate_int_items(cls, value):
+        return None if value == '' else int(value)
+
+class SVI(Interface):
+    ip_address: HostT
+    subnet: str

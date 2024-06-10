@@ -1,10 +1,14 @@
 # NetMagic General Utilities
 
 # Python Modules
-from functools import wraps
+from functools import cache, wraps
 from inspect import signature, stack
-from typing import Callable
-from re import search
+from typing import Callable, Sequence
+from re import search, sub
+
+# Local Modules
+from netmagic.common.classes.interface import InterfaceVLANs
+from netmagic.handlers.parse import INTERFACE_PATTERN
 
 def param_cache(func: Callable):
     """
@@ -79,3 +83,65 @@ def sort_interfaces(intf_list: list[str]) -> list[str]:
 
     parsed_interfaces.sort(key=lambda x: (x[0], x[1], x[2], x[3]))
     return [x[4] for x in parsed_interfaces]
+
+@cache
+def abbreviate_interface(interface: str) -> str:
+    """
+    This abbreviates Cisco interfaces from the long-form into a short-form
+    """
+    if (local_match := search(r'([a-zA-Z]+)(\d+)(\/\d+\/\d+)?', interface)):
+        postfix = local_match.group(2)
+        if local_match.group(3):
+            postfix += local_match.group(3)
+        return f'{local_match.group(1)[:2]}{postfix}'
+    
+    return interface
+
+def get_vlan_string(vlans: InterfaceVLANs) -> str:
+    """
+    Converts the VLAN model fields into a short, serialized string
+    """
+    if vlans.access and not vlans.trunk:
+        return str(vlans.access)
+    
+    trunk_str = sub(str(vlans.native), f'N{vlans.native}', vlans.tags) if vlans.native else vlans.tags
+    trunk_str = sub(str(vlans.dual), f'D{vlans.dual}', trunk_str) if vlans.dual else trunk_str
+
+    return trunk_str
+
+@cache
+def abbreviate_brocade_range(interface_range: str) -> list[str]:
+    """
+    Converts a Brocade text range into a condensed list of strings
+    """
+    return [i.strip() for i in interface_range.split('ethe') if i]
+
+@cache
+def brocade_text_to_range(interface_range: str|Sequence[str]) -> set[str]:
+    """
+    Converts a Brocade-formatted interface text range into a set of every member
+    """
+    if isinstance(interface_range, str):
+        interface_range = abbreviate_brocade_range(interface_range)
+    else:
+        interface_range = [i.strip() for i in interface_range if i]
+
+    output_list = set()
+    
+    for item in interface_range:
+        if search(f'^{INTERFACE_PATTERN}$', item):
+            output_list.add(item)
+        elif (match := search(f'^(\d+\/\d+)\/(\d+) to (\d+\/\d+)\/(\d+)$', item)):
+            if match.group(1) != match.group(3):
+                raise ValueError(f'Ranges must be in the same stack and module and only the interface ID (3rd member) can vary\nProblem string: {match.group()}')
+            for i in range(int(match.group(2)), int(match.group(4))+1):
+                output_list.add(f'{match.group(1)}/{i}')
+
+    return output_list
+
+@cache
+def check_in_brocade_range(range_string: str, member: str) -> bool:
+    """
+    Bool value for if the member is in the range string supplied
+    """
+    return member in brocade_text_to_range(range_string)
