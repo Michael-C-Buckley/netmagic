@@ -45,7 +45,7 @@ class NetworkDevice(Device):
 
         if isinstance(session, Session):
             assign_session(session)
-        elif isinstance(session, list) or isinstance(session, tuple):
+        elif type(session) in [list, tuple]:
             for element in session:
                 assign_session(element)
 
@@ -254,7 +254,7 @@ class NetworkDevice(Device):
         if template is not False:
             template = 'show_mac_table' if template is None else template
             fsm_data = self.fsm_parse(mac_table.response, template)
-            mac_table.fsm_output: dict[MacAddress, MACTableEntry] = {}
+            fsm_dict: dict[MacAddress, MACTableEntry] = {}
 
             for item in fsm_data:
                 mac = MacAddress(item.pop('mac'))
@@ -267,5 +267,7 @@ class NetworkDevice(Device):
                 else:
                     mac_entry = MACTableEntry.create(self.hostname, mac, **item)
                     mac_table.fsm_output[mac] = mac_entry
+
+            mac_table.fsm_output = fsm_dict
 
         return mac_table
