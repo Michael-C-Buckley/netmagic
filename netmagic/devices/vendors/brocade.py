@@ -9,7 +9,7 @@ from netmagic.common.types import Vendors
 from netmagic.common.classes import (
     CommandResponse, ResponseGroup, Interface,
     InterfaceOptics, InterfaceStatus, InterfaceLLDP,
-    InterfaceVLANs
+    InterfaceVLANs, SVI
 )
 from netmagic.common.utils import get_param_names, brocade_text_to_range
 from netmagic.devices.switch import Switch
@@ -141,11 +141,11 @@ class BrocadeSwitch(Switch):
         template = 'show_poe' if template is None else template
         return super().get_poe_status('show poe', template)
     
-    def get_mac_table(self, template: str | bool = None) -> CommandResponse:
+    def get_mac_table(self, template: str|bool = None) -> CommandResponse:
         show_command = 'show mac-address'
         return super().get_mac_table(show_command, template)
     
-    def get_interface_vlans(self, template: str | bool = None) -> CommandResponse:
+    def get_interface_vlans(self, template: str|bool = None) -> dict[str, InterfaceVLANs|SVI]:
         template = 'show_run_vlans' if template is None else template
         fsm_data = self.fsm_parse(self.get_running_config().response, template)
         results: dict[str, dict[str, list[str]]] = {}
@@ -173,7 +173,7 @@ class BrocadeSwitch(Switch):
                     info['mode'] = 'access' if len(info[tag_type]) == 1 else 'trunk'
                     info[tag_type] = ','.join([i for i in info[tag_type] if i])
 
-        output: dict[str, Interface] = {}
+        output: dict[str, InterfaceVLANs|SVI] = {}
         for interface, kwargs in results.items():
             output[interface] = InterfaceVLANs(host=self.hostname, interface=interface, **kwargs)
 

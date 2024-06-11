@@ -48,7 +48,7 @@ class Switch(NetworkDevice):
 
         return show_poe
     
-    def get_interface_vlans(self, template: str|bool = None) -> CommandResponse:
+    def get_interface_vlans(self, template: str|bool = None) -> None:
         """
         Returns the VLAN information of the switchports.
 

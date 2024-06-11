@@ -148,7 +148,7 @@ class CiscoIOSSwitch(Switch):
         show_command = 'show mac address-table'
         return super().get_mac_table(show_command, template)
     
-    def get_interface_vlans(self, template: str|bool = None) -> dict[InterfaceVLANs|SVI]:
+    def get_interface_vlans(self, template: str|bool = None) -> dict[str, InterfaceVLANs|SVI]:
         """
         Returns the VLAN information of the switchports.
 
@@ -157,7 +157,7 @@ class CiscoIOSSwitch(Switch):
         """
         template = 'show_run_vlans' if template is None else template
         fsm_data = self.fsm_parse(self.get_running_config().response, template)
-        results: dict[Interface] = {}
+        results: dict[InterfaceVLANs|SVI] = {}
 
         for line in fsm_data:
             interface = abbreviate_interface(line['interface'])
