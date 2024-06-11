@@ -99,7 +99,7 @@ def abbreviate_interface(interface: str) -> str:
 
 def get_vlan_string(vlans: InterfaceVLANs) -> str:
     """
-    Converts the VLAN model fields into a short, serialized string
+    Converts the VLAN model fields of `InterfaceVLANs` into a short, serialized string
     """
     if vlans.access and not vlans.trunk:
         return str(vlans.access)
@@ -108,6 +108,37 @@ def get_vlan_string(vlans: InterfaceVLANs) -> str:
     trunk_str = sub(str(vlans.dual), f'D{vlans.dual}', trunk_str) if vlans.dual else trunk_str
 
     return trunk_str
+
+def convert_vlan_string_to_object(vlan_str: str, host: str, interface: str) -> InterfaceVLANs:
+    """
+    Converts a VLAN string into `InterfaceVLANs` object.
+
+    `vlan_str (str)`: the VLAN string to be converted
+    `host (str)`: hostname where the interface belongs
+    `interface (str)`: interface that the VLANs are associated with 
+    """
+    if len(vlan_str.strip().split(',')) == 1:
+        kwargs = {
+            'access': vlan_str,
+            'mode': 'access'
+        }
+    if (special_matches := search(r'(N)(D)(\d+)', vlan_str)):
+        vlan = special_matches.group(3)
+        dual = '' if not special_matches.group(2) else vlan
+        native = '' if not special_matches.group(1) else vlan
+        kwargs = {
+            'dual': dual,
+            'native': native,
+            'tags': vlan_str.replace(),
+            'mode': 'trunk'
+        }
+    else:
+        kwargs = {
+            'mode': 'trunk',
+            'tags': vlan_str
+        }
+
+    return InterfaceVLANs(host=host, interface=interface, **kwargs)
 
 @cache
 def abbreviate_brocade_range(interface_range: str) -> list[str]:
