@@ -3,10 +3,10 @@
 # Local Modules
 from netmagic.common.types import Vendors, SFPAlert
 from netmagic.common.classes import (
-    CommandResponse, ResponseGroup, InterfaceOptics,
-    InterfaceStatus, InterfaceLLDP, OpticStatus
+    CommandResponse, ResponseGroup, Interface,
+    InterfaceOptics, InterfaceStatus, InterfaceLLDP, 
+    InterfaceVLANs, OpticStatus, SVI
 )
-from netmagic.common.classes.interface import Interface, InterfaceVLANs, SVI
 from netmagic.common.utils import abbreviate_interface, get_param_names, sort_interfaces
 from netmagic.devices.switch import Switch
 from netmagic.sessions import Session
