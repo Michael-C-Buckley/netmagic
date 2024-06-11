@@ -7,10 +7,11 @@ from re import search, sub
 # Local Modules
 from netmagic.common.types import Vendors
 from netmagic.common.classes import (
-    CommandResponse, ResponseGroup, InterfaceOptics,
-    InterfaceStatus, InterfaceLLDP
+    CommandResponse, ResponseGroup, Interface,
+    InterfaceOptics, InterfaceStatus, InterfaceLLDP,
+    InterfaceVLANs
 )
-from netmagic.common.utils import get_param_names
+from netmagic.common.utils import get_param_names, brocade_text_to_range
 from netmagic.devices.switch import Switch
 from netmagic.sessions import Session
 
@@ -143,3 +144,37 @@ class BrocadeSwitch(Switch):
     def get_mac_table(self, template: str | bool = None) -> CommandResponse:
         show_command = 'show mac-address'
         return super().get_mac_table(show_command, template)
+    
+    def get_interface_vlans(self, template: str | bool = None) -> CommandResponse:
+        template = 'show_run_vlans' if template is None else template
+        fsm_data = self.fsm_parse(self.get_running_config().response, template)
+        results: dict[str, dict[str, list[str]]] = {}
+
+        def append_to_results(interface: str, vlan: int, tag_type: str):
+            if interface not in results:
+                results[interface] = {tag_type: [vlan]}
+                return
+            if tag_type in results[interface]:
+                results[interface][tag_type].append(vlan)
+            else:
+                results[interface][tag_type] = [vlan]
+
+        for line in fsm_data:
+            if line['interface'] and line['dual']:
+                results[line['interface']]['dual'] = line['dual']
+                continue
+            for tag_type in ['untags', 'tags']:
+                for interface in brocade_text_to_range(line[tag_type]):
+                    append_to_results(interface, line['vlan'], tag_type)
+            
+        for info in results.values():
+            for tag_type in ['untags', 'tags']:
+                if info.get(tag_type):
+                    info['mode'] = 'access' if len(info[tag_type]) == 1 else 'trunk'
+                    info[tag_type] = ','.join([i for i in info[tag_type] if i])
+
+        output: dict[str, Interface] = {}
+        for interface, kwargs in results.items():
+            output[interface] = InterfaceVLANs(host=self.hostname, interface=interface, **kwargs)
+
+        return output
