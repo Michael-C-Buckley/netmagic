@@ -1,7 +1,7 @@
 # Project NetMagic Parse Module
 
 # Python Modules
-from importlib.resources import open_text
+from importlib.resources import files
 from io import StringIO
 from os import path
 from re import search, escape, match
@@ -110,7 +110,9 @@ def parser_preparation(template: str, vendor: str):
         if path.exists(template):
             raw_template_string = open(template).read()
         else:
-            raw_template_string = open_text(f'netmagic.templates.{vendor.lower()}', f'{template}.textfsm').read()
+            raw_file = files(f'netmagic.templates.{vendor.lower()}').joinpath(f'{template}.textfsm')
+            with raw_file.open('r', encoding='utf-8') as file:
+                raw_template_string = file.read()
     except FileNotFoundError:
         # Check to see if the template string passed itself is the template
         if search(r'Value', template) and search(r'Start', template):
