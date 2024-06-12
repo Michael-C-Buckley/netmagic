@@ -175,6 +175,9 @@ class BrocadeSwitch(Switch):
 
         output: dict[str, InterfaceVLANs|SVI] = {}
         for interface, kwargs in results.items():
+            # Rename the entry for model compatibility
+            if kwargs.get('tags'):
+                kwargs['trunk'] = kwargs.pop('tags')
             output[interface] = InterfaceVLANs(host=self.hostname, interface=interface, **kwargs)
 
         return output
