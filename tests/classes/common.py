@@ -40,7 +40,4 @@ SSH_KWARGS = {
     'secret': 'admin',
     'transport': Transport.SSH,
     'device_type': 'generic_termserver',
-    'connection': MockBaseConnection(),
-    # Random connection kwarg
-    'test': 'test'
 }

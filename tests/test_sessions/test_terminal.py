@@ -42,7 +42,7 @@ class TestTerminal(TestCase):
         return super().tearDownClass()
 
     def setUp(self) -> None:
-        self.terminal = TerminalSession(**SSH_KWARGS)
+        self.terminal = TerminalSession(connection=MockBaseConnection(), **SSH_KWARGS)
         return super().setUp()
     
     def tearDown(self) -> None:
