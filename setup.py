@@ -19,6 +19,7 @@ setup(
         'mactools',
         'pydantic',
         'textfsm',
+        'openpyxl',
     ],
     keywords=['networking','network','ssh','cli','api','automation']
 )
