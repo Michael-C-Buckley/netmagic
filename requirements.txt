@@ -1,3 +1,5 @@
 mactools
 netmiko
 pydantic
+openpyxl
+textfsm

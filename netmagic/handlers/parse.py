@@ -3,13 +3,13 @@
 # Python Modules
 from importlib.resources import files
 from io import StringIO
+from functools import cache
 from os import path
 from re import search, escape, match
 from typing import Optional
 
 # Third-Party Modules
 from textfsm import TextFSM
-from functools import cache
 
 # Local Modules
 from netmagic.common.types import FSMOutputT

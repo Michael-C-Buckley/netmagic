@@ -7,8 +7,7 @@ from re import search
 # Third-Party Modules
 import serial.tools.list_ports as list_ports
 from netmiko import (
-    BaseConnection,
-    ConnectHandler,
+    BaseConnection, ConnectHandler,
     NetmikoAuthenticationException as AuthException,
 )
 

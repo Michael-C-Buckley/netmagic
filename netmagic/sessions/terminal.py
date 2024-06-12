@@ -3,7 +3,6 @@
 # Python Modules
 from datetime import datetime
 from time import sleep
-from typing import TYPE_CHECKING
 
 # Third-Party Modules
 from netmiko import (
