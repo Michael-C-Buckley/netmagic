@@ -17,7 +17,7 @@ from netmagic.sessions import TerminalSession
 
 # Test Modules (init corrects path)
 import __init__
-from tests.netmagic_common import MockBaseConnection
+from tests.classes.common import MockBaseConnection, SSH_KWARGS
 
 TERMINAL_DIR = 'netmagic.sessions.terminal'
 
@@ -42,20 +42,7 @@ class TestTerminal(TestCase):
         return super().tearDownClass()
 
     def setUp(self) -> None:
-        
-        connect_kwargs = {
-            'host': '::1',
-            'port': 22,
-            'username': 'admin',
-            'password': 'admin',
-            'secret': 'admin',
-            'transport': Transport.SSH,
-            'device_type': 'generic_termserver',
-            'connection': MockBaseConnection(),
-            # Random connection kwarg
-            'test': 'test'
-        }
-        self.terminal = TerminalSession(**connect_kwargs)
+        self.terminal = TerminalSession(**SSH_KWARGS)
         return super().setUp()
     
     def tearDown(self) -> None:
