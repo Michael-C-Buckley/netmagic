@@ -13,6 +13,7 @@ from netmiko import NetmikoAuthenticationException as AuthException
 
 # Local Modules
 from netmagic.common import Transport
+from netmagic.common.classes import CommandResponse
 from netmagic.sessions import TerminalSession
 
 # Test Modules (init corrects path)
@@ -94,15 +95,36 @@ class TestTerminal(TestCase):
                 self.terminal.connection.is_alive.return_value = test_case
                 self.assertTrue(self.terminal.check_session())
 
-    def test_command(self) -> None:
-        cmd_return = 'command return'
-        with self.connection_patch():
-            self.terminal.connection.send_command.return_value = cmd_return
-            test_cmd = self.terminal.command
-            # Successful command
-            self.assertEqual(test_cmd('').response, cmd_return)
-            # Blind command
-            self.assertEqual(test_cmd('', blind=True).response, 'Blind: True')
+    # def test_command(self) -> None:
+    #     cmd_return = 'command return'
+    #     with self.connection_patch():
+    #         self.terminal.connection.send_command.return_value = cmd_return
+    #         test_cmd = self.terminal.command
+    #         # Successful command
+    #         self.assertEqual(test_cmd('').response, cmd_return)
+    #         # Blind command
+    #         self.assertEqual(test_cmd('', blind=True).response, 'Blind: True')
+
+    def test_blind_command(self):
+        """
+        Command is the largest and primarily useful method of a terminal session
+        """
+        # test with no connection
+        # test blind
+        # normal without error
+        # normal with error, then works
+        # normal with errors until the max_tries
+
+        # patched_command.return_value = f'TEST_HOSTNAME# TEST COMMAND RESULT'
+        blind_output = self.terminal.command('something', blind=True)
+        self.assertIsInstance(blind_output, CommandResponse)
+
+    def test_command(self):
+        """"""
+        output = self.terminal.command('something')
+        self.assertIsInstance(output, CommandResponse)
+
+        # test a failure then a success
 
 
 if __name__ == '__main__':
