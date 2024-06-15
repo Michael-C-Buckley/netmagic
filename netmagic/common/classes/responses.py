@@ -2,7 +2,7 @@
 
 # Python Modules
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
     from netmagic.sessions.terminal import TerminalSession
@@ -27,6 +27,9 @@ class Response:
 
     def __str__(self) -> str:
         return self.response
+
+    def update_latency(self, sent_time: datetime = None, received_time: datetime = None) -> None:
+        self.latency = self.received_time - self.sent_time
 
 
 class ResponseGroup:
@@ -64,6 +67,17 @@ class BannerResponse(Response):
 
     def __repr__(self) -> str:
         return f'[{self.host}:{self.port}]: {self.response}'   
+
+
+class ConnectResponse(Response):
+    """
+    Simple object for capturing a connection attempt and infor around it
+    """
+    def __init__(self, response: Any, method: Callable, params: Any, 
+                 sent_time: datetime, received_time: datetime = None) -> None:
+        self.method = method
+        self.params = params
+        super().__init__(response, sent_time, received_time)
 
 
 class CommandResponse(Response):

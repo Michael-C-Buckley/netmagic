@@ -1,42 +1,20 @@
 # Project NetMagic Connection Handler Module
 
 # Python Modules
-from socket import (
-    socket, gaierror,
-    SOCK_STREAM,
-    getaddrinfo
-)
+from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from datetime import datetime
 from re import search
+from time import sleep
+from socket import socket, gaierror, SOCK_STREAM, getaddrinfo
 
 # Third-Party Modules
-from netmiko import (
-    BaseConnection,
-    ConnectHandler,
-    NetmikoAuthenticationException as AuthException,
-)
+from netmiko import BaseConnection, ConnectHandler
 
 # Local Modules
-from netmagic.common.classes import BannerResponse
+from netmagic.common.classes import BannerResponse, ConnectResponse
 from netmagic.common.types import HostT
 
-def netmiko_connect(host: HostT, port: int, username: str, password: str,
-                    device_type: str, *args, **kwargs) -> BaseConnection|Exception:
-    """
-    Standard Netmiko connection variables and environment, mostly used as part of a larger connection scheme.
-
-    Take in the Profile as keyword arguments and returns a Netmiko Base Connection or Netmiko Timeout/Auth Exceptions.
-    """
-    # Collect input the default named input parameters and exclude *args, **kwargs
-    host = str(host)
-    connect_kwargs = {k: v for k, v in locals().items() if not search(r'args', k)}
-
-    # Collect the additional user optional parameters
-    for key, value in kwargs.items():
-        connect_kwargs[key] = value
-
-    # ADD EXCEPTION HANDLING
-    return ConnectHandler(**connect_kwargs)
+successful_credentials: list[tuple[str, str]] = []
 
 def get_device_type(host: HostT, port: int = 22, timeout: int = 10) -> BannerResponse:
     """
@@ -58,3 +36,78 @@ def get_device_type(host: HostT, port: int = 22, timeout: int = 10) -> BannerRes
         return BannerResponse(e, **banner_kwargs)
     else:
         return BannerResponse(banner, **banner_kwargs)
+
+def netmiko_connect(host: HostT, port: int, username: str, password: str,
+                    device_type: str, *args, **kwargs) -> BaseConnection|Exception:
+    """
+    Standard Netmiko connection variables and environment, mostly used as part of a larger connection scheme.
+
+    Take in the Profile as keyword arguments and returns a Netmiko Base Connection or Netmiko Timeout/Auth Exceptions.
+    """
+    # Collect input the default named input parameters and exclude *args, **kwargs
+    host = str(host)
+    connect_kwargs = {k: v for k, v in locals().items() if not search(r'args', k)}
+
+    # Collect the additional user optional parameters
+    for key, value in kwargs.items():
+        connect_kwargs[key] = value
+
+    try:
+        return ConnectHandler(**connect_kwargs)
+    except Exception as e:
+        return e
+
+def brute_force(usernames: list[str], passwords: list[str], host: HostT, port: int = 22,
+                device_type: str = None, bypass: bool = False):
+    """"""
+
+    creds = [(username, password) for username in usernames for password in passwords]
+
+    if not bypass:
+        creds = successful_credentials + creds
+
+    for username, password in creds:
+        ssh = netmiko_connect(host, port, username, password, device_type)
+        if isinstance(ssh, BaseConnection):
+            return ssh
+
+
+def distributed_brute_force(hosts: list[tuple[HostT, int, str|None]], usernames: list[str],
+                            passwords: list[str]) -> list[ConnectResponse]:
+    """
+    Brute forcer for a group of devices with a shared set of credentials that will spread the attempts
+    per credential across the group of devices to find faster resolution
+    """
+    successes: list[ConnectResponse] = []
+    failures: list[ConnectResponse] = []
+    futures: dict[Future, ConnectResponse] = {}
+    creds = [(username, password) for username in usernames for password in passwords]
+    
+    while True:
+        with ThreadPoolExecutor(len(hosts)) as executor:
+            if not creds:
+                break
+            elif hosts and creds:
+                host, port, device_type = hosts.pop()
+                username, password = next(creds)
+                connect_args = (host, port, username, password, device_type)
+                future = executor.submit(netmiko_connect, *connect_args)
+                futures[future] = ConnectResponse(None, netmiko_connect, connect_args, datetime.now())
+            elif not hosts and creds:
+                sleep(1)
+
+            for future in as_completed(futures):
+                connection = futures[future]
+                connection.update_latency(received_time=datetime.now())
+
+                try:
+                    connection.response = future.result()
+                    successes.append(connection)
+
+                except:
+                    connection.response = False
+                    failures.append(connection)
+                    host, port, _, _, device_type = connection.params
+                    hosts.append((host, port, device_type))
+
+    return successes
