@@ -1,10 +1,12 @@
-Value port (#INTERFACE_PATTERN#)
+Value interface (#INTERFACE_PATTERN#)
 Value desc (.{0,19})
 Value state (disabled|connected|notconnect)
+Value tdr_error (: \w+)
 Value vlan (\S+)
 Value duplex (\S+)
 Value speed (\S+)
 Value media (\S+)
 
 Start
-  ^${port}\s*${desc}?\s*${state}\s*${vlan}\s*${duplex}\s*${speed}\s*${media} -> Record
+  ^${interface}\s*${desc}?\s*${state}${tdr_error}\s*${vlan}\s*${duplex}\s*${speed}\s*${media} -> Record
+  ^${interface}\s*${desc}?\s*${state}\s*${vlan}\s*${duplex}\s*${speed}\s*${media} -> Record

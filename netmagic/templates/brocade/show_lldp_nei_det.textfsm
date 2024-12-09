@@ -1,5 +1,5 @@
 # Values with #NAME# are replaced at runtime
-Value port (#INTERFACE_PATTERN#)
+Value interface (#INTERFACE_PATTERN#)
 Value chassis_mac (#MAC_PATTERN#)
 Value system_name (\S+)
 Value system_desc ([^+]+)
@@ -10,7 +10,7 @@ Value management_ipv6 (#IPV6_PATTERN#)
 Value operational_mau ([^\n]+)
 
 Start
-  ^Local port: ${port}
+  ^Local port: ${interface}
   ^\s+\S+\s+[Cc]hassis ID \(MAC address\): ${chassis_mac}
   ^\s+\S+\s+[Ss]ystem [Nn]ame\s+:\s+"${system_name}"
   ^\s+\S+\s+[Ss]ystem [Dd]escription\s+:\s+"${system_desc}"

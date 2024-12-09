@@ -1,4 +1,4 @@
-Value Required port (#INTERFACE_PATTERN#)
+Value Required interface (#INTERFACE_PATTERN#)
 Value Filldown capacity (#NUMBER_PATTERN#)
 Value Filldown available (#NUMBER_PATTERN#)
 Value Filldown unit ([Ww]att|[Mm][Ww])
@@ -15,4 +15,4 @@ Value error (\S+)
 Start
   ^\s+\(?${unit}
   ^\d\s+${capacity}\s+\d+(?:\.\d+)?\s+${available}
-  ^${port}\s+${admin_state}\s+${operation_state}\s+${consumed}\s+${power_type}\s+${power_class}\s+${allocated} -> Record
+  ^${interface}\s+${admin_state}\s+${operation_state}\s+${consumed}\s+${power_type}\s+${power_class}\s+${allocated} -> Record

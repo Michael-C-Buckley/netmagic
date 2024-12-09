@@ -1,4 +1,4 @@
-Value port (#INTERFACE_PATTERN#)
+Value interface (#INTERFACE_PATTERN#)
 Value temperature (#NUMBER_PATTERN#)
 Value temperature_high_alarm (#NUMBER_PATTERN#)
 Value temperature_low_alarm (#NUMBER_PATTERN#)
@@ -33,20 +33,20 @@ Start
   ^.*Temperature -> TempSection
 
 TempSection
-  ^${port}\s+${temperature}\s+${temperature_high_alarm}\s+${temperature_high_warning}\s+${temperature_low_warning}\s+${temperature_low_alarm} -> Record
+  ^${interface}\s+${temperature}\s+${temperature_high_alarm}\s+${temperature_high_warning}\s+${temperature_low_warning}\s+${temperature_low_alarm} -> Record
   ^.*Voltage -> VoltSection
 
 VoltSection
-  ^${port}\s+${voltage}\s+${voltage_high_alarm}\s+${voltage_high_warning}\s+${voltage_low_warning}\s+${voltage_low_alarm} -> Record
+  ^${interface}\s+${voltage}\s+${voltage_high_alarm}\s+${voltage_high_warning}\s+${voltage_low_warning}\s+${voltage_low_alarm} -> Record
   ^.*Current -> CurrentSection
 
 CurrentSection
-  ^${port}\s+${current_lane}\s+${current}\s+${current_high_alarm}\s+${current_high_warning}\s+${current_low_warning}\s+${current_low_alarm} -> Record
+  ^${interface}\s+${current_lane}\s+${current}\s+${current_high_alarm}\s+${current_high_warning}\s+${current_low_warning}\s+${current_low_alarm} -> Record
   ^.*Transmit Power -> TxSection
 
 TxSection
-  ^${port}\s+${transmit_power_lane}\s+${transmit_power}\s+${transmit_power_high_alarm}\s+${transmit_power_high_warning}\s+${transmit_power_low_warning}\s+${transmit_power_low_alarm} -> Record
+  ^${interface}\s+${transmit_power_lane}\s+${transmit_power}\s+${transmit_power_high_alarm}\s+${transmit_power_high_warning}\s+${transmit_power_low_warning}\s+${transmit_power_low_alarm} -> Record
   ^.*Receive Power -> RxSection
 
 RxSection
-  ^${port}\s+${receive_power_lane}\s+${receive_power}\s+${receive_power_high_alarm}\s+${receive_power_high_warning}\s+${receive_power_low_warning}\s+${receive_power_low_alarm} -> Record
+  ^${interface}\s+${receive_power_lane}\s+${receive_power}\s+${receive_power_high_alarm}\s+${receive_power_high_warning}\s+${receive_power_low_warning}\s+${receive_power_low_alarm} -> Record

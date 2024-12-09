@@ -1,4 +1,4 @@
-Value port (#INTERFACE_PATTERN#)
+Value interface (#INTERFACE_PATTERN#)
 Value state (\S+)
 Value stp_state (\S+)
 Value duplex (\S+)
@@ -11,4 +11,4 @@ Value int_mac (#MAC_PATTERN#)
 Value desc (.+)
 
 Start
-  ^${port}\s*${state}\s*${stp_state}\s*${duplex}\s*${speed}\s*${trunk}\s*${tag}\s*${pvid}\s*${priority}\s*${int_mac}\s*${desc} -> Record
+  ^${interface}\s*${state}\s*${stp_state}\s*${duplex}\s*${speed}\s*${trunk}\s*${tag}\s*${pvid}\s*${priority}\s*${int_mac}\s*${desc} -> Record

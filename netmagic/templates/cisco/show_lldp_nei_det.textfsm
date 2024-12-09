@@ -1,4 +1,4 @@
-Value Required port (#INTERFACE_PATTERN#)
+Value Required interface (#INTERFACE_PATTERN#)
 Value chassis_mac (#MAC_PATTERN#)
 Value system_name (\S+)
 Value system_desc (.+)
@@ -8,7 +8,7 @@ Value management_ipv4 (#IPV4_PATTERN#)
 Value management_ipv6 (#IPV6_PATTERN#)
 
 Start
-  ^Local [Ii]ntf: ${port}
+  ^Local [Ii]ntf: ${interface}
   ^[Cc]hassis [Ii][Dd]: ${chassis_mac}
   ^[Pp]ort [Dd]escription:\s+${port_desc}
   ^[Ss]ystem [Nn]ame:\s+${system_name}

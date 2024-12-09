@@ -1,7 +1,7 @@
 Value vlan (\d+)
 Value mac (\S+)
 Value type (\S+)
-Value port (\S+)
+Value interface (\S+)
 
 Start
-  ^\s+${vlan}\s+${mac}\s+${type}\s+${port} -> Record
+  ^\s{0,4}${vlan}\s+${mac}\s+${type}\s+${interface} -> Record

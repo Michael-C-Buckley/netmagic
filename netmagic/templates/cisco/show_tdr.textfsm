@@ -1,10 +1,12 @@
 Value Required local_pair ([A-D])
 Value Required remote_pair (\S+)
-Value Required status (\w+)
+Value Required status (\w+\s?\w+)
 Value distance (\d+)
 Value speed (\S+)
-Value port (#INTERFACE_PATTERN#)
+Value interface (#INTERFACE_PATTERN#)
 
 Start
-  ^${port}\s+${speed}\s+Pair ${local_pair}\s+${distance}\s+\+\/- \d+\s+meters\s+(?:Pair )?${remote_pair}\s+${status} -> Record
+  ^${interface}\s+${speed}\s+Pair ${local_pair}\s+${distance}\s+\+\/- \d+\s+meters\s+(?:Pair )?${remote_pair}\s+${status} -> Record
   ^\s+Pair ${local_pair}\s+${distance}\s+\+\/- \d+\s+meters\s+(?:Pair )?${remote_pair}\s+${status} -> Record
+  ^${interface}\s+${speed}\s+Pair ${local_pair}\s+N\/A\s+(?:Pair )?${remote_pair}\s+${status} -> Record
+  ^\s+Pair ${local_pair}\s+N\/A\s+(?:Pair )?${remote_pair}\s+${status} -> Record

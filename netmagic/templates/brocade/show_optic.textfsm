@@ -1,4 +1,4 @@
-Value Required port (#INTERFACE_PATTERN#)
+Value Required interface (#INTERFACE_PATTERN#)
 Value Required temperature (#NUMBER_PATTERN#)
 Value Required temperature_status (\S+)
 Value Required voltage (#NUMBER_PATTERN#)
@@ -11,5 +11,5 @@ Value Required current (#NUMBER_PATTERN#)
 Value Required current_status (\S+)
 
 Start
-  ^\s*${port}\s*${temperature} C\s*${voltage} volts\s*${transmit_power} dBm\s*${receive_power} dBm\s*${current} mA
+  ^\s*${interface}\s*${temperature} C\s*${voltage} volts\s*${transmit_power} dBm\s*${receive_power} dBm\s*${current} mA
   ^\s*${temperature_status}\s*${voltage_status}\s*${transmit_power_status}\s*${receive_power_status}\s*${current_status}\s*

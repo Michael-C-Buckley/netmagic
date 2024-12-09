@@ -1,9 +1,9 @@
-Value port (#INTERFACE_PATTERN#)
+Value interface (#INTERFACE_PATTERN#)
 Value status ((up|(?:admin )?down))
 Value protocol (up|down)
 Value desc ((?:.?)+)
 
 Start
-  ^${port}\s*${status}\s+${protocol}\s+${desc} -> Record
-  ^${port}\s*${status}\s+${protocol} -> Record
+  ^${interface}\s*${status}\s+${protocol}\s+${desc} -> Record
+  ^${interface}\s*${status}\s+${protocol} -> Record
   
