@@ -55,7 +55,7 @@ class BrocadeSwitch(Switch):
         
         template = 'show_int' if interface is None else 'show_single_int'
         fsm_data = self.fsm_parse(int_status.response, template)
-        int_status.fsm_output = {i['port']: InterfaceStatus(host = self.hostname, **i) for i in fsm_data}
+        int_status.fsm_output = {i['interface']: InterfaceStatus(host = self.hostname, **i) for i in fsm_data}
         
         return int_status
     
@@ -94,7 +94,7 @@ class BrocadeSwitch(Switch):
             template = 'show_optic' if template is None else template
             optics_data = [optics_response.response for optics_response in optics.responses]
             fsm_data = [self.fsm_parse(i, template) for i in optics_data]
-            optics.fsm_output = {i['port']: InterfaceOptics.create(self.hostname, **i) for i in chain(*fsm_data)}
+            optics.fsm_output = {i['interface']: InterfaceOptics.create(self.hostname, **i) for i in chain(*fsm_data)}
 
         return optics
     
@@ -114,7 +114,7 @@ class BrocadeSwitch(Switch):
         # The built-in template REQUIRES the above pre-processing to work correctly
         template = 'show_lldp_nei_det' if not template else template
         fsm_data = self.fsm_parse(lldp.response, template)
-        lldp.fsm_output = {i['port']: InterfaceLLDP(host = self.hostname, **i) for i in fsm_data}
+        lldp.fsm_output = {i['interface']: InterfaceLLDP(host = self.hostname, **i) for i in fsm_data}
 
         return lldp
     
