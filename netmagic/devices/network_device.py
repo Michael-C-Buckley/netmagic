@@ -15,7 +15,7 @@ from netmagic.common.classes import (
     InterfaceStatus, InterfaceTDR
 )
 from netmagic.common.classes.status import MACTableEntry
-from netmagic.common.types import Engine, Transport, ConfigSet
+from netmagic.common.types import Engine, Transport, ConfigSet, HostT
 from netmagic.common.utils import validate_max_tries, unquote
 from netmagic.devices.universal import Device
 from netmagic.handlers.parse import INTERFACE_PATTERN
@@ -103,7 +103,11 @@ class NetworkDevice(Device):
         Manual entering of enabled mode
         """
         if not search(r'#', self.cli_session.connection.find_prompt()):
-            self.command('enable', fr'[Pp]assword|{self.hostname}')
+            if self.hostname is None:
+                expect_string = fr'[Pp]assword'
+            else:
+                expect_string = fr'[Pp]assword|{self.hostname}'
+            self.command('enable', expect_string)
             password = password if password is not None else self.cli_session.secret
             self.command(password)
     
@@ -147,7 +151,7 @@ class NetworkDevice(Device):
 
     def get_hostname(self) -> CommandResponse:
         hostname = self.command('show run | i hostname')
-        if (hostname_match := search(r'hostname\s(.+)', hostname.response)):
+        if (hostname_match := search(r'hostname\s"?(.+)"?', hostname.response)):
             hostname_str = hostname_match.group(1)
             self.hostname = unquote(hostname_str)
             return hostname
@@ -245,10 +249,12 @@ class NetworkDevice(Device):
         if responses:
             return ResponseGroup(responses, fsm_output, 'TDR Data')
         
-    def get_mac_table(self, show_command: str, template: str|bool = None) -> CommandResponse:
+    def get_mac_table(self, show_command: str, filter_command: str = None, template: str|bool = None) -> CommandResponse:
         """
         Returns the MAC address table
         """
+        if filter_command is not None:
+            show_command = f'{show_command} {filter_command}'
         mac_table = self.command(show_command)
 
         if template is not False:
@@ -259,14 +265,14 @@ class NetworkDevice(Device):
             for item in fsm_data:
                 mac = MacAddress(item.pop('mac'))
                 # Create the MAC entries or increment a new occurrence
-                if (mac_entry := mac_table.fsm_output.get(mac)):
-                    port = item['port']
+                if (mac_entry := fsm_dict.get(mac)):
+                    port = item['interface']
                     vlan = int(item['vlan'])
-                    mac_entry.port.add(port)
+                    mac_entry.interface.add(port)
                     mac_entry.vlan[vlan] = port 
                 else:
                     mac_entry = MACTableEntry.create(self.hostname, mac, **item)
-                    mac_table.fsm_output[mac] = mac_entry
+                    fsm_dict[mac] = mac_entry
 
             mac_table.fsm_output = fsm_dict
 
