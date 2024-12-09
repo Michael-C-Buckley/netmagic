@@ -51,9 +51,11 @@ class CiscoIOSSwitch(Switch):
         fsm_desc_data = self.fsm_parse(int_desc.response, desc_template)
 
         # Parse and combine for full-length interface descriptions
-        fsm_output = {i['port']: InterfaceStatus(host = self.hostname, **i) for i in fsm_status_data}
+        fsm_output = {i['interface']: InterfaceStatus(host = self.hostname, **i) for i in fsm_status_data}
         for entry in fsm_desc_data:
-            fsm_output[entry['port']].desc = entry['desc'].strip()
+            if not fsm_output.get(entry['interface']):
+                continue
+            fsm_output[entry['interface']].desc = entry['desc'].strip()
 
         return ResponseGroup([int_status, int_desc], fsm_output, 'Cisco Interface Status')
     
@@ -68,12 +70,12 @@ class CiscoIOSSwitch(Switch):
         
         optics.fsm_output = {}
         template = 'show_int_trans_det' if template is None else template
-        fsm_data = self.fsm_parse(optics.response, template, flatten_key='port')
+        fsm_data = self.fsm_parse(optics.response, template, flatten_key='interface')
         root_key_list = ['temperature', 'voltage', 'current', 'transmit_power', 'receive_power']
 
         for entry in fsm_data:
-            port = entry['port']
-            port_dict = {'port': port}
+            port = entry['interface']
+            port_dict = {'interface': port}
 
             for root_key in root_key_list:
                 primary_value = float(entry[root_key])
@@ -110,7 +112,7 @@ class CiscoIOSSwitch(Switch):
         if template is not False:
             template = 'show_lldp_nei_det' if template is None else template
             fsm_data = self.fsm_parse(lldp.response, template)
-            raw_output = {i['port']: InterfaceLLDP(host=self.hostname, **i) for i in fsm_data}
+            raw_output = {i['interface']: InterfaceLLDP(host=self.hostname, **i) for i in fsm_data}
             lldp.fsm_output = {i: raw_output[i] for i in sort_interfaces(raw_output)}
 
         return lldp
@@ -144,9 +146,9 @@ class CiscoIOSSwitch(Switch):
         template = 'show_poe' if template is None else template
         return super().get_poe_status('show power inline', template)
     
-    def get_mac_table(self, template: str | bool = None) -> CommandResponse:
+    def get_mac_table(self, filter_command: str = None, template: str | bool = None) -> CommandResponse:
         show_command = 'show mac address-table'
-        return super().get_mac_table(show_command, template)
+        return super().get_mac_table(show_command, filter_command, template)
     
     def get_interface_vlans(self, template: str|bool = None) -> dict[str, InterfaceVLANs|SVI]:
         """
