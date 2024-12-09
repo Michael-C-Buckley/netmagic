@@ -63,6 +63,7 @@ class TDRStatus(Enum):
     OPEN = ('Open', 'open')
     SHORT = ('Short', 'short')
     UNKNOWN = ('Unknown', 'unknown')
+    NOT_SUPPORTED = ('Not Supported', 'not supported')
 
     def __new__(cls, *values: object):
         obj = object.__new__(cls)
