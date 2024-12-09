@@ -68,7 +68,7 @@ class MACTableEntry(BaseModel):
     """
     mac: MacType # Accepts `MacAddress|str|int`, converts into `MacAddress`
     host: str
-    port: set[str]
+    interface: set[str]
     type: str
     vlan: dict[int, str]
 
@@ -86,8 +86,8 @@ class MACTableEntry(BaseModel):
         """
         Handle the creation of dicts for tracking multiple occurrences
         """
-        port_data = data.pop('port')
+        port_data = data.pop('interface')
         vlan_data = int(data.pop('vlan'))
-        data['port'] = set([port_data])
+        data['interface'] = set([port_data])
         data['vlan'] = {vlan_data: port_data}
         return cls(host=hostname, mac=mac, **data)
