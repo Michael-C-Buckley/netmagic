@@ -79,20 +79,22 @@ class InterfaceOptics(Interface):
     temperature: OpticStatus
 
     @classmethod
-    def create(cls, hostname: str, **data):
+    def create(cls, host: str, **data):
         """
         Factory pattern for directly consuming output from TextFSM templates
         without transformation.
         """
         kwargs = {}
+        data['host'] = host
 
         for key in InterfaceOptics.model_fields:
             # With status data is an Optics field, others are regular Interface fields
             item_data = data.get(key)
-            status_data = data.get(f'{key}_status').replace('-',' ').lower()
+            status_data = data.get(f'{key}_status')
 
             if status_data:
-                if (status_match := search(r'([Hh]igh|[Ll]ow)[\s-_]([Ww]arn|[Aa]larm)', status_data)):
+                status_data = status_data.replace('-',' ').lower()
+                if (status_match := search(r'([Hh]igh|[Ll]ow)[\s\-\_]([Ww]arn|[Aa]larm)', status_data)):
                     status_result = f'{status_match.group(1).lower()} {status_match.group(2).lower()}'
                 else:
                     status_result = 'none'
@@ -100,7 +102,7 @@ class InterfaceOptics(Interface):
             elif item_data:
                 kwargs[key] = item_data
 
-        return cls(host = hostname, **kwargs)
+        return cls(**kwargs)
 
 
 class InterfaceTDR(Interface):
@@ -126,8 +128,8 @@ class InterfaceTDR(Interface):
             # FSM Optional values
             if (speed := line.get('speed')):
                 create_kwargs['speed'] = speed
-            if (interface := line.get('port')):
-                create_kwargs['port'] = interface
+            if (interface := line.get('interface')):
+                create_kwargs['interface'] = interface
 
             # FSM Required values
             local = line['local_pair']
