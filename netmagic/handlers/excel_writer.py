@@ -27,6 +27,9 @@ class RowEntry:
     def __init__(self, entries: list[CellEntry]) -> None:
         self.entries = entries
 
+    def __repr__(self) -> str:
+        return f'RowEntry (Len: {len(self.entries)})'
+
     def __iter__(self):
         for entry in self.entries:
             yield entry
@@ -36,6 +39,9 @@ class Section:
     def __init__(self, rows: list[RowEntry], style = None) -> None:
         self.rows = rows
         self.style = style
+
+    def __repr__(self) -> str:
+        return f'Section (Len: {len(self.rows)})'
 
     def apply_row_font(self, font: Font, row_number: int):
         for cell in self.rows[row_number]:
@@ -47,12 +53,19 @@ class SheetEntry:
         self.name = name
         self.sections = sections
 
+    def __repr__(self) -> str:
+        return f'SheetEntry (Len: {len(self.sections)})'
+
 
 def handle_cell(cell: Cell, cell_entry: CellEntry):
     """
     Set value and apply formatting of a cell with `CellEntry` instance
     """
-    cell.value = cell_entry.value
+    # Aux to cover strings not enrolled in cel objects
+    if isinstance(cell_entry, str):
+        cell_entry = CellEntry(cell_entry)
+        
+    cell.value = str(cell_entry.value)
     
     if cell_entry.font:
         cell.font = cell_entry.font
