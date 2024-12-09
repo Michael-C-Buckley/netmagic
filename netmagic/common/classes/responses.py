@@ -59,8 +59,8 @@ class BannerResponse(Response):
     """
     Simple object for capturing the info from a banner grab for identifying devices.
     """
-    def __init__(self, response: str, host: HostT, port: int,
-                 sent_time: datetime, received_time: datetime = None) -> None:
+    def __init__(self, response: str, host: HostT, port: int, sent_time: datetime,
+                 received_time: datetime = None, *args, **kwargs) -> None:
         self.host = host
         self.port = port
         super().__init__(response, sent_time, received_time)
