@@ -14,9 +14,11 @@ from openpyxl.cell import Cell
 from openpyxl.styles import Font, PatternFill
 from openpyxl.worksheet.worksheet import Worksheet
 
+
 class CellEntry:
-    def __init__(self, value, font: Font = None, fill: PatternFill = None, 
-                 shape = None) -> None:
+    def __init__(
+        self, value, font: Font = None, fill: PatternFill = None, shape=None
+    ) -> None:
         self.value = value
         self.font = font
         self.fill = fill
@@ -28,7 +30,7 @@ class RowEntry:
         self.entries = entries
 
     def __repr__(self) -> str:
-        return f'RowEntry (Len: {len(self.entries)})'
+        return f"RowEntry (Len: {len(self.entries)})"
 
     def __iter__(self):
         for entry in self.entries:
@@ -36,12 +38,12 @@ class RowEntry:
 
 
 class Section:
-    def __init__(self, rows: list[RowEntry], style = None) -> None:
+    def __init__(self, rows: list[RowEntry], style=None) -> None:
         self.rows = rows
         self.style = style
 
     def __repr__(self) -> str:
-        return f'Section (Len: {len(self.rows)})'
+        return f"Section (Len: {len(self.rows)})"
 
     def apply_row_font(self, font: Font, row_number: int):
         for cell in self.rows[row_number]:
@@ -54,7 +56,7 @@ class SheetEntry:
         self.sections = sections
 
     def __repr__(self) -> str:
-        return f'SheetEntry (Len: {len(self.sections)})'
+        return f"SheetEntry (Len: {len(self.sections)})"
 
 
 def handle_cell(cell: Cell, cell_entry: CellEntry):
@@ -64,14 +66,15 @@ def handle_cell(cell: Cell, cell_entry: CellEntry):
     # Aux to cover strings not enrolled in cel objects
     if isinstance(cell_entry, str):
         cell_entry = CellEntry(cell_entry)
-        
+
     cell.value = str(cell_entry.value)
-    
+
     if cell_entry.font:
         cell.font = cell_entry.font
     if cell_entry.fill:
         cell.fill = cell_entry.fill
-        
+
+
 def prepare_sheet(sheet: Worksheet, sections: list[Section]):
     """
     This collects info a type and prepares a sheet to be added to a workbork
@@ -85,19 +88,20 @@ def prepare_sheet(sheet: Worksheet, sections: list[Section]):
             for cell_entry in row:
                 handle_cell(sheet.cell(x, y), cell_entry)
                 y += 1
-                
+
+
 def prepare_workbook(filename: str, sheet_entries: list[SheetEntry]):
     """
     Prepare and save an Excel file from a series of pre-defined entries
     """
-    if not search(r'\.xlsx$', filename):
-        filename = f'{filename}.xlsx'
+    if not search(r"\.xlsx$", filename):
+        filename = f"{filename}.xlsx"
 
-    workbook= Workbook()
+    workbook = Workbook()
     default_sheet = workbook.active
 
     for sheet_entry in sheet_entries:
-        sheet= workbook.create_sheet(sheet_entry.name)
+        sheet = workbook.create_sheet(sheet_entry.name)
         prepare_sheet(sheet, sheet_entry.sections)
 
     if default_sheet.title in workbook.sheetnames:

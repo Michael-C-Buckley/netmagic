@@ -12,58 +12,58 @@ from typing import Any, Iterable, TypeAlias
 from mactools import MacAddress
 
 
-HostT: TypeAlias = str|IPv4|IPv6
-ConfigSet: TypeAlias = Iterable[str]|str
+HostT: TypeAlias = str | IPv4 | IPv6
+ConfigSet: TypeAlias = Iterable[str] | str
 KwDict: TypeAlias = dict[str, Any]
 
 FSMOutputT: TypeAlias = list[dict[str, str]]
 FSMDataT: TypeAlias = dict[str, Any]
 
-MacT: TypeAlias = MacAddress|str|int
+MacT: TypeAlias = MacAddress | str | int
 
 
 class SwitchportMode(Enum):
-    NONE = 'none'
-    TRUNK = 'trunk'
-    ACCESS = 'access'
+    NONE = "none"
+    TRUNK = "trunk"
+    ACCESS = "access"
 
 
 class Transport(Enum):
-    SSH = 'ssh'
-    SERIAL = 'serial'
-    TELNET = 'telnet'
-    NETCONF = 'netconf'
-    RESTCONF = 'restconf'
-    CUSTOM = 'custom'
+    SSH = "ssh"
+    SERIAL = "serial"
+    TELNET = "telnet"
+    NETCONF = "netconf"
+    RESTCONF = "restconf"
+    CUSTOM = "custom"
 
 
 class Engine(Enum):
-    NETMIKO = 'netmiko'
-    SCRAPLI = 'scrapli'
+    NETMIKO = "netmiko"
+    SCRAPLI = "scrapli"
 
 
 class Vendors(Enum):
-    BROCADE = 'brocade'
-    CISCO = 'cisco'
-    RUCKUS = 'ruckus'
+    BROCADE = "brocade"
+    CISCO = "cisco"
+    RUCKUS = "ruckus"
 
 
 class SFPAlert(Enum):
-    NONE = 'none'
-    NORMAL = 'normal'
-    LOW_WARN = 'low warning'
-    HIGH_WARN = 'high warning'
-    LOW_ALARM = 'low alarm'
-    HIGH_ALARM = 'high alarm'
+    NONE = "none"
+    NORMAL = "normal"
+    LOW_WARN = "low warning"
+    HIGH_WARN = "high warning"
+    LOW_ALARM = "low alarm"
+    HIGH_ALARM = "high alarm"
 
 
 class TDRStatus(Enum):
-    NORMAL = ('Normal', 'terminated')
-    CROSSTALK = ('Crosstalk', 'crosstalk')
-    OPEN = ('Open', 'open')
-    SHORT = ('Short', 'short')
-    UNKNOWN = ('Unknown', 'unknown')
-    NOT_SUPPORTED = ('Not Supported', 'not supported')
+    NORMAL = ("Normal", "terminated")
+    CROSSTALK = ("Crosstalk", "crosstalk")
+    OPEN = ("Open", "open")
+    SHORT = ("Short", "short")
+    UNKNOWN = ("Unknown", "unknown")
+    NOT_SUPPORTED = ("Not Supported", "not supported")
 
     def __new__(cls, *values: object):
         obj = object.__new__(cls)
@@ -76,4 +76,4 @@ class TDRStatus(Enum):
         for member in cls:
             if value in member.all_values:
                 return member
-        raise ValueError(f'Value `{value}` not a valid TDRStatus')
+        raise ValueError(f"Value `{value}` not a valid TDRStatus")

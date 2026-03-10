@@ -13,6 +13,7 @@ from netmiko import BaseConnection
 from netmagic.sessions.terminal import TerminalSession
 from netmagic.common import Transport
 
+
 # Class to test Netmiko's `BaseConnection`
 class MockBaseConnection(Mock):
     __class__ = BaseConnection
@@ -29,15 +30,16 @@ class TestResponse:
     """
     Simple shell to hold just the attributes needed for testing
     """
+
     response: str
 
 
 SSH_KWARGS = {
-    'host': '::1',
-    'port': 22,
-    'username': 'admin',
-    'password': 'admin',
-    'secret': 'admin',
-    'transport': Transport.SSH,
-    'device_type': 'generic_termserver',
+    "host": "::1",
+    "port": 22,
+    "username": "admin",
+    "password": "admin",
+    "secret": "admin",
+    "transport": Transport.SSH,
+    "device_type": "generic_termserver",
 }

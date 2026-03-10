@@ -12,7 +12,10 @@ from netmagic.sessions.terminal import TerminalSession
 
 
 from tests.classes.common import (
-    MockBaseConnection, MockTerminalSession, TestResponse, SSH_KWARGS
+    MockBaseConnection,
+    MockTerminalSession,
+    TestResponse,
+    SSH_KWARGS,
 )
 
 # device creation
@@ -31,46 +34,49 @@ from tests.classes.common import (
 # optics
 # media
 
+
 class TestNetworkDevice(TestCase):
     """
     Test Container for Network Device
     """
-    test_hostname = 'TEST_HOSTNAME'
-    command_path = 'netmagic.sessions.terminal.TerminalSession.command'
-    hostname_response = TestResponse(f'hostname {test_hostname}')
 
+    test_hostname = "TEST_HOSTNAME"
+    command_path = "netmagic.sessions.terminal.TerminalSession.command"
+    hostname_response = TestResponse(f"hostname {test_hostname}")
 
     @classmethod
     def setUpClass(cls) -> None:
         return super().setUpClass()
-    
+
     @classmethod
     def tearDownClass(cls) -> None:
         return super().tearDownClass()
-    
+
     def ssh_command_side_effect(self, *args, **kwargs):
-        if args == ('show run | i hostname',):
-            return 'TEST NETWORK DEVICE'
-    
+        if args == ("show run | i hostname",):
+            return "TEST NETWORK DEVICE"
+
     @patch(command_path)
     def setUp(self, mocked_command) -> None:
         mocked_command.return_value = self.hostname_response
         self.connection_mock = MockBaseConnection()
-        self.ssh_session = TerminalSession(connection=self.connection_mock, **SSH_KWARGS)
+        self.ssh_session = TerminalSession(
+            connection=self.connection_mock, **SSH_KWARGS
+        )
         self.device = NetworkDevice(self.ssh_session)
         return super().setUp()
-    
+
     def tearDown(self) -> None:
         self.device = None
         return super().tearDown()
-    
+
     def test_creation(self):
         """
         Simple test to ensure the device was properly created and returned
         """
         self.assertIsInstance(self.device, NetworkDevice)
         self.assertIsInstance(self.device.cli_session, TerminalSession)
-        self.assertEqual(self.device.hostname, 'TEST_HOSTNAME')
+        self.assertEqual(self.device.hostname, "TEST_HOSTNAME")
 
     @patch(command_path)
     def test_connect(self, mocked_command):
@@ -94,7 +100,7 @@ class TestNetworkDevice(TestCase):
         session_list: list[MockTerminalSession] = [
             self.device.cli_session,
             self.device.netconf_session,
-            self.device.restconf_session
+            self.device.restconf_session,
         ]
 
         for session in session_list:
@@ -137,5 +143,5 @@ class TestNetworkDevice(TestCase):
         self.device.cli_session.command.assert_called_once()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -20,22 +20,24 @@ from netmagic.sessions import TerminalSession
 import __init__
 from tests.classes.common import MockBaseConnection, SSH_KWARGS
 
-TERMINAL_DIR = 'netmagic.sessions.terminal'
+TERMINAL_DIR = "netmagic.sessions.terminal"
+
 
 class TestTerminal(TestCase):
     """
     Test container for `TerminalSession`
     """
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.patchers: dict[str, _patcher] = {}
-        cls.patchers['sleep'] = patch(f'{TERMINAL_DIR}.sleep', return_value=None)
-        
+        cls.patchers["sleep"] = patch(f"{TERMINAL_DIR}.sleep", return_value=None)
+
         for patcher in cls.patchers.values():
             patcher.start()
 
         return super().setUpClass()
-    
+
     @classmethod
     def tearDownClass(cls) -> None:
         for patcher in cls.patchers.values():
@@ -45,21 +47,23 @@ class TestTerminal(TestCase):
     def setUp(self) -> None:
         self.terminal = TerminalSession(connection=MockBaseConnection(), **SSH_KWARGS)
         return super().setUp()
-    
+
     def tearDown(self) -> None:
         return super().tearDown()
-    
+
     def prepare_connection_mock(self) -> MockBaseConnection:
         mock = MockBaseConnection()
-        mock.send_command.return_value = 'command return'
+        mock.send_command.return_value = "command return"
         return mock
 
-    def connection_patch(self, dir: str = 'netmiko_connect', return_value = None) -> '_patcher':
+    def connection_patch(
+        self, dir: str = "netmiko_connect", return_value=None
+    ) -> "_patcher":
         if return_value is None:
             return_value = self.prepare_connection_mock()
-        patcher = patch(f'{TERMINAL_DIR}.{dir}', return_value=return_value)
+        patcher = patch(f"{TERMINAL_DIR}.{dir}", return_value=return_value)
         return patcher
-    
+
     def test_connect(self) -> None:
         # Test the initial connection
         with self.connection_patch() as patcher:
@@ -67,7 +71,7 @@ class TestTerminal(TestCase):
 
             # No original connection tests a normal successful connect and also test connection args
             self.assertIsNone(self.terminal.connection)
-            self.assertTrue(self.terminal.connect(1, 'a', 'a', {'a': 'a'}))
+            self.assertTrue(self.terminal.connect(1, "a", "a", {"a": "a"}))
             self.assertIsInstance(self.terminal.connection, MockBaseConnection)
 
             # Re-testing the early return on connect when an active session already exists
@@ -79,7 +83,7 @@ class TestTerminal(TestCase):
             self.assertFalse(self.terminal.connect(3))
 
         # Test serial connection
-        with self.connection_patch('serial_connect'):
+        with self.connection_patch("serial_connect"):
             self.terminal.connection = None
             self.terminal.transport = Transport.SERIAL
             self.assertTrue(self.terminal.connect())
@@ -116,16 +120,16 @@ class TestTerminal(TestCase):
         # normal with errors until the max_tries
 
         # patched_command.return_value = f'TEST_HOSTNAME# TEST COMMAND RESULT'
-        blind_output = self.terminal.command('something', blind=True)
+        blind_output = self.terminal.command("something", blind=True)
         self.assertIsInstance(blind_output, CommandResponse)
 
     def test_command(self):
         """"""
-        output = self.terminal.command('something')
+        output = self.terminal.command("something")
         self.assertIsInstance(output, CommandResponse)
 
         # test a failure then a success
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

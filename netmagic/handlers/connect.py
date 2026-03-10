@@ -16,9 +16,10 @@ from netmagic.common.types import HostT
 
 successful_credentials: list[tuple[str, str]] = []
 
+
 def get_device_type(host: HostT, port: int = 22, timeout: int = 10) -> BannerResponse:
     """
-    Attempts a banner grab on a location to get the device information from 
+    Attempts a banner grab on a location to get the device information from
     the response packet, mostly used as part of a larger connection scheme.
 
     Returns a custom object `BannerResponse` with details about the connection.
@@ -31,14 +32,27 @@ def get_device_type(host: HostT, port: int = 22, timeout: int = 10) -> BannerRes
         with socket(addr_info[0][0], SOCK_STREAM) as open_socket:
             open_socket.settimeout(timeout)
             open_socket.connect((host, int(port)))
-            banner = open_socket.recv(1024).decode('utf-8;', errors='ignore').strip('\n').strip('\r')
+            banner = (
+                open_socket.recv(1024)
+                .decode("utf-8;", errors="ignore")
+                .strip("\n")
+                .strip("\r")
+            )
     except (TimeoutError, ConnectionRefusedError, gaierror) as e:
         return BannerResponse(e, **banner_kwargs)
     else:
         return BannerResponse(banner, **banner_kwargs)
 
-def netmiko_connect(host: HostT, port: int, username: str, password: str,
-                    device_type: str, *args, **kwargs) -> BaseConnection|Exception:
+
+def netmiko_connect(
+    host: HostT,
+    port: int,
+    username: str,
+    password: str,
+    device_type: str,
+    *args,
+    **kwargs,
+) -> BaseConnection | Exception:
     """
     Standard Netmiko connection variables and environment, mostly used as part of a larger connection scheme.
 
@@ -46,7 +60,7 @@ def netmiko_connect(host: HostT, port: int, username: str, password: str,
     """
     # Collect input the default named input parameters and exclude *args, **kwargs
     host = str(host)
-    connect_kwargs = {k: v for k, v in locals().items() if not search(r'args', k)}
+    connect_kwargs = {k: v for k, v in locals().items() if not search(r"args", k)}
 
     # Collect the additional user optional parameters
     for key, value in kwargs.items():
@@ -54,8 +68,15 @@ def netmiko_connect(host: HostT, port: int, username: str, password: str,
 
     return ConnectHandler(**connect_kwargs)
 
-def brute_force(usernames: list[str], passwords: list[str], host: HostT, port: int = 22,
-                device_type: str = None, bypass: bool = False):
+
+def brute_force(
+    usernames: list[str],
+    passwords: list[str],
+    host: HostT,
+    port: int = 22,
+    device_type: str = None,
+    bypass: bool = False,
+):
     """"""
 
     creds = [(username, password) for username in usernames for password in passwords]
@@ -69,8 +90,12 @@ def brute_force(usernames: list[str], passwords: list[str], host: HostT, port: i
             return ssh
 
 
-def distributed_brute_force(hosts: list[tuple[HostT, int, str|None]], usernames: list[str] = None,
-                            passwords: list[str] = None, creds: list[tuple[str, str]] = None) -> list[ConnectResponse]:
+def distributed_brute_force(
+    hosts: list[tuple[HostT, int, str | None]],
+    usernames: list[str] = None,
+    passwords: list[str] = None,
+    creds: list[tuple[str, str]] = None,
+) -> list[ConnectResponse]:
     """
     Brute forcer for a group of devices with a shared set of credentials that will spread the attempts
     per credential across the group of devices to find faster resolution
@@ -79,8 +104,10 @@ def distributed_brute_force(hosts: list[tuple[HostT, int, str|None]], usernames:
     failures: list[ConnectResponse] = []
     futures: dict[Future, ConnectResponse] = {}
     if not creds and usernames and passwords:
-        creds = ((username, password) for username in usernames for password in passwords)
-    
+        creds = (
+            (username, password) for username in usernames for password in passwords
+        )
+
     while True:
         with ThreadPoolExecutor(len(hosts)) as executor:
             if not creds:
@@ -90,7 +117,9 @@ def distributed_brute_force(hosts: list[tuple[HostT, int, str|None]], usernames:
                 username, password = creds.pop(0)
                 connect_args = (host, port, username, password, device_type)
                 future = executor.submit(netmiko_connect, *connect_args)
-                futures[future] = ConnectResponse(None, netmiko_connect, connect_args, datetime.now())
+                futures[future] = ConnectResponse(
+                    None, netmiko_connect, connect_args, datetime.now()
+                )
             elif not hosts and creds:
                 sleep(1)
 

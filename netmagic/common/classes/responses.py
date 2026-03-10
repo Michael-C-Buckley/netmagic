@@ -7,18 +7,24 @@ from typing import TYPE_CHECKING, Any, Callable
 if TYPE_CHECKING:
     from netmagic.sessions.terminal import TerminalSession
 from netmagic.common.types import HostT, FSMDataT
-    
+
 
 class Response:
     """
-    Response base class for `BannerResponse` and `CommandResponse`    
+    Response base class for `BannerResponse` and `CommandResponse`
     """
-    def __init__(self, response: str, sent_time: datetime,
-                 received_time: datetime = None, attempts: int = 1) -> None:
-        
+
+    def __init__(
+        self,
+        response: str,
+        sent_time: datetime,
+        received_time: datetime = None,
+        attempts: int = 1,
+    ) -> None:
+
         if not received_time:
             received_time = datetime.now()
-        
+
         self.response = response
         self.sent_time = sent_time
         self.received_time = received_time
@@ -28,7 +34,9 @@ class Response:
     def __str__(self) -> str:
         return self.response
 
-    def update_latency(self, sent_time: datetime = None, received_time: datetime = None) -> None:
+    def update_latency(
+        self, sent_time: datetime = None, received_time: datetime = None
+    ) -> None:
         self.latency = self.received_time - self.sent_time
 
 
@@ -36,8 +44,13 @@ class ResponseGroup:
     """
     Collection of responses
     """
-    def __init__(self, responses: list[Response], fsm_output: FSMDataT = None,
-                 description: str = '') -> None:
+
+    def __init__(
+        self,
+        responses: list[Response],
+        fsm_output: FSMDataT = None,
+        description: str = "",
+    ) -> None:
         self.responses = responses
         self.fsm_output = fsm_output
         self.time_delta = self.find_time_delta()
@@ -46,8 +59,8 @@ class ResponseGroup:
         self.description = description
 
     def __repr__(self) -> str:
-        return f'Response Group({len(self.responses)} members): {self.description}'
-    
+        return f"Response Group({len(self.responses)} members): {self.description}"
+
     def find_time_delta(self):
         sent_times = [response.sent_time for response in self.responses]
         received_times = [response.received_time for response in self.responses]
@@ -59,22 +72,38 @@ class BannerResponse(Response):
     """
     Simple object for capturing the info from a banner grab for identifying devices.
     """
-    def __init__(self, response: str, host: HostT, port: int, sent_time: datetime,
-                 received_time: datetime = None, *args, **kwargs) -> None:
+
+    def __init__(
+        self,
+        response: str,
+        host: HostT,
+        port: int,
+        sent_time: datetime,
+        received_time: datetime = None,
+        *args,
+        **kwargs,
+    ) -> None:
         self.host = host
         self.port = port
         super().__init__(response, sent_time, received_time)
 
     def __repr__(self) -> str:
-        return f'[{self.host}:{self.port}]: {self.response}'   
+        return f"[{self.host}:{self.port}]: {self.response}"
 
 
 class ConnectResponse(Response):
     """
     Simple object for capturing a connection attempt and infor around it
     """
-    def __init__(self, response: Any, method: Callable, params: Any, 
-                 sent_time: datetime, received_time: datetime = None) -> None:
+
+    def __init__(
+        self,
+        response: Any,
+        method: Callable,
+        params: Any,
+        sent_time: datetime,
+        received_time: datetime = None,
+    ) -> None:
         self.method = method
         self.params = params
         super().__init__(response, sent_time, received_time)
@@ -84,10 +113,19 @@ class CommandResponse(Response):
     """
     Simple object for capturing info for various details of a Netmiko `command`
     """
-    def __init__(self, response: str|Exception, command_string: str, sent_time: datetime,
-                session: 'TerminalSession', expect_string: str, success: bool = None,
-                received_time: datetime = None, attempts: int = 1,
-                fsm_output: FSMDataT = None) -> None:
+
+    def __init__(
+        self,
+        response: str | Exception,
+        command_string: str,
+        sent_time: datetime,
+        session: "TerminalSession",
+        expect_string: str,
+        success: bool = None,
+        received_time: datetime = None,
+        attempts: int = 1,
+        fsm_output: FSMDataT = None,
+    ) -> None:
         self.command_string = command_string
         self.expect_string = expect_string
         self.session = session
@@ -96,25 +134,32 @@ class CommandResponse(Response):
         # Automatic identification based on type
         success_map = {str: True, Exception: False}
         self.success = success_map.get(type(response)) if success is None else success
-        
+
         super().__init__(response, sent_time, received_time, attempts)
 
     def __repr__(self) -> str:
-        return f'RE({self.session.host}): {self.command_string}'
-    
+        return f"RE({self.session.host}): {self.command_string}"
+
 
 class ConfigResponse(Response):
     """
     Simple objects for capturing info for a CLI configuration
     """
-    def __init__(self, response: str, config: str, sent_time: datetime,
-                session: 'TerminalSession', success: bool = None,
-                received_time: datetime = None, attempts: int = 1) -> None:
+
+    def __init__(
+        self,
+        response: str,
+        config: str,
+        sent_time: datetime,
+        session: "TerminalSession",
+        success: bool = None,
+        received_time: datetime = None,
+        attempts: int = 1,
+    ) -> None:
         super().__init__(response, sent_time, received_time, attempts)
         self.config_sent = config
         self.session = session
-        
+
         # Automatic identification based on type
         success_map = {str: True, Exception: False}
         self.success = success_map.get(type(response)) if success is None else success
-        

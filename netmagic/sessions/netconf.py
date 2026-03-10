@@ -3,10 +3,12 @@
 # Local Modules
 from netmagic.sessions.session import Session
 
+
 class NETCONFSession(Session):
     """
     Container for NETCONF Session via `ncclient`
     """
+
     def __init__(self) -> None:
         super().__init__()
 
