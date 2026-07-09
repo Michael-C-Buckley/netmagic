@@ -17,6 +17,6 @@ run = "ruff check {staged_files}"
 glob = "*.py"
 run = "bandit -r {staged_files} -c pyproject.toml"
 
-#[pre-commit.commands.pytest]
-#glob = "*.py"
-#run = "pytest"
+[pre-commit.commands.pytest]
+glob = "*.py"
+run = "pytest"
