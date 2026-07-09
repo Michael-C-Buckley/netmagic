@@ -5,7 +5,6 @@ pkgs.mkShellNoCC {
     alejandra
 
     # Python
-    python313
     uv
     ty
     ruff
@@ -17,12 +16,9 @@ pkgs.mkShellNoCC {
     typos
     bandit
   ];
-  env = {
-    LD_LIBRARY_PATH = with pkgs;
-      lib.makeLibraryPath [
-        stdenv.cc.cc
-      ];
-  };
+  env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+    pkgs.stdenv.cc.cc
+  ];
 
   shellHook = ''
     lefthook install
@@ -33,4 +29,3 @@ pkgs.mkShellNoCC {
     git status --short --branch
   '';
 }
-

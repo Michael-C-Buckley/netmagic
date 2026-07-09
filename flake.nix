@@ -1,5 +1,5 @@
 {
-  description = "NetskopeTools Nix Flake";
+  description = "Netmagic Nix Flake";
 
   inputs.nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz";
 
@@ -9,9 +9,8 @@
   in {
     devShells = forAllSystems (
       system: {
-        default = import ./shell.nix {pkgs = nixpkgsFor.${system};};
+        default = import ./nix/shell.nix {pkgs = nixpkgsFor.${system};};
       }
     );
   };
 }
-
