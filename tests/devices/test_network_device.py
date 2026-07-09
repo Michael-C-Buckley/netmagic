@@ -4,7 +4,7 @@ NetMagic Network Device Test
 
 # Python Modules
 from unittest import TestCase, main
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 # Local Modules
 from netmagic.devices.network_device import NetworkDevice
@@ -83,7 +83,7 @@ class TestNetworkDevice(TestCase):
         """
         Test to ensure the path-through wrapper for the `Session` worked
         """
-        result = self.device.connect()
+        self.device.connect()
         mocked_command.return_value = self.hostname_response
         # confirm it attempted to connect once
         print(type(self.ssh_session))
@@ -115,7 +115,7 @@ class TestNetworkDevice(TestCase):
         """
         Test for write memory wrapper
         """
-        output = self.device.write_memory()
+        self.device.write_memory()
         self.connection_mock.send_command.assert_called_once()
 
     # Identity and Status Section
@@ -128,7 +128,7 @@ class TestNetworkDevice(TestCase):
     def test_not_implemented(self):
         """
         Explicitly raises an a not implemented error due to no standardized handling
-        For `get_media` and `get_optics`, which are overriden by child classes
+        For `get_media` and `get_optics`, which are overridden by child classes
         """
         for method in [self.device.get_media, self.device.get_optics]:
             with self.assertRaises(NotImplementedError):
@@ -139,7 +139,7 @@ class TestNetworkDevice(TestCase):
         LLDP is just a thin wrapper for an unspecified device
         """
         self.device.cli_session = MockTerminalSession()
-        output = self.device.get_lldp()
+        self.device.get_lldp()
         self.device.cli_session.command.assert_called_once()
 
 

@@ -1,8 +1,8 @@
-SWITCH_PATH = ""
-
 from typing import Any
 
 from netmagic.common.classes.interface import InterfaceVLANs, SVI
+
+SWITCH_PATH = ""
 
 
 def prepare_vlan_test_data(vlan_info_parts: dict[str, Any]):

@@ -1,0 +1,9 @@
+# Ignore all TextFSM Templates
+[type.textfsm]
+extend-glob = ["*.textfsm"]
+check-file = false
+
+[default]
+extend-ignore-re = [
+  "ethe"
+]

@@ -9,7 +9,6 @@ from netmagic.common.types import Vendors
 from netmagic.common.classes import (
     CommandResponse,
     ResponseGroup,
-    Interface,
     InterfaceOptics,
     InterfaceStatus,
     InterfaceLLDP,

@@ -3,7 +3,6 @@ from dataclasses import dataclass
 # NetMagic Common Test Items
 
 # Python Modules
-from typing import Any
 from unittest.mock import Mock
 
 # Third-Party Modules
@@ -38,7 +37,7 @@ SSH_KWARGS = {
     "host": "::1",
     "port": 22,
     "username": "admin",
-    "password": "admin",
+    "password": "admin",  # nosec B105
     "secret": "admin",
     "transport": Transport.SSH,
     "device_type": "generic_termserver",

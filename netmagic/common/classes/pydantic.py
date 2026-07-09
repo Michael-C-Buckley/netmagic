@@ -2,7 +2,7 @@
 
 # Python Modules
 from re import search
-from typing import Any, Optional
+from typing import Any
 
 # Alias for Pydantic Models
 MacType = Any

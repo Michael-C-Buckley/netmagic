@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 

@@ -1,8 +1,5 @@
-from dataclasses import dataclass
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
-from typing import Any
-
 
 from netmagic.devices import BrocadeSwitch
 from netmagic.common.types import SwitchportMode

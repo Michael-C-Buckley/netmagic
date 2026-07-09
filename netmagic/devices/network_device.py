@@ -18,7 +18,7 @@ from netmagic.common.classes import (
     InterfaceTDR,
 )
 from netmagic.common.classes.status import MACTableEntry
-from netmagic.common.types import Engine, Transport, ConfigSet, HostT
+from netmagic.common.types import Engine, Transport, ConfigSet
 from netmagic.common.utils import validate_max_tries, unquote
 from netmagic.devices.universal import Device
 from netmagic.handlers.parse import INTERFACE_PATTERN
@@ -110,7 +110,7 @@ class NetworkDevice(Device):
         """
         if not search(r"#", self.cli_session.connection.find_prompt()):
             if self.hostname is None:
-                expect_string = rf"[Pp]assword"
+                expect_string = r"[Pp]assword"
             else:
                 expect_string = rf"[Pp]assword|{self.hostname}"
             self.command("enable", expect_string)
@@ -233,9 +233,9 @@ class NetworkDevice(Device):
         responses: list[CommandResponse] = []
 
         fsm_output: dict[str, InterfaceStatus] = interface_status.fsm_output
-        submit_tdr = lambda intf: self.command(
-            f"{send_tdr_command} {intf}", max_tries=1
-        )
+
+        def submit_tdr(intf):
+            return self.command(f"{send_tdr_command} {intf}", max_tries=1)
 
         # Submit the tests
         for interface in fsm_output.values():
@@ -253,8 +253,11 @@ class NetworkDevice(Device):
                 submitted_tests.append(interface.name)
 
         fsm_output = {}
+
         # Show the test results
-        check_tdr = lambda intf: self.command(f"{show_tdr_command} {intf}")
+        def check_tdr(intf):
+            return self.command(f"{show_tdr_command} {intf}")
+
         for interface in submitted_tests:
             tdr_result = check_tdr(interface)
             while search(r"(?i)not complete", tdr_result.response):

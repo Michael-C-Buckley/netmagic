@@ -93,7 +93,7 @@ class BannerResponse(Response):
 
 class ConnectResponse(Response):
     """
-    Simple object for capturing a connection attempt and infor around it
+    Simple object for capturing a connection attempt and info around it
     """
 
     def __init__(
