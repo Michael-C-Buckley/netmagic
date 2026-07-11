@@ -14,9 +14,9 @@ glob = "*.py"
 run = "ruff check {staged_files}"
 
 [pre-commit.commands.bandit]
-glob = "*.py"
+glob = ["netmagic/**.py", "tests/**.py"]
 run = "bandit -r {staged_files} -c pyproject.toml"
 
 [pre-commit.commands.pytest]
-glob = "*.py"
+glob = ["netmagic/**.py", "tests/**.py"]
 run = "pytest"

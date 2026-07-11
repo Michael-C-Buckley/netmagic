@@ -1,0 +1,3 @@
+# Netmagic
+
+Network Automation Toolset.
