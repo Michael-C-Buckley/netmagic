@@ -16,3 +16,20 @@ from netmagic.common.classes.interface import (
     InterfaceVLANs,
     SVI,
 )
+
+__all__ = [
+    "BannerResponse",
+    "CommandResponse",
+    "ConfigResponse",
+    "ConnectResponse",
+    "Interface",
+    "InterfaceLLDP",
+    "InterfaceOptics",
+    "InterfaceStatus",
+    "InterfaceTDR",
+    "InterfaceVLANs",
+    "OpticStatus",
+    "Response",
+    "ResponseGroup",
+    "SVI",
+]

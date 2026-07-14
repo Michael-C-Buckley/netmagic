@@ -180,7 +180,7 @@ def brocade_text_to_range(interface_range: str | Sequence[str]) -> set[str]:
     for item in interface_range:
         if search(f"^{INTERFACE_PATTERN}$", item):
             output_list.add(item)
-        elif match := search(f"^(\d+\/\d+)\/(\d+) to (\d+\/\d+)\/(\d+)$", item):
+        elif match := search("^(\d+\/\d+)\/(\d+) to (\d+\/\d+)\/(\d+)$", item):
             if match.group(1) != match.group(3):
                 raise ValueError(
                     f"Ranges must be in the same stack and module and only the interface ID (3rd member) can vary\nProblem string: {match.group()}"

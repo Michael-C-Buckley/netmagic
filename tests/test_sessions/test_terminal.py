@@ -17,7 +17,7 @@ from netmagic.common.classes import CommandResponse
 from netmagic.sessions import TerminalSession
 
 # Test Modules (init corrects path)
-import __init__
+import __init__  # noqa: F401
 from tests.classes.common import MockBaseConnection, SSH_KWARGS
 
 TERMINAL_DIR = "netmagic.sessions.terminal"
