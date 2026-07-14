@@ -10,7 +10,8 @@ class RESTCONFSession(Session):
     """
 
     def __init__(self) -> None:
-        super().__init__()
+        raise NotImplementedError("Feature is not yet implemented.")
+        # super().__init__()
 
     def connect(self) -> None:
         """"""
