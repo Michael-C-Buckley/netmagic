@@ -1,17 +1,15 @@
 # Project NetMagic Connection Handler Module
 
 # Python Modules
-from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from datetime import datetime
 from re import search
-from time import sleep
 from socket import socket, gaierror, SOCK_STREAM, getaddrinfo
 
 # Third-Party Modules
 from netmiko import BaseConnection, ConnectHandler
 
 # Local Modules
-from netmagic.common.classes import BannerResponse, ConnectResponse
+from netmagic.common.classes import BannerResponse
 from netmagic.common.types import HostT
 
 successful_credentials: list[tuple[str, str]] = []
@@ -68,74 +66,3 @@ def netmiko_connect(
         connect_kwargs[key] = value
 
     return ConnectHandler(**connect_kwargs)
-
-
-def brute_force(
-    usernames: list[str],
-    passwords: list[str],
-    host: HostT,
-    port: int = 22,
-    device_type: str = None,
-    bypass: bool = False,
-):
-    """"""
-
-    creds = [(username, password) for username in usernames for password in passwords]
-
-    if not bypass:
-        creds = successful_credentials + creds
-
-    for username, password in creds:
-        ssh = netmiko_connect(host, port, username, password, device_type)
-        if isinstance(ssh, BaseConnection):
-            return ssh
-
-
-def distributed_brute_force(
-    hosts: list[tuple[HostT, int, str | None]],
-    usernames: list[str] = None,
-    passwords: list[str] = None,
-    creds: list[tuple[str, str]] = None,
-) -> list[ConnectResponse]:
-    """
-    Brute forcer for a group of devices with a shared set of credentials that will spread the attempts
-    per credential across the group of devices to find faster resolution
-    """
-    successes: list[ConnectResponse] = []
-    failures: list[ConnectResponse] = []
-    futures: dict[Future, ConnectResponse] = {}
-    if not creds and usernames and passwords:
-        creds = (
-            (username, password) for username in usernames for password in passwords
-        )
-
-    while True:
-        with ThreadPoolExecutor(len(hosts)) as executor:
-            if not creds:
-                break
-            elif hosts and creds:
-                host, port, device_type = hosts.pop(0)
-                username, password = creds.pop(0)
-                connect_args = (host, port, username, password, device_type)
-                future = executor.submit(netmiko_connect, *connect_args)
-                futures[future] = ConnectResponse(
-                    None, netmiko_connect, connect_args, datetime.now()
-                )
-            elif not hosts and creds:
-                sleep(1)
-
-            for future in as_completed(futures):
-                connection = futures[future]
-                connection.update_latency(received_time=datetime.now())
-
-                try:
-                    connection.response = future.result()
-                    successes.append(connection)
-
-                except Exception:
-                    connection.response = False
-                    failures.append(connection)
-                    host, port, _, _, device_type = connection.params
-                    hosts.append((host, port, device_type))
-
-    return successes
