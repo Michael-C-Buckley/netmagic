@@ -50,6 +50,7 @@ def netmiko_connect(
     username: str,
     password: str,
     device_type: str,
+    ssh_strict: bool = True,
     *args,
     **kwargs,
 ) -> BaseConnection | Exception:
@@ -131,7 +132,7 @@ def distributed_brute_force(
                     connection.response = future.result()
                     successes.append(connection)
 
-                except:
+                except Exception:
                     connection.response = False
                     failures.append(connection)
                     host, port, _, _, device_type = connection.params
