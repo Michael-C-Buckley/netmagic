@@ -149,10 +149,21 @@ class NetworkDevice(Device):
             else:
                 break
 
-        if save:
+        success = not isinstance(output, Exception)
+        received_time = datetime.now()
+
+        if save and success:
             self.write_memory()
 
-        return ConfigResponse(output, config, sent_time, self.cli_session, i + 1)
+        return ConfigResponse(
+            output,
+            config,
+            sent_time,
+            self.cli_session,
+            success,
+            received_time,
+            attempts=i + 1,
+        )
 
     def write_memory(self):
         """
