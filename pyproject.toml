@@ -15,8 +15,8 @@ authors = [
 # readme = "README.md"
 
 dependencies = [
-    "cryptography>=48.0.1,<50",
-    "mactools>=1.8.0,<2",
+    "cryptography>=50.0.0,<51",
+    "mactools>=2.0.0,<3",
     "netmiko>=4.7.0,<5",
     "openpyxl>=3.1.5,<4",
     "pydantic>=2.13.4,<3",

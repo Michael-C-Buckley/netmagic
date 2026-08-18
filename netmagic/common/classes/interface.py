@@ -58,11 +58,12 @@ class InterfaceLLDP(Interface):
     management_ipv6: Optional[IPv6] = None
 
     @field_validator("chassis_mac")
-    def validate_mac_address(cls, mac: MacT) -> MacAddress:
+    def validate_mac_address(cls, mac: MacT | None) -> MacAddress | None:
         if mac is None or mac == "":
             return None
         if not isinstance(mac, MacAddress):
             return MacAddress(mac)
+        return mac
 
     @field_validator("management_ipv4", "management_ipv6", "port_vlan", mode="before")
     def validate_int_fields(cls, value):

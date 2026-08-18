@@ -5,7 +5,7 @@ from re import search
 from typing import Optional
 
 # Third-Party Modules
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from mactools import MacAddress
 
 # Local Modules
@@ -83,10 +83,11 @@ class MACTableEntry(BaseModel):
     def count(self):
         return len(self.vlan)
 
-    @validator("mac")
+    @field_validator("mac")
     def validate_mac_address(cls, mac: MacT) -> MacAddress:
         if not isinstance(mac, MacAddress):
             return MacAddress(mac)
+        return mac
 
     @classmethod
     def create(cls, hostname: str, mac: MacAddress | str, **data):
