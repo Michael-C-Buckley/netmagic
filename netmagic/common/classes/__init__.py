@@ -1,23 +1,24 @@
-from netmagic.common.classes.responses import (
-    Response,
-    ResponseGroup,
-    BannerResponse,
-    CommandResponse,
-    ConnectResponse,
-    ConfigResponse,
-)
 from netmagic.common.classes.interface import (
+    SVI,
     Interface,
     InterfaceLLDP,
     InterfaceOptics,
     InterfaceStatus,
     InterfaceTDR,
-    OpticStatus,
     InterfaceVLANs,
-    SVI,
+    OpticStatus,
+)
+from netmagic.common.classes.responses import (
+    BannerResponse,
+    CommandResponse,
+    ConfigResponse,
+    ConnectResponse,
+    Response,
+    ResponseGroup,
 )
 
 __all__ = [
+    "SVI",
     "BannerResponse",
     "CommandResponse",
     "ConfigResponse",
@@ -31,5 +32,4 @@ __all__ = [
     "OpticStatus",
     "Response",
     "ResponseGroup",
-    "SVI",
 ]

@@ -1,9 +1,9 @@
 # Project NetMagic Connection Handler Module
 
 # Python Modules
-from datetime import datetime
+from datetime import UTC, datetime
 from re import search
-from socket import socket, gaierror, SOCK_STREAM, getaddrinfo
+from socket import SOCK_STREAM, gaierror, getaddrinfo, socket
 
 # Third-Party Modules
 from netmiko import BaseConnection, ConnectHandler
@@ -23,7 +23,7 @@ def get_device_type(host: HostT, port: int = 22, timeout: int = 10) -> BannerRes
     Returns a custom object `BannerResponse` with details about the connection.
     """
     host = str(host)
-    sent_time = datetime.now()
+    sent_time = datetime.now(UTC)
     banner_kwargs = {**locals()}
     try:
         addr_info = getaddrinfo(host, port, type=SOCK_STREAM)

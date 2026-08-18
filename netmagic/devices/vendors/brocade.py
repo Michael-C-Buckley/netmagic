@@ -4,18 +4,19 @@
 from itertools import chain
 from re import search, sub
 
-# Local Modules
-from netmagic.common.types import Vendors
 from netmagic.common.classes import (
+    SVI,
     CommandResponse,
-    ResponseGroup,
+    InterfaceLLDP,
     InterfaceOptics,
     InterfaceStatus,
-    InterfaceLLDP,
     InterfaceVLANs,
-    SVI,
+    ResponseGroup,
 )
-from netmagic.common.utils import get_param_names, brocade_text_to_range
+
+# Local Modules
+from netmagic.common.types import Vendors
+from netmagic.common.utils import brocade_text_to_range, get_param_names
 from netmagic.devices.switch import Switch
 from netmagic.sessions import Session
 
@@ -42,7 +43,7 @@ class BrocadeSwitch(Switch):
         return super().get_running_config()
 
     def get_interface_status(
-        self, interface: str = None, template: str | bool = None
+        self, interface: str | None = None, template: str | bool | None = None
     ) -> CommandResponse:
         """
         Returns interface status of one or all switchports.
@@ -71,7 +72,7 @@ class BrocadeSwitch(Switch):
         Returns all the detailed entries for interfaces on the device
         """
 
-    def get_media(self, template: str | bool = None) -> CommandResponse:
+    def get_media(self, template: str | bool | None = None) -> CommandResponse:
         """
         Returns the media information on the device
 
@@ -87,7 +88,7 @@ class BrocadeSwitch(Switch):
 
         return media
 
-    def get_optics(self, template: str | bool = None) -> ResponseGroup:
+    def get_optics(self, template: str | bool | None = None) -> ResponseGroup:
         """
         Returns information about optical transceivers.
         """
@@ -114,7 +115,7 @@ class BrocadeSwitch(Switch):
 
         return optics
 
-    def get_lldp(self, template: str | bool = None) -> CommandResponse:
+    def get_lldp(self, template: str | bool | None = None) -> CommandResponse:
         """
         Returns LLDP neighbor details information.
         """
@@ -140,7 +141,7 @@ class BrocadeSwitch(Switch):
         self,
         interface_status: CommandResponse = None,
         only_bad: bool = True,
-        template: str | bool = None,
+        template: str | bool | None = None,
     ):
         """
         Collects TDR data of interfaces
@@ -161,16 +162,16 @@ class BrocadeSwitch(Switch):
             response.description = f"{self.hostname} TDR"
             return response
 
-    def get_poe_status(self, template: str | bool = None) -> CommandResponse:
+    def get_poe_status(self, template: str | bool | None = None) -> CommandResponse:
         template = "show_poe" if template is None else template
         return super().get_poe_status("show poe", template)
 
-    def get_mac_table(self, template: str | bool = None) -> CommandResponse:
+    def get_mac_table(self, template: str | bool | None = None) -> CommandResponse:
         show_command = "show mac-address"
         return super().get_mac_table(show_command, template)
 
     def get_interface_vlans(
-        self, template: str | bool = None
+        self, template: str | bool | None = None
     ) -> dict[str, InterfaceVLANs | SVI]:
         template = "show_run_vlans" if template is None else template
         fsm_data = self.fsm_parse(self.get_running_config().response, template)

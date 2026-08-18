@@ -1,25 +1,27 @@
 # NetMagic Type Module
 
 # Python Modules
+from collections.abc import Iterable
 from enum import Enum
 from ipaddress import (
     IPv4Address as IPv4,
+)
+from ipaddress import (
     IPv6Address as IPv6,
 )
-from typing import Any, Iterable, TypeAlias
+from typing import Any
 
 # Third-Part Modules
 from mactools import MacAddress
 
+type HostT = str | IPv4 | IPv6
+type ConfigSet = Iterable[str] | str
+type KwDict = dict[str, Any]
 
-HostT: TypeAlias = str | IPv4 | IPv6
-ConfigSet: TypeAlias = Iterable[str] | str
-KwDict: TypeAlias = dict[str, Any]
+type FSMOutputT = list[dict[str, str]]
+type FSMDataT = dict[str, Any]
 
-FSMOutputT: TypeAlias = list[dict[str, str]]
-FSMDataT: TypeAlias = dict[str, Any]
-
-MacT: TypeAlias = MacAddress | str | int
+type MacT = MacAddress | str | int
 
 
 class SwitchportMode(Enum):

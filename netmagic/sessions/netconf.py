@@ -14,9 +14,9 @@ class NETCONFSession(Session):
         # super().__init__()
 
     def connect(self) -> None:
-        """"""
+        """Connect the NETCONF session."""
         super().connect()
 
     def disconnect(self) -> None:
-        """"""
+        """Disconnect the NETCONF session."""
         super().disconnect()

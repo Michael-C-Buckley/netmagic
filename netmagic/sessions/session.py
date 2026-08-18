@@ -4,7 +4,7 @@
 from netmiko import BaseConnection
 
 # Local Modules
-from netmagic.common import Transport, HostT
+from netmagic.common import HostT, Transport
 
 
 class Session:

@@ -1,7 +1,7 @@
 # Project NetMagic Networking Device Library
 
 # Python Module
-from datetime import datetime
+from datetime import UTC, datetime
 from re import search
 from time import sleep
 
@@ -13,16 +13,16 @@ from netmiko import ReadTimeout, redispatch
 from netmagic.common.classes import (
     CommandResponse,
     ConfigResponse,
-    ResponseGroup,
     InterfaceStatus,
     InterfaceTDR,
+    ResponseGroup,
 )
 from netmagic.common.classes.status import MACTableEntry
-from netmagic.common.types import Engine, Transport, ConfigSet
-from netmagic.common.utils import validate_max_tries, unquote
+from netmagic.common.types import ConfigSet, Engine, Transport
+from netmagic.common.utils import unquote, validate_max_tries
 from netmagic.devices.universal import Device
 from netmagic.handlers.parse import INTERFACE_PATTERN
-from netmagic.sessions import Session, TerminalSession, RESTCONFSession, NETCONFSession
+from netmagic.sessions import NETCONFSession, RESTCONFSession, Session, TerminalSession
 
 
 class NetworkDevice(Device):
@@ -65,8 +65,14 @@ class NetworkDevice(Device):
             session.disconnect() if isinstance(session, Session) else None
             return
 
-        for session in [self.cli_session, self.restconf_session, self.netconf_session]:
-            session.disconnect() if isinstance(session, Session) else None
+        for current_session in [
+            self.cli_session,
+            self.restconf_session,
+            self.netconf_session,
+        ]:
+            current_session.disconnect() if isinstance(
+                current_session, Session
+            ) else None
 
     def connect(self, session: Session = None) -> None:
         """
@@ -76,12 +82,15 @@ class NetworkDevice(Device):
             session.connect() if isinstance(session, Session) else None
             return
 
-        for session in [self.cli_session, self.restconf_session, self.netconf_session]:
-            if isinstance(session, Session):
-                if not session.connection:
-                    session.connect()
+        for current_session in [
+            self.cli_session,
+            self.restconf_session,
+            self.netconf_session,
+        ]:
+            if isinstance(current_session, Session) and not current_session.connection:
+                current_session.connect()
 
-    def not_implemented_error_generic(self, device_type: str = None):
+    def not_implemented_error_generic(self, device_type: str | None = None):
         if device_type is None:
             device_type = "network device"
         super().not_implemented_error_generic(device_type)
@@ -104,7 +113,7 @@ class NetworkDevice(Device):
         self.enable()
         self.cli_session.connection.find_prompt()
 
-    def enable(self, password: str = None) -> None:
+    def enable(self, password: str | None = None) -> None:
         """
         Manual entering of enabled mode
         """
@@ -138,7 +147,7 @@ class NetworkDevice(Device):
         *save: bool whether the code should save the config after changes
         """
         for i in range(max_tries):
-            sent_time = datetime.now()
+            sent_time = datetime.now(UTC)
 
             try:
                 output = self.cli_session.connection.send_config_set(
@@ -150,7 +159,7 @@ class NetworkDevice(Device):
                 break
 
         success = not isinstance(output, Exception)
-        received_time = datetime.now()
+        received_time = datetime.now(UTC)
 
         if save and success:
             self.write_memory()
@@ -186,7 +195,7 @@ class NetworkDevice(Device):
         """
         return self.command("show run")
 
-    def get_interface_status(self, interface: str = None) -> CommandResponse:
+    def get_interface_status(self, interface: str | None = None) -> CommandResponse:
         """
         Returns interface status of one or all switchports.
         """
@@ -219,7 +228,7 @@ class NetworkDevice(Device):
         show_tdr_command: str,
         interface_status: ResponseGroup | CommandResponse = None,
         only_bad: bool = True,
-        template: str | bool = None,
+        template: str | bool | None = None,
     ):
         """
         Collects TDR data of interfaces.
@@ -253,9 +262,8 @@ class NetworkDevice(Device):
             if only_bad:
                 if not isinstance(interface.speed, int):
                     continue
-                if interface.media:
-                    if search(r"SFP", interface.media):
-                        continue
+                if interface.media and search(r"SFP", interface.media):
+                    continue
                 if interface.speed < 1000:
                     responses.append(submit_tdr(interface.name))
                     submitted_tests.append(interface.name)
@@ -284,7 +292,10 @@ class NetworkDevice(Device):
             return ResponseGroup(responses, fsm_output, "TDR Data")
 
     def get_mac_table(
-        self, show_command: str, filter_command: str = None, template: str | bool = None
+        self,
+        show_command: str,
+        filter_command: str | None = None,
+        template: str | bool | None = None,
     ) -> CommandResponse:
         """
         Returns the MAC address table

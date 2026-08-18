@@ -9,13 +9,11 @@ from unittest.mock import patch
 # Local Modules
 from netmagic.devices.network_device import NetworkDevice
 from netmagic.sessions.terminal import TerminalSession
-
-
 from tests.classes.common import (
+    SSH_KWARGS,
     MockBaseConnection,
     MockTerminalSession,
     TestResponse,
-    SSH_KWARGS,
 )
 
 # device creation
@@ -89,7 +87,7 @@ class TestNetworkDevice(TestCase):
         print(type(self.ssh_session))
 
     def test_disconnect(self):
-        """"""
+        """Test disconnecting specified and unspecified sessions."""
         # Unspecified, all sessions (Spec is acceptable since all share `disconnect` parent method)
         self.device.cli_session = MockTerminalSession()
         self.device.restconf_session = MockTerminalSession()

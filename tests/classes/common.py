@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 
 # NetMagic Common Test Items
-
 # Python Modules
 from unittest.mock import Mock
 
 # Third-Party Modules
 from netmiko import BaseConnection
 
+from netmagic.common import Transport
+
 # Local Modules
 from netmagic.sessions.terminal import TerminalSession
-from netmagic.common import Transport
 
 
 # Class to test Netmiko's `BaseConnection`

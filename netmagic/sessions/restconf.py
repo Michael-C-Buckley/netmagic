@@ -14,9 +14,9 @@ class RESTCONFSession(Session):
         # super().__init__()
 
     def connect(self) -> None:
-        """"""
+        """Connect the RESTCONF session."""
         super().connect()
 
     def disconnect(self) -> None:
-        """"""
+        """Disconnect the RESTCONF session."""
         super().disconnect()

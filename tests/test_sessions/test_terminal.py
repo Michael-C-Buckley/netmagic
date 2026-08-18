@@ -9,16 +9,15 @@ if TYPE_CHECKING:
     from unittest.mock import _patcher
 
 # Third-Party Modules
+# Test Modules (init corrects path)
+import __init__  # noqa: F401
 from netmiko import NetmikoAuthenticationException as AuthException
 
 # Local Modules
 from netmagic.common import Transport
 from netmagic.common.classes import CommandResponse
 from netmagic.sessions import TerminalSession
-
-# Test Modules (init corrects path)
-import __init__  # noqa: F401
-from tests.classes.common import MockBaseConnection, SSH_KWARGS
+from tests.classes.common import SSH_KWARGS, MockBaseConnection
 
 TERMINAL_DIR = "netmagic.sessions.terminal"
 
@@ -124,7 +123,7 @@ class TestTerminal(TestCase):
         self.assertIsInstance(blind_output, CommandResponse)
 
     def test_command(self):
-        """"""
+        """Test a standard terminal command."""
         output = self.terminal.command("something")
         self.assertIsInstance(output, CommandResponse)
 

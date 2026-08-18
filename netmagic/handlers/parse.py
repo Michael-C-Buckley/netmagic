@@ -1,12 +1,11 @@
 # Project NetMagic Parse Module
 
 # Python Modules
+from functools import cache
 from importlib.resources import files
 from io import StringIO
-from functools import cache
 from os import path
-from re import search, escape, match
-from typing import Optional
+from re import escape, match, search
 
 # Third-Party Modules
 from textfsm import TextFSM
@@ -19,7 +18,7 @@ from netmagic.common.types import FSMOutputT
 # Universal
 HEX_PATTERN = r"[a-fA-F0-9]"
 HEX_PAIR = f"{HEX_PATTERN}{{2}}"
-MAC_PORTION = f"{HEX_PAIR}[:\-\. ]?"
+MAC_PORTION = rf"{HEX_PAIR}[:\-\. ]?"
 EUI48_PATTERN = f"({MAC_PORTION}){{5}}{HEX_PAIR}"
 EUI64_PATTERN = f"({MAC_PORTION}){{7}}{HEX_PAIR}"
 MAC_PATTERN = f"{EUI48_PATTERN}|{EUI64_PATTERN}"
@@ -60,7 +59,7 @@ INTERFACE_PATTERN_GROUPS = r"(\w+)?(\d)\/(\d)\/(\d+)"
 INTERFACE_ABBRIEV = r"(((SFP\+?)|([Pp]ort))\s?\d+?\s(o[fn])?\s)"
 
 
-def escape_string(string: str, exclude_list: Optional[list[str]] = None) -> str:
+def escape_string(string: str, exclude_list: list[str] | None = None) -> str:
     """
     Custom escape function to only escape necessary characters and not over-escape
     like `re.escape` does
@@ -115,7 +114,8 @@ def parser_preparation(template: str, vendor: str):
     """
     try:
         if path.exists(template):
-            raw_template_string = open(template).read()
+            with open(template, encoding="utf-8") as file:
+                raw_template_string = file.read()
         else:
             raw_file = files(f"netmagic.templates.{vendor.lower()}").joinpath(
                 f"{template}.textfsm"
@@ -164,7 +164,7 @@ def flatten_fsm_output(prime_key: str, fsm_output: FSMOutputT) -> FSMOutputT:
 
 
 def get_fsm_data(
-    input: str, template: str, vendor: str = None, flatten_key: str = None
+    input: str, template: str, vendor: str | None = None, flatten_key: str | None = None
 ) -> FSMOutputT:
     """
     Function for handling TextFSM parsing and situational variables.

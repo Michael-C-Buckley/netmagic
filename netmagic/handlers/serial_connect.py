@@ -1,16 +1,14 @@
 # Netmagic Serial Connection Handler
 
 # Python Modules
-from serial import SerialException
 from re import search
 
 # Third-Party Modules
-import serial.tools.list_ports as list_ports
 from netmiko import (
     BaseConnection,
     ConnectHandler,
-    NetmikoAuthenticationException as AuthException,
 )
+from serial.tools import list_ports
 
 
 def get_serial_ports():
@@ -29,7 +27,7 @@ def serial_connect(
     port: str,
     username: str,
     password: str,
-    secret: str = None,
+    secret: str | None = None,
     device_type: str = "cisco_ios_serial",
     *args,
     **kwargs,
@@ -45,8 +43,4 @@ def serial_connect(
         "secret": secret,
     }
 
-    try:
-        return ConnectHandler(**profile)
-    except (AuthException, SerialException) as e:
-        # ERROR HANDLING PLANNED
-        raise e
+    return ConnectHandler(**profile)

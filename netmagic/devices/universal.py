@@ -7,8 +7,8 @@ from mactools import MacAddress
 
 # Local Modules
 from netmagic.common.types import FSMOutputT, Vendors
-from netmagic.sessions import TerminalSession
 from netmagic.handlers import get_fsm_data
+from netmagic.sessions import TerminalSession
 
 
 class Device:
@@ -51,7 +51,7 @@ class Device:
     # HANDLING
 
     def fsm_parse(
-        self, input: str | list[str], template: str, flatten_key: str = None
+        self, input: str | list[str], template: str, flatten_key: str | None = None
     ) -> FSMOutputT:
         """
         Wrapper method for `TextFSM` and `Parse` handler

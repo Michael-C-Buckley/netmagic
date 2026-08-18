@@ -1,6 +1,6 @@
 from typing import Any
 
-from netmagic.common.classes.interface import InterfaceVLANs, SVI
+from netmagic.common.classes.interface import SVI, InterfaceVLANs
 
 SWITCH_PATH = ""
 

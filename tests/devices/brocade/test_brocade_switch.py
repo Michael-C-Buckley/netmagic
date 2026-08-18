@@ -1,12 +1,10 @@
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
-from netmagic.devices import BrocadeSwitch
 from netmagic.common.types import SwitchportMode
-
+from netmagic.devices import BrocadeSwitch
 from tests.classes.common import TestResponse
 from tests.devices.common import prepare_vlan_test_data
-
 
 VLAN_INFO = """
 vlan 1 name DEFAULT-VLAN by port

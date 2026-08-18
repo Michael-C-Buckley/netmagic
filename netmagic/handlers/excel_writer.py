@@ -33,8 +33,7 @@ class RowEntry:
         return f"RowEntry (Len: {len(self.entries)})"
 
     def __iter__(self):
-        for entry in self.entries:
-            yield entry
+        yield from self.entries
 
 
 class Section:

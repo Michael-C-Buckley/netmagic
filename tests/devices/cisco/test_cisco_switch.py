@@ -1,13 +1,10 @@
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
-
-from netmagic.devices import CiscoIOSSwitch
 from netmagic.common.types import SwitchportMode
-
+from netmagic.devices import CiscoIOSSwitch
 from tests.classes.common import TestResponse
 from tests.devices.common import prepare_vlan_test_data
-
 
 VLAN_INFO = """
 interface GigabitEthernet1/0/1

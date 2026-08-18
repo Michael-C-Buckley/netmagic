@@ -1,17 +1,17 @@
 # NetMagic Cisco Device Library
 
 # Local Modules
-from netmagic.common.types import Vendors, SFPAlert
 from netmagic.common.classes import (
-    CommandResponse,
-    ResponseGroup,
     SVI,
+    CommandResponse,
+    InterfaceLLDP,
     InterfaceOptics,
     InterfaceStatus,
-    InterfaceLLDP,
     InterfaceVLANs,
     OpticStatus,
+    ResponseGroup,
 )
+from netmagic.common.types import SFPAlert, Vendors
 from netmagic.common.utils import abbreviate_interface, get_param_names, sort_interfaces
 from netmagic.devices.switch import Switch
 from netmagic.sessions import Session
@@ -38,9 +38,9 @@ class CiscoIOSSwitch(Switch):
 
     def get_interface_status(
         self,
-        interface: str = None,
-        status_template: str | bool = None,
-        desc_template: str = None,
+        interface: str | None = None,
+        status_template: str | bool | None = None,
+        desc_template: str | None = None,
     ) -> CommandResponse | ResponseGroup:
         """
         Returns interface status of one or all switchports.
@@ -72,7 +72,7 @@ class CiscoIOSSwitch(Switch):
             [int_status, int_desc], fsm_output, "Cisco Interface Status"
         )
 
-    def get_optics(self, template: str | bool = None) -> CommandResponse:
+    def get_optics(self, template: str | bool | None = None) -> CommandResponse:
         """
         Returns information about optical transceivers.
         """
@@ -92,6 +92,13 @@ class CiscoIOSSwitch(Switch):
             "receive_power",
         ]
 
+        def create_values(entry, root_key, low_value, high_value):
+            if isinstance(low_value, str):
+                low_value = float(entry[f"{root_key}_{low_value}"])
+            if isinstance(high_value, str):
+                high_value = float(entry[f"{root_key}_{high_value}"])
+            return (low_value, high_value)
+
         for entry in fsm_data:
             port = entry["interface"]
             port_dict = {"interface": port}
@@ -99,19 +106,22 @@ class CiscoIOSSwitch(Switch):
             for root_key in root_key_list:
                 primary_value = float(entry[root_key])
 
-                def create_values(low_value, high_value):
-                    if isinstance(low_value, str):
-                        low_value = float(entry[f"{root_key}_{low_value}"])
-                    if isinstance(high_value, str):
-                        high_value = float(entry[f"{root_key}_{high_value}"])
-                    return (low_value, high_value)
-
                 ranges_dict = {
-                    SFPAlert.NORMAL: create_values("low_warning", "high_warning"),
-                    SFPAlert.LOW_WARN: create_values("low_alarm", "low_warning"),
-                    SFPAlert.HIGH_WARN: create_values("high_warning", "high_alarm"),
-                    SFPAlert.LOW_ALARM: create_values(float("-inf"), "low_alarm"),
-                    SFPAlert.HIGH_ALARM: create_values("high_alarm", float("inf")),
+                    SFPAlert.NORMAL: create_values(
+                        entry, root_key, "low_warning", "high_warning"
+                    ),
+                    SFPAlert.LOW_WARN: create_values(
+                        entry, root_key, "low_alarm", "low_warning"
+                    ),
+                    SFPAlert.HIGH_WARN: create_values(
+                        entry, root_key, "high_warning", "high_alarm"
+                    ),
+                    SFPAlert.LOW_ALARM: create_values(
+                        entry, root_key, float("-inf"), "low_alarm"
+                    ),
+                    SFPAlert.HIGH_ALARM: create_values(
+                        entry, root_key, "high_alarm", float("inf")
+                    ),
                 }
                 # Prepare the ranges for analysis
                 for status, values in ranges_dict.items():
@@ -124,7 +134,7 @@ class CiscoIOSSwitch(Switch):
 
         return optics
 
-    def get_lldp(self, template: str | bool = None) -> CommandResponse:
+    def get_lldp(self, template: str | bool | None = None) -> CommandResponse:
         """
         Returns LLDP neighbor details information.
         """
@@ -144,7 +154,7 @@ class CiscoIOSSwitch(Switch):
         self,
         interface_status: ResponseGroup = None,
         only_bad: bool = True,
-        template: str | bool = None,
+        template: str | bool | None = None,
     ):
         """
         Collects TDR data of interfaces
@@ -165,7 +175,7 @@ class CiscoIOSSwitch(Switch):
             response.description = f"{self.hostname} TDR"
             return response
 
-    def get_poe_status(self, template: str | bool = None) -> CommandResponse:
+    def get_poe_status(self, template: str | bool | None = None) -> CommandResponse:
         """
         Returns the POE information of the switch.
 
@@ -176,13 +186,13 @@ class CiscoIOSSwitch(Switch):
         return super().get_poe_status("show power inline", template)
 
     def get_mac_table(
-        self, filter_command: str = None, template: str | bool = None
+        self, filter_command: str | None = None, template: str | bool | None = None
     ) -> CommandResponse:
         show_command = "show mac address-table"
         return super().get_mac_table(show_command, filter_command, template)
 
     def get_interface_vlans(
-        self, template: str | bool = None
+        self, template: str | bool | None = None
     ) -> dict[str, InterfaceVLANs | SVI]:
         """
         Returns the VLAN information of the switchports.

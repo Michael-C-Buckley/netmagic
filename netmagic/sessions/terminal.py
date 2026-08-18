@@ -1,21 +1,22 @@
 # Project NetMagic Terminal Session Module
 
 # Python Modules
-from datetime import datetime
+from datetime import UTC, datetime
 from time import sleep
 
 # Third-Party Modules
 from netmiko import (
     BaseConnection,
-    ReadTimeout,
     NetmikoAuthenticationException,
+    ReadTimeout,
 )
+
+from netmagic.common import Engine, HostT, KwDict, Transport, validate_max_tries
+from netmagic.common.classes import CommandResponse
+from netmagic.handlers import netmiko_connect, serial_connect
 
 # Local Modules
 from netmagic.sessions.session import Session
-from netmagic.common.classes import CommandResponse
-from netmagic.handlers import netmiko_connect, serial_connect
-from netmagic.common import HostT, KwDict, Transport, validate_max_tries, Engine
 
 
 class TerminalSession(Session):
@@ -30,7 +31,7 @@ class TerminalSession(Session):
         password: str,
         device_type: str = "generic_termserver",
         connection: BaseConnection = None,
-        secret: str = None,
+        secret: str | None = None,
         port: int = 22,
         engine: Engine = Engine.NETMIKO,
         transport: Transport = Transport.SSH,
@@ -57,8 +58,8 @@ class TerminalSession(Session):
         self,
         max_tries: int = 1,
         check: bool = True,
-        username: str = None,
-        password: str = None,
+        username: str | None = None,
+        password: str | None = None,
         connect_kwargs: KwDict = None,
     ) -> bool:
         """
@@ -66,10 +67,13 @@ class TerminalSession(Session):
         Returns `bool` on success or failure.
         """
 
-        if check and isinstance(self.connection, BaseConnection):
-            # Reconnecting an actually bad session here causes infinite recursion
-            if self.check_session(reconnect=False):
-                return True
+        # Reconnecting an actually bad session here causes infinite recursion
+        if (
+            check
+            and isinstance(self.connection, BaseConnection)
+            and self.check_session(reconnect=False)
+        ):
+            return True
 
         # Gather connection information from the session
         attribute_filter = [
@@ -149,7 +153,7 @@ class TerminalSession(Session):
     def command(
         self,
         command_string: str | list[str],
-        expect_string: str = None,
+        expect_string: str | None = None,
         blind: bool = False,
         max_tries: int = 3,
         read_timeout: int = 10,
@@ -168,9 +172,8 @@ class TerminalSession(Session):
         """
         no_session_string = "Unable to connect a session to send command"
 
-        if not self.connection:
-            if not self.connect():
-                raise AttributeError(no_session_string)
+        if not self.connection and not self.connect():
+            raise AttributeError(no_session_string)
 
         base_kwargs = {
             "command_string": command_string,
@@ -179,7 +182,7 @@ class TerminalSession(Session):
 
         response_kwargs = {
             **base_kwargs,
-            "sent_time": datetime.now(),
+            "sent_time": datetime.now(UTC),
             "session": self,
         }
 
@@ -206,8 +209,7 @@ class TerminalSession(Session):
 
             if isinstance(response.response, str):
                 break
-            if isinstance(response.response, Exception):
-                if not self.check_session():
-                    raise AttributeError(no_session_string)
+            if isinstance(response.response, Exception) and not self.check_session():
+                raise AttributeError(no_session_string)
 
         return response

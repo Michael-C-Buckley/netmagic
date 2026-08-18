@@ -1,12 +1,13 @@
 # Project NetMagic Responses
 
 # Python Modules
-from datetime import datetime
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from netmagic.sessions.terminal import TerminalSession
-from netmagic.common.types import HostT, FSMDataT
+from netmagic.common.types import FSMDataT, HostT
 
 
 class Response:
@@ -18,12 +19,12 @@ class Response:
         self,
         response: str,
         sent_time: datetime,
-        received_time: datetime = None,
+        received_time: datetime | None = None,
         attempts: int = 1,
     ) -> None:
 
         if not received_time:
-            received_time = datetime.now()
+            received_time = datetime.now(UTC)
 
         self.response = response
         self.sent_time = sent_time
@@ -35,7 +36,7 @@ class Response:
         return self.response
 
     def update_latency(
-        self, sent_time: datetime = None, received_time: datetime = None
+        self, sent_time: datetime | None = None, received_time: datetime | None = None
     ) -> None:
         self.latency = self.received_time - self.sent_time
 
@@ -79,7 +80,7 @@ class BannerResponse(Response):
         host: HostT,
         port: int,
         sent_time: datetime,
-        received_time: datetime = None,
+        received_time: datetime | None = None,
         *args,
         **kwargs,
     ) -> None:
@@ -102,7 +103,7 @@ class ConnectResponse(Response):
         method: Callable,
         params: Any,
         sent_time: datetime,
-        received_time: datetime = None,
+        received_time: datetime | None = None,
     ) -> None:
         self.method = method
         self.params = params
@@ -121,8 +122,8 @@ class CommandResponse(Response):
         sent_time: datetime,
         session: "TerminalSession",
         expect_string: str,
-        success: bool = None,
-        received_time: datetime = None,
+        success: bool | None = None,
+        received_time: datetime | None = None,
         attempts: int = 1,
         fsm_output: FSMDataT = None,
     ) -> None:
@@ -152,8 +153,8 @@ class ConfigResponse(Response):
         config: str,
         sent_time: datetime,
         session: "TerminalSession",
-        success: bool = None,
-        received_time: datetime = None,
+        success: bool | None = None,
+        received_time: datetime | None = None,
         attempts: int = 1,
     ) -> None:
         super().__init__(response, sent_time, received_time, attempts)

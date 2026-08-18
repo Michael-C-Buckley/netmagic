@@ -1,9 +1,9 @@
 # NetMagic General Utilities
 
 # Python Modules
+from collections.abc import Callable, Sequence
 from functools import cache, wraps
 from inspect import signature, stack
-from typing import Callable, Sequence
 from re import search, sub
 
 # Local Modules
@@ -32,7 +32,7 @@ def param_cache(func: Callable):
 
 
 @param_cache
-def get_param_names(func: Callable = None) -> list[str]:
+def get_param_names(func: Callable | None = None) -> list[str]:
     """
     Returns a list of strings of the names of input params of a function.
     Detects the function that called it when not function is passed.
@@ -180,7 +180,7 @@ def brocade_text_to_range(interface_range: str | Sequence[str]) -> set[str]:
     for item in interface_range:
         if search(f"^{INTERFACE_PATTERN}$", item):
             output_list.add(item)
-        elif match := search("^(\d+\/\d+)\/(\d+) to (\d+\/\d+)\/(\d+)$", item):
+        elif match := search(r"^(\d+\/\d+)\/(\d+) to (\d+\/\d+)\/(\d+)$", item):
             if match.group(1) != match.group(3):
                 raise ValueError(
                     f"Ranges must be in the same stack and module and only the interface ID (3rd member) can vary\nProblem string: {match.group()}"

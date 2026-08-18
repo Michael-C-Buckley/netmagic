@@ -5,7 +5,7 @@ from mactools import MacAddress
 
 # Local Modules
 from netmagic.common.classes import CommandResponse
-from netmagic.common.classes.status import POEPort, POEHost
+from netmagic.common.classes.status import POEHost, POEPort
 from netmagic.devices import NetworkDevice
 from netmagic.sessions import Session, TerminalSession
 
@@ -47,7 +47,7 @@ class Switch(NetworkDevice):
 
         return show_poe
 
-    def get_interface_vlans(self, template: str | bool = None) -> None:
+    def get_interface_vlans(self, template: str | bool | None = None) -> None:
         """
         Returns the VLAN information of the switchports.
 

@@ -1,24 +1,26 @@
 # NetMagic Interface Dataclasses
 
 # Python Modules
-from ipaddress import IPv4Address as IPv4, IPv6Address as IPv6
+from ipaddress import IPv4Address as IPv4
+from ipaddress import IPv6Address as IPv6
 from re import search
-from typing import Optional
+
+from mactools import MacAddress
 
 # Third-Party Modules
 from pydantic import BaseModel, field_validator
-from mactools import MacAddress
+
+from netmagic.common.classes.pydantic import MacType, validate_speed
 
 # Local Modules
-from netmagic.common.types import MacT, HostT, TDRStatus, SFPAlert, SwitchportMode
-from netmagic.common.classes.pydantic import MacType, validate_speed
+from netmagic.common.types import HostT, MacT, SFPAlert, SwitchportMode, TDRStatus
 
 
 class TDRPair(BaseModel):
     local: str
     status: TDRStatus
-    remote: Optional[str] = None
-    distance: Optional[str] = None
+    remote: str | None = None
+    distance: str | None = None
 
     @field_validator("remote", "distance")
     def validate_optionals(cls, value):
@@ -27,7 +29,7 @@ class TDRPair(BaseModel):
 
 class OpticStatus(BaseModel):
     reading: float
-    status: Optional[SFPAlert] = None
+    status: SFPAlert | None = None
 
 
 # INTERFACE MODELS
@@ -50,12 +52,12 @@ class InterfaceLLDP(Interface):
     chassis_mac: MacType = (
         None  # Accepts `MacAddress|str|int`, converts into `MacAddress`
     )
-    system_name: Optional[str] = None
-    system_desc: Optional[str] = None
-    port_desc: Optional[str] = None
-    port_vlan: Optional[int] = None
-    management_ipv4: Optional[IPv4] = None
-    management_ipv6: Optional[IPv6] = None
+    system_name: str | None = None
+    system_desc: str | None = None
+    port_desc: str | None = None
+    port_vlan: int | None = None
+    management_ipv4: IPv4 | None = None
+    management_ipv6: IPv6 | None = None
 
     @field_validator("chassis_mac")
     def validate_mac_address(cls, mac: MacT | None) -> MacAddress | None:
@@ -78,7 +80,6 @@ class InterfaceOptics(Interface):
     receive_power: OpticStatus
     voltage: OpticStatus
     current: OpticStatus
-    temperature: OpticStatus
 
     @classmethod
     def create(cls, host: str, **data):
@@ -112,7 +113,7 @@ class InterfaceOptics(Interface):
 
 
 class InterfaceTDR(Interface):
-    speed: Optional[int] = None  # Speed in megabit/second
+    speed: int | None = None  # Speed in megabit/second
     # Tuple is remote pair, state, distance (if available)
     pair_a: TDRPair
     pair_b: TDRPair
@@ -151,16 +152,16 @@ class InterfaceTDR(Interface):
 
 
 class InterfaceStatus(Interface):
-    desc: Optional[str] = None
-    state: Optional[str] = None
-    vlan: Optional[str] = None
-    tag: Optional[str] = None
-    pvid: Optional[int] = None
-    priority: Optional[str] = None
-    trunk: Optional[str] = None
-    speed: Optional[int] = None
-    duplex: Optional[str] = None
-    media: Optional[str] = None
+    desc: str | None = None
+    state: str | None = None
+    vlan: str | None = None
+    tag: str | None = None
+    pvid: int | None = None
+    priority: str | None = None
+    trunk: str | None = None
+    speed: int | None = None
+    duplex: str | None = None
+    media: str | None = None
 
     @field_validator("speed", mode="before")
     def validate_speed(cls, value):
@@ -191,12 +192,12 @@ class InterfaceStatus(Interface):
 
 
 class InterfaceVLANs(Interface):
-    access: Optional[int] = None
-    dual: Optional[str] = None
-    native: Optional[int] = None
-    mode: Optional[SwitchportMode] = None
-    trunk: Optional[str] = None
-    untags: Optional[str] = None
+    access: int | None = None
+    dual: str | None = None
+    native: int | None = None
+    mode: SwitchportMode | None = None
+    trunk: str | None = None
+    untags: str | None = None
 
     @property
     def tags(self):
