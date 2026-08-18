@@ -191,6 +191,34 @@ class InterfaceStatus(Interface):
         return self.desc
 
 
+class InterfaceStatistics(Interface):
+    """Normalized interface counters and load-interval traffic rates."""
+
+    input_packets: int | None = None
+    input_bytes: int | None = None
+    output_packets: int | None = None
+    output_bytes: int | None = None
+    input_broadcast_packets: int | None = None
+    input_multicast_packets: int | None = None
+    output_broadcast_packets: int | None = None
+    output_multicast_packets: int | None = None
+    input_drops: int | None = None
+    output_drops: int | None = None
+    input_errors: int | None = None
+    crc_errors: int | None = None
+    framing_errors: int | None = None
+    input_overruns: int | None = None
+    input_ignored_packets: int | None = None
+    input_aborts: int | None = None
+    output_errors: int | None = None
+    output_underruns: int | None = None
+    input_rate_bps: int | None = None
+    input_rate_pps: int | None = None
+    output_rate_bps: int | None = None
+    output_rate_pps: int | None = None
+    load_interval_seconds: int | None = None
+
+
 class InterfaceVLANs(Interface):
     access: int | None = None
     dual: str | None = None

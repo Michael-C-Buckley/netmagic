@@ -1,0 +1,38 @@
+Value interface ([A-Za-z][A-Za-z0-9\.\/-]*)
+Value load_interval (\d+)
+Value load_interval_unit (minute|second)
+Value input_rate_bps (\d+)
+Value input_rate_pps (\d+)
+Value output_rate_bps (\d+)
+Value output_rate_pps (\d+)
+Value input_packets (\d+)
+Value input_bytes (\d+)
+Value input_drops (\d+)
+Value input_broadcast_packets (\d+)
+Value input_multicast_packets (\d+)
+Value input_errors (\d+)
+Value crc_errors (\d+)
+Value framing_errors (\d+)
+Value input_overruns (\d+)
+Value input_ignored_packets (\d+)
+Value input_aborts (\d+)
+Value output_packets (\d+)
+Value output_bytes (\d+)
+Value output_drops (\d+)
+Value output_broadcast_packets (\d+)
+Value output_multicast_packets (\d+)
+Value output_errors (\d+)
+Value output_underruns (\d+)
+
+Start
+  ^${interface}\s+is\s+.*
+  ^\s+${load_interval}\s+${load_interval_unit} input rate\s+${input_rate_bps}\s+bits/sec,\s+${input_rate_pps}\s+packets/sec
+  ^\s+${load_interval}\s+${load_interval_unit} output rate\s+${output_rate_bps}\s+bits/sec,\s+${output_rate_pps}\s+packets/sec
+  ^\s+${input_packets}\s+packets input,\s+${input_bytes}\s+bytes,\s+${input_drops}\s+total input drops
+  ^\s+Received\s+${input_broadcast_packets}\s+broadcast packets,\s+${input_multicast_packets}\s+multicast packets
+  ^\s+${input_errors}\s+input errors,\s+${crc_errors}\s+CRC,\s+${framing_errors}\s+frame,\s+${input_overruns}\s+overrun,\s+${input_ignored_packets}\s+ignored,\s+${input_aborts}\s+abort
+  ^\s+${output_packets}\s+packets output,\s+${output_bytes}\s+bytes,\s+${output_drops}\s+total output drops
+  ^\s+Output\s+${output_broadcast_packets}\s+broadcast packets,\s+${output_multicast_packets}\s+multicast packets
+  ^\s+${output_errors}\s+output errors,\s+${output_underruns}\s+underruns,.* -> Record
+
+EOF

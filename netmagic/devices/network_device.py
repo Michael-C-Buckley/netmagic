@@ -31,26 +31,27 @@ class NetworkDevice(Device):
     networking equipment, such as switches and routers that servers do not have.
     """
 
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Session | list[Session] | tuple[Session, ...]) -> None:
         super().__init__()
 
         self.netconf_session: NETCONFSession = None
         self.restconf_session: RESTCONFSession = None
 
         def assign_session(session: Session) -> None:
-            if isinstance(session, Session):
-                session_map = {
-                    TerminalSession: "cli_session",
-                    NETCONFSession: "netconf_session",
-                    RESTCONFSession: "restconf_session",
-                }
-                if session_attribute := session_map.get(type(session)):
+            session_map = (
+                (TerminalSession, "cli_session"),
+                (NETCONFSession, "netconf_session"),
+                (RESTCONFSession, "restconf_session"),
+            )
+            for session_type, session_attribute in session_map:
+                if isinstance(session, session_type):
                     setattr(self, session_attribute, session)
-                # LOG UNASSIGNED SESSION
+                    return
+            # LOG UNASSIGNED SESSION
 
         if isinstance(session, Session):
             assign_session(session)
-        elif type(session) in [list, tuple]:
+        elif isinstance(session, (list, tuple)):
             for element in session:
                 assign_session(element)
 
@@ -87,7 +88,7 @@ class NetworkDevice(Device):
             self.restconf_session,
             self.netconf_session,
         ]:
-            if isinstance(current_session, Session) and not current_session.connection:
+            if isinstance(current_session, Session):
                 current_session.connect()
 
     def not_implemented_error_generic(self, device_type: str | None = None):

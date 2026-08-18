@@ -71,7 +71,7 @@ class TerminalSession(Session):
         if (
             check
             and isinstance(self.connection, BaseConnection)
-            and self.check_session(reconnect=False)
+            and self.check_session(escape_attempt=False, reconnect=False)
         ):
             return True
 
@@ -113,7 +113,8 @@ class TerminalSession(Session):
         return False
 
     def disconnect(self):
-        self.connection.disconnect()
+        if self.connection:
+            self.connection.disconnect()
         super().disconnect()
 
     @validate_max_tries

@@ -90,6 +90,7 @@ class TestTerminal(TestCase):
 
     def test_disconnect(self) -> None:
         self.terminal.disconnect()
+        self.terminal.disconnect()
         self.assertIsNone(self.terminal.connection)
 
     def test_check_session(self) -> None:

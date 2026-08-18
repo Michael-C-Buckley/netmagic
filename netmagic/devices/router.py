@@ -10,7 +10,7 @@ class Router(NetworkDevice):
     Generic router base class
     """
 
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Session | list[Session] | tuple[Session, ...]) -> None:
         super().__init__(session)
 
     def not_implemented_error_generic(self):

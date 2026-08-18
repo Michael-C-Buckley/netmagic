@@ -1,7 +1,7 @@
 # Project NetMagic Base Session Module
 
-# Third-Party Modules
-from netmiko import BaseConnection
+# Python Modules
+from typing import Any
 
 # Local Modules
 from netmagic.common import HostT, Transport
@@ -18,7 +18,7 @@ class Session:
         username: str,
         password: str,
         port: int | str = 22,
-        connection: BaseConnection = None,
+        connection: Any | None = None,
         transport: Transport = Transport.SSH,
         *args,
         **kwargs,

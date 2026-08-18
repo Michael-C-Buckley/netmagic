@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from netmagic.sessions.netconf import NETCONFSession
     from netmagic.sessions.terminal import TerminalSession
 from netmagic.common.types import FSMDataT, HostT
 
@@ -17,7 +18,7 @@ class Response:
 
     def __init__(
         self,
-        response: str,
+        response: str | Exception,
         sent_time: datetime,
         received_time: datetime | None = None,
         attempts: int = 1,
@@ -33,7 +34,7 @@ class Response:
         self.retries = attempts
 
     def __str__(self) -> str:
-        return self.response
+        return str(self.response)
 
     def update_latency(
         self, sent_time: datetime | None = None, received_time: datetime | None = None
@@ -140,6 +141,30 @@ class CommandResponse(Response):
 
     def __repr__(self) -> str:
         return f"RE({self.session.host}): {self.command_string}"
+
+
+class NETCONFResponse(Response):
+    """Response metadata for a NETCONF RPC."""
+
+    def __init__(
+        self,
+        response: str | Exception,
+        operation: str,
+        sent_time: datetime,
+        session: "NETCONFSession",
+        rpc_filter: object | None = None,
+        success: bool | None = None,
+        received_time: datetime | None = None,
+        attempts: int = 1,
+    ) -> None:
+        self.operation = operation
+        self.session = session
+        self.rpc_filter = rpc_filter
+        self.success = isinstance(response, str) if success is None else success
+        super().__init__(response, sent_time, received_time, attempts)
+
+    def __repr__(self) -> str:
+        return f"RE({self.session.host}): NETCONF {self.operation}"
 
 
 class ConfigResponse(Response):

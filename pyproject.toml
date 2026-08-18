@@ -16,7 +16,9 @@ authors = [
 
 dependencies = [
     "cryptography>=50.0.0,<51",
+    "defusedxml>=0.7.1,<1",
     "mactools>=2.0.0,<3",
+    "ncclient>=0.7.0,<1",
     "netmiko>=4.7.0,<5",
     "openpyxl>=3.1.5,<4",
     "pydantic>=2.13.4,<3",
